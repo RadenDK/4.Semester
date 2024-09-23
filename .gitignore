@@ -1,0 +1,36 @@
+# Ignore build results
+[Bb]in/
+[Oo]bj/
+
+# Ignore NuGet packages
+*.nupkg
+*.snupkg
+# NuGet Packages folder if using NuGet locally
+packages/
+
+# Rider specific folders and files
+.idea/
+.idea/*
+
+# User-specific Rider files (machine-specific settings)
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# VS specific files
+.vs/
+
+# Build directories
+[Bb]uild/
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Rider temp files
+.RiderUserTasks.xml
+
