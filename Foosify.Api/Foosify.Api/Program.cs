@@ -22,4 +22,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Force the application to listen on port 5197 so that building a docker container wont use a different port
+app.Urls.Add("http://*:5197");
+
 app.Run();
