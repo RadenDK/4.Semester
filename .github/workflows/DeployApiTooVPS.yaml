@@ -37,9 +37,5 @@ jobs:
           host: ${{ secrets.DIGITAL_OCEAN_IP }}
           username: ${{ secrets.DIGITAL_OCEAN_USER }}
           key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
-          options: "-o StrictHostKeyChecking=no"
           script: |
-            docker load -i /root/foosify-api.tar
-            docker stop foosify-api-container || true
-            docker rm foosify-api-container || true
-            docker run -d --name foosify-api-container foosify-api:latest
+            ssh -o StrictHostKeyChecking=no root@${{ secrets.DIGITAL_OCEAN_IP }} "docker load -i /root/foosify-api.tar && docker stop foosify-api-container || true && docker rm foosify-api-container || true && docker run -d --name foosify-api-container foosify-api:latest"
