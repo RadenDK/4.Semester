@@ -2,8 +2,9 @@ name: Deploy Web API to DigitalOcean
 
 on:
   push:
-    #paths:
-    #  - 'Foosify.Api/**'  # Only trigger when the API code changes
+    # Uncomment to trigger only on specific path changes
+    # paths:
+    #   - 'Foosify.Api/**'  # Only trigger when the API code changes
 
 jobs:
   build:
@@ -36,6 +37,7 @@ jobs:
           host: ${{ secrets.DIGITAL_OCEAN_IP }}
           username: ${{ secrets.DIGITAL_OCEAN_USER }}
           key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
+          options: "-o StrictHostKeyChecking=no"
           script: |
             docker load -i /root/foosify-api.tar
             docker stop foosify-api-container || true
