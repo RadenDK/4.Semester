@@ -16,7 +16,7 @@ jobs:
         uses: docker/setup-buildx-action@v1
 
       - name: Build Docker Image
-        run: docker build -t foosify-api:latest .
+        run: docker build -t foosify-api:latest ./Foosify.Api
 
       - name: Save Docker image as tar file
         run: docker save foosify-api:latest -o foosify-api.tar
