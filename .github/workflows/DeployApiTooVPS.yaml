@@ -2,8 +2,8 @@ name: Deploy Web API to DigitalOcean
 
 on:
   push:
-    paths:
-      - 'Foosify.Api/**'  # Only trigger when the API code changes
+    #paths:
+    #  - 'Foosify.Api/**'  # Only trigger when the API code changes
 
 jobs:
   build:
