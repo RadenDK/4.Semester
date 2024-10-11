@@ -1,0 +1,49 @@
+name: Update Nginx Config on DigitalOcean
+
+on:
+  push:
+    paths:
+      - 'server-settings/nginx/**'  # Only trigger the workflow on changes in the Nginx config folder
+
+jobs:
+  update-nginx:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: SSH into the server and apply Nginx settings
+      - name: SSH into DigitalOcean and apply Nginx settings
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DIGITAL_OCEAN_IP }}
+          username: ${{ secrets.DIGITAL_OCEAN_USER }}
+          key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
+          script: |
+            # Copy all Nginx config files from the repository to the server
+            scp -r server-settings/nginx/* /etc/nginx/sites-available/
+
+            # List of all config files in the repository
+            repo_configs=$(ls server-settings/nginx/)
+
+            # Remove old symbolic links that are not in the current repository
+            for link in /etc/nginx/sites-enabled/*; do
+              filename=$(basename $link)
+              if [[ ! " $repo_configs " =~ " $filename " ]]; then
+                echo "Removing old config: $filename"
+                rm /etc/nginx/sites-enabled/$filename
+              fi
+            done
+
+            # Create/Update symbolic links for each file in the repository
+            for config_file in $repo_configs; do
+              ln -sf /etc/nginx/sites-available/$config_file /etc/nginx/sites-enabled/$config_file
+            done
+
+            # Test Nginx configuration
+            nginx -t
+
+            # Reload Nginx to apply changes
+            systemctl reload nginx
