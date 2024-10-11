@@ -3,7 +3,7 @@ name: Update Nginx Config on DigitalOcean
 on:
   push:
     paths:
-      - 'server-settings/nginx/**'  # Only trigger the workflow on changes in the Nginx config folder
+      - 'ServerSettings/Nginx/**'  # Only trigger the workflow on changes in the Nginx config folder
 
 jobs:
   update-nginx:
