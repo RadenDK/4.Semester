@@ -14,7 +14,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build-env /app/out .
 
-# Expose port 5000 (or 80 if preferred)
+# Expose port 5001 for the api
 EXPOSE 5001
 
 # Set the environment variable for the port
