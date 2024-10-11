@@ -1,61 +1,66 @@
-name: Deploy Web API to DigitalOcean
+name: Deploy FoosballProLeague API to DigitalOcean
 
 on:
   push:
     # Uncomment to trigger only on specific path changes
     # paths:
-    #   - 'Foosify.Api/**'  # Only trigger when the API code changes
+    #   - 'FoosballProLeague.Api/**'  # Only trigger when the API code changes
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
+      # Step 1: Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # Step 2: Set up Docker Buildx to enable advanced Docker features
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
+      # Step 3: Build the Docker image for the FoosballProLeague API
       - name: Build Docker Image
-        run: docker build -t foosify-api:latest ./Foosify.Api
+        run: docker build -t foosballproleague-api:latest ./FoosballProLeague.Api
 
+      # Step 4: Save the Docker image as a tar file for easy transfer
       - name: Save Docker image as tar file
-        run: docker save foosify-api:latest -o foosify-api.tar
+        run: docker save foosballproleague-api:latest -o foosballproleague-api.tar
 
-      # Step to set permissions for the tar file
+      # Step 5: Set permissions for the tar file (ensuring it's accessible)
       - name: Set permissions for TAR file
-        run: chmod 755 foosify-api.tar
+        run: chmod 755 foosballproleague-api.tar
 
-      # Step to copy the image to the DigitalOcean droplet
+      # Step 6: Copy the Docker image tar file to the DigitalOcean droplet
       - name: Copy image to DigitalOcean
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.DIGITAL_OCEAN_IP }}
           username: ${{ secrets.DIGITAL_OCEAN_USER }}
           key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
-          source: foosify-api.tar
+          source: foosballproleague-api.tar
           target: /root/
 
-      # Step to SSH into DigitalOcean droplet and load the Docker image
-      - name: SSH into DigitalOcean and load image
+      # Step 7: SSH into the DigitalOcean droplet and deploy the Docker image
+      - name: SSH into DigitalOcean and deploy Docker image
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DIGITAL_OCEAN_IP }}
           username: ${{ secrets.DIGITAL_OCEAN_USER }}
           key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
           script: |
-            docker load -i /root/foosify-api.tar
-            docker stop foosify-api-container || true
-            docker rm foosify-api-container || true
-            docker run -d -p 5197:5197 --name foosify-api-container \
-              foosify-api:latest
+            docker load -i /root/foosballproleague-api.tar  # Load the Docker image from the tar file
+            docker stop foosballproleague-api-container || true  # Stop any existing container
+            docker rm foosballproleague-api-container || true    # Remove the container if it exists
+            docker run -d -p 5001:5001 --name foosballproleague-api-container \  # Run the container on port 5001
+              foosballproleague-api:latest
 
-      # Optional step to clean up tar files after deployment
-      - name: Clean up tar files
+      # Optional Step 8: Clean up tar files from the server after deployment
+      - name: Clean up tar files on DigitalOcean
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DIGITAL_OCEAN_IP }}
           username: ${{ secrets.DIGITAL_OCEAN_USER }}
           key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
           script: |
-            rm -f /root/foosify-api.tar
+            rm -f /root/foosballproleague-api.tar
