@@ -1,0 +1,8 @@
+version: '3'
+services:
+  api:
+    build:
+      context: ./Foosify.Api  # Directory where your API's Dockerfile is located
+    ports:
+      - "5197:5197"  # Map container port to host port
+    restart: always  # Ensure the container restarts if it crashes

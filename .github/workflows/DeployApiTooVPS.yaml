@@ -47,7 +47,8 @@ jobs:
             docker load -i /root/foosify-api.tar
             docker stop foosify-api-container || true
             docker rm foosify-api-container || true
-            docker run -d --name foosify-api-container foosify-api:latest
+            docker run -d -p 5197:5197 --name foosify-api-container \
+              foosify-api:latest
 
       # Optional step to clean up tar files after deployment
       - name: Clean up tar files
