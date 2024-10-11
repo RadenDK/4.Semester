@@ -48,12 +48,13 @@ jobs:
           host: ${{ secrets.DIGITAL_OCEAN_IP }}
           username: ${{ secrets.DIGITAL_OCEAN_USER }}
           key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
-          script: |
-            docker load -i /root/foosballproleague-api.tar  # Load the Docker image from the tar file
-            docker stop foosballproleague-api-container || true  # Stop any existing container
-            docker rm foosballproleague-api-container || true    # Remove the container if it exists
-            docker run -d -p 5001:5001 --name foosballproleague-api-container \  # Run the container on port 5001
-              foosballproleague-api:latest
+        script: |
+          docker load -i /root/foosballproleague-api.tar  # Load the Docker image from the tar file
+          docker images  # List available images
+          docker ps -a  # List all containers, even stopped ones
+          docker stop foosballproleague-api-container || true  # Stop any existing container
+          docker rm foosballproleague-api-container || true    # Remove the container if it exists
+          docker run -d -p 5001:5001 --name foosballproleague-api-container foosballproleague-api:latest  # Run the container on port 5001
 
       # Optional Step 8: Clean up tar files from the server after deployment
       - name: Clean up tar files on DigitalOcean
