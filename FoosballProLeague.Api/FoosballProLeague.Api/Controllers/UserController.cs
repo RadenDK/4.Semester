@@ -24,5 +24,19 @@ namespace FoosballProLeague.Api.Controllers
                 return BadRequest(new { message = "Error creating the player" });
             }
         }
+
+        [HttpGet("users")]
+        public IActionResult GetUsers()
+        {
+            try
+            {
+                List<UserModel> users = _userLogic.GetUsers();
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

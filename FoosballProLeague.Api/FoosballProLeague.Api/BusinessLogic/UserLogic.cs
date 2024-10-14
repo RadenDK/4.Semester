@@ -27,4 +27,9 @@ public class UserLogic : IUserLogic
     {
         return !string.IsNullOrEmpty(newUser.FirstName) && !string.IsNullOrEmpty(newUser.LastName) && !string.IsNullOrEmpty(newUser.Email) && !string.IsNullOrEmpty(newUser.Password);
     }
+
+    public List<UserModel> GetUsers()
+    {
+        return _userDatabaseAccessor.GetUsers();
+    }
 }
