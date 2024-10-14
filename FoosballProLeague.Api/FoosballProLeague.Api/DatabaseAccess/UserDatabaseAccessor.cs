@@ -1,6 +1,7 @@
 using FoosballProLeague.Api.Models;
 using Npgsql;
 using Dapper;
+using System.Data;
 
 namespace FoosballProLeague.Api.DatabaseAccess;
 
@@ -20,7 +21,7 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
         string query = "INSERT INTO users (first_name, last_name, email, password)" + 
                        "VALUES (@FirstName, @LastName, @Email, @Password)";
 
-        using (var connection = new NpgsqlConnection(_connectionString))
+        using (IDbConnection connection = new NpgsqlConnection(_connectionString))
         {
             connection.Open();
             int rowsAffected = connection.Execute(query, newUser);
@@ -29,20 +30,22 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
         return userInserted;
     }
 
-    
+
     public UserModel GetUser(string email)
     {
         UserModel user = null;
 
         string query = "SELECT * FROM Users WHERE Email = @Email";
 
-        using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+        using (IDbConnection connection = new NpgsqlConnection(_connectionString))
         {
             connection.Open();
             user = connection.Query<UserModel>(query, new { Email = email }).FirstOrDefault();
         }
 
         return user;
+    }
+
     public List<UserModel> GetUsers()
     {
         List<UserModel> users = new List<UserModel>();
