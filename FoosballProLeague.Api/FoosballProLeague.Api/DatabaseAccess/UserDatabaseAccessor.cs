@@ -17,16 +17,15 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
     {
         bool userInserted = false;
         
-        string query = "INSERT INTO Users (FirstName, LastName, Email, Password)" + 
-                       "  VALUES (@FirstName, @LastName, @Email, @Password)";
+        string query = "INSERT INTO users (first_name, last_name, email, password)" + 
+                       "VALUES (@FirstName, @LastName, @Email, @Password)";
 
-        //using (SqlConnection connection = new SqlConnection(_connectionString))
-        //{
-          //  connection.open();
-            //var rowsAffected = connection.Excecute(query, newUser);
-            //userInserted = rowsAffected == 1;
-        //}
-
+        using (var connection = new NpgsqlConnection(_connectionString))
+        {
+            connection.Open();
+            int rowsAffected = connection.Execute(query, newUser);
+            userInserted = rowsAffected == 1;
+        }
         return userInserted;
     }
 
