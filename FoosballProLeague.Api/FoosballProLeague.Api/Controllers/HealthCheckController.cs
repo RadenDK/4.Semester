@@ -16,6 +16,9 @@ namespace FoosballProLeague.Api.Controllers
         [HttpGet]
         public IActionResult GetHealth()
         {
+
+            System.Console.WriteLine("API is running");
+
             return Ok("API is running");
         }
 
@@ -23,6 +26,8 @@ namespace FoosballProLeague.Api.Controllers
         public IActionResult GetCounter()
         {
             count++;
+
+            System.Console.WriteLine("Current call count since live time = " + count);
 
             return Ok("Current call count since live time = " + count);
         }
