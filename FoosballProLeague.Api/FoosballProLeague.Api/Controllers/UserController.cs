@@ -46,6 +46,20 @@ namespace FoosballProLeague.Api.Controllers
                 return StatusCode(500, new { message = "An error occurred while logging in the user" });
             }
         }
+
+        [HttpGet("users")]
+        public IActionResult GetUsers()
+        {
+            try
+            {
+                List<UserModel> users = _userLogic.GetUsers();
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
     
     

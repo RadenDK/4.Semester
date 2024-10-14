@@ -40,4 +40,9 @@ public class UserLogic : IUserLogic
         return false;
     }
     
+
+    public List<UserModel> GetUsers()
+    {
+        return _userDatabaseAccessor.GetUsers();
+    }
 }

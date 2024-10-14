@@ -43,5 +43,17 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
         }
 
         return user;
+    public List<UserModel> GetUsers()
+    {
+        List<UserModel> users = new List<UserModel>();
+        string query = "SELECT id, first_name, last_name, email, department_id, company_id, elo_1v1, elo_2v2 " +
+                       "FROM users";
+
+        using (IDbConnection connection = new NpgsqlConnection(_connectionString))
+        {
+            connection.Open();
+            users = connection.Query<UserModel>(query).ToList();
+        }
+        return users;
     }
 }
