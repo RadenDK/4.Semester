@@ -2,6 +2,8 @@ name: Update Nginx Config on DigitalOcean
 
 on:
   push:
+    branches:
+        - main
     paths:
       - 'ServerSettings/Nginx/**'  # Only trigger the workflow on changes in the Nginx config folder
 
@@ -40,6 +42,7 @@ jobs:
             # Create/Update symbolic links for each file in the repository
             for config_file in $repo_configs; do
               ln -sf /etc/nginx/sites-available/$config_file /etc/nginx/sites-enabled/$config_file
+              echo "Ensuring symlink for: $config_file"
             done
 
             # Test Nginx configuration

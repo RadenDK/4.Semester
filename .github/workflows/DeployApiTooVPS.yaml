@@ -2,6 +2,8 @@ name: Deploy FoosballProLeague API to DigitalOcean
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'FoosballProLeague.Api/**'  # Only trigger when the API code changes
 

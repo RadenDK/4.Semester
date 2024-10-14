@@ -2,6 +2,8 @@ name: Deploy FoosballProLeague Webserver to DigitalOcean
 
 on:
   push:
+    branches:
+        - main
     paths:
       - 'FoosballProLeague.Webserver/**'  # Only trigger when the Webserver code changes
       
