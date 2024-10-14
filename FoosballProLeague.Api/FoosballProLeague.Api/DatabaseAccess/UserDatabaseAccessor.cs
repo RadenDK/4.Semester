@@ -1,10 +1,18 @@
 using FoosballProLeague.Api.Models;
 using Npgsql;
+using Dapper;
 
 namespace FoosballProLeague.Api.DatabaseAccess;
 
-public class UserDatabaseAccessor
+public class UserDatabaseAccessor : IUserDatabaseAccessor
 {
+    private readonly string _connectionString;
+    
+    public UserDatabaseAccessor(string connectionString)
+    {
+        _connectionString = connectionString;
+    }
+    
     public bool CreateUser(UserRegistrationModel newUser)
     {
         bool userInserted = false;
@@ -20,5 +28,21 @@ public class UserDatabaseAccessor
         //}
 
         return userInserted;
+    }
+
+    
+    public UserModel GetUser(string email)
+    {
+        UserModel user = null;
+
+        string query = "SELECT * FROM Users WHERE Email = @Email";
+
+        using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+        {
+            connection.Open();
+            user = connection.Query<UserModel>(query, new { Email = email }).FirstOrDefault();
+        }
+
+        return user;
     }
 }

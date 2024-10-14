@@ -27,4 +27,17 @@ public class UserLogic : IUserLogic
     {
         return !string.IsNullOrEmpty(newUser.FirstName) && !string.IsNullOrEmpty(newUser.LastName) && !string.IsNullOrEmpty(newUser.Email) && !string.IsNullOrEmpty(newUser.Password);
     }
+    
+    //method to login user
+    public bool LoginUser(string email, string password)
+    {
+        UserModel user = _userDatabaseAccessor.GetUser(email);
+        if (user != null)
+        {
+            return bc.Verify(password, user.Password);
+        }
+
+        return false;
+    }
+    
 }

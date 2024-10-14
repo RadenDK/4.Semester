@@ -12,6 +12,7 @@ namespace FoosballProLeague.Api.Controllers
     {
         private IUserLogic _userLogic;
         
+        
         [HttpPost("user")]
         public IActionResult CreateUser(UserRegistrationModel userRegistrationModel)
         {
@@ -24,5 +25,28 @@ namespace FoosballProLeague.Api.Controllers
                 return BadRequest(new { message = "Error creating the player" });
             }
         }
+        
+        
+        [HttpPut("login")]
+        
+        public IActionResult LoginUser(UserLoginModel userLoginModel)
+        {
+            try
+            {
+                if(_userLogic.LoginUser(userLoginModel.Email, userLoginModel.Password))
+                {
+                    return Ok(); // Return Ok if the user was logged in successfully
+                }
+                else
+                {
+                    return BadRequest(); // Return BadRequest if the user was not logged in successfully
+                }
+            } catch (Exception e)
+            {
+                return StatusCode(500, new { message = "An error occurred while logging in the user" });
+            }
+        }
     }
+    
+    
 }
