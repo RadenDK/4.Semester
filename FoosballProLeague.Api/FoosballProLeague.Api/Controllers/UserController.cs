@@ -21,7 +21,7 @@ namespace FoosballProLeague.Api.Controllers
             }
             else
             {
-                return BadRequest(new { message = "Error creating the player" });
+                return BadRequest(new { message = "Error creating user" });
             }
         }
     }
