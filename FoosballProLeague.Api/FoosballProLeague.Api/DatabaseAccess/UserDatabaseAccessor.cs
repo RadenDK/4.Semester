@@ -40,9 +40,8 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
         using (IDbConnection connection = new NpgsqlConnection(_connectionString))
         {
             connection.Open();
-            user = connection.Query<UserModel>(query, new { Email = email }).FirstOrDefault();
+            user = connection.QuerySingleOrDefault<UserModel>(query, new { Email = email });
         }
-
         return user;
     }
 
