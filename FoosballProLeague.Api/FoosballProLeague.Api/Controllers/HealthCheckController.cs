@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace FoosballProLeague.Api.Controllers
 {
@@ -12,13 +14,10 @@ namespace FoosballProLeague.Api.Controllers
         {
         }
 
-
         [HttpGet]
         public IActionResult GetHealth()
         {
-
             System.Console.WriteLine("API is running");
-
             return Ok("API is running");
         }
 
@@ -26,10 +25,24 @@ namespace FoosballProLeague.Api.Controllers
         public IActionResult GetCounter()
         {
             count++;
-
             System.Console.WriteLine("Current call count since live time = " + count);
-
             return Ok("Current call count since live time = " + count);
+        }
+
+        // Modify the Test endpoint to accept a POST request with a JSON body
+        [HttpPost("test")]
+        public async Task<IActionResult> Test()
+        {
+            // Read the request body as a string
+            using (StreamReader reader = new StreamReader(Request.Body))
+            {
+                var body = await reader.ReadToEndAsync();
+                // Print the body to the console
+                Console.WriteLine("Received JSON Body: " + body);
+            }
+
+            // Return a simple response
+            return Ok("JSON body received");
         }
     }
 }
