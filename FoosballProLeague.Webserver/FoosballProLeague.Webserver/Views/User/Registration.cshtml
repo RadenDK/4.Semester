@@ -1,0 +1,35 @@
+﻿@model FoosballProLeague.Webserver.Models.UserRegistrationModel
+
+@{
+Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Profile</title>
+    <link rel="stylesheet" href="~/css/Registration.css">
+</head>
+<body>
+<div class="form-container">
+    <h1>Create profile</h1>
+    <form asp-action="CreateUser" method="post">
+        <label for="firstName">First name</label>
+        <input type="name" id="firstName" name="FirstName" asp-for="FirstName" required>
+
+        <label for="lastName">Last Name</label>
+        <input type="name" id="lastName" name="LastName" asp-for="LastName" required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="Email" asp-for="Email" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="Password" asp-for="Password" required>
+
+        <button type="submit">Submit</button>
+    </form>
+</div>
+</body>
+</html>
