@@ -15,7 +15,8 @@ public class LoginService : ILoginService
    {
        _httpClientService = httpClientService;
    }
-
+   
+   //Service call for login user by calling the HttpClientService
    public async Task<HttpResponseMessage> LoginUser(LoginUserModel loginModel)
    {
        LoginUserModel loginUser = new LoginUserModel
@@ -26,10 +27,11 @@ public class LoginService : ILoginService
        string json = JsonSerializer.Serialize(loginUser);
        StringContent data = new StringContent(json, Encoding.UTF8, "application/json");
         
-       return await _httpClientService.PostAsync("/User/user", data);
+       return await _httpClientService.PutAsync("/User/login", data);
        
        
    }
+   
    
 }
 

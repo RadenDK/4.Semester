@@ -1,5 +1,4 @@
-﻿
-using FoosballProLeague.Webserver.Models;
+﻿using FoosballProLeague.Webserver.Models;
 using FoosballProLeague.Webserver.BusinessLogic;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,6 +12,8 @@ public class LoginController : Controller
     {
         _loginLogic = loginLogic;
     }
+    
+    
     
     // Login method
     [HttpPut("Login")]
