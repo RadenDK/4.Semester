@@ -23,13 +23,21 @@ namespace FoosballProLeague.Webserver.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser(UserRegistrationModel newUser)
         {
-            if(!TryValidateModel(newUser))
+            if(!ModelState.IsValid)
             {
                 return View("Registration", newUser);
             }
-
+            
             HttpResponseMessage response = await _userLogic.SendUserToApi(newUser);
-            return null;
+            if (response.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Succes");
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "An error occurred while creating the user");
+                return View("Registration", newUser);
+            }
         }
     }
 }
