@@ -11,6 +11,10 @@ builder.Services.AddHttpClient<IHttpClientService, HttpClientService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserLogic, UserLogic>();
 
+// Login services
+builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<ILoginLogic, LoginLogic>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
