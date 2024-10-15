@@ -1,7 +1,15 @@
+using FoosballProLeague.Webserver.BusinessLogic;
+using FoosballProLeague.Webserver.Service;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Register Services
+builder.Services.AddHttpClient<IHttpClientService, HttpClientService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserLogic, UserLogic>();
 
 var app = builder.Build();
 
