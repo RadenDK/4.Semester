@@ -1,11 +1,32 @@
+using System.Net;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 using FoosballProLeague.Webserver.Models;
 
 namespace FoosballProLeague.Webserver.Service;
 
 public class UserService : IUserService
 {
+    private readonly IHttpClientService _httpClientService;
+    
+    public UserService(IHttpClientService httpClientService)
+    {
+        _httpClientService = httpClientService;
+    }
     public async Task<HttpResponseMessage> SendUserToApi(UserRegistrationModel newUser)
     {
-        return new HttpResponseMessage();
+        UserRegistrationModel user = new UserRegistrationModel
+        {
+            FirstName = newUser.FirstName,
+            LastName = newUser.LastName,
+            Email = newUser.Email,
+            Password = newUser.Password
+        };
+        
+        string json = JsonSerializer.Serialize(user);
+        StringContent data = new StringContent(json, Encoding.UTF8, "application/json");
+        
+        return await _httpClientService.PostAsync("/User/user", data);
     }
 }
