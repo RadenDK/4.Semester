@@ -9,12 +9,12 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
 {
     private readonly string _connectionString;
     
-    public UserDatabaseAccessor(string connectionString)
+    public UserDatabaseAccessor(IConfiguration configuration)
     {
-        _connectionString = connectionString;
+        _connectionString = configuration.GetConnectionString("DefaultConnection");
     }
     
-    public bool CreateUser(UserRegistrationModel newUser)
+    public bool CreateUser(UserRegistrationModel newUserWithHashedPassword)
     {
         bool userInserted = false;
         
@@ -24,7 +24,7 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
         using (IDbConnection connection = new NpgsqlConnection(_connectionString))
         {
             connection.Open();
-            int rowsAffected = connection.Execute(query, newUser);
+            int rowsAffected = connection.Execute(query, newUserWithHashedPassword);
             userInserted = rowsAffected == 1;
         }
         return userInserted;

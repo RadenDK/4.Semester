@@ -7,16 +7,21 @@ namespace FoosballProLeague.Api.BusinessLogic;
 public class UserLogic : IUserLogic
 {
     IUserDatabaseAccessor _userDatabaseAccessor;
-    public bool CreateUser(UserRegistrationModel newUser)
+    
+    public UserLogic(IUserDatabaseAccessor userDatabaseAccessor)
     {
-        if (AccountHasValues(newUser))
+        _userDatabaseAccessor = userDatabaseAccessor;
+    }
+    public bool CreateUser(UserRegistrationModel userRegistrationModel)
+    {
+        if (AccountHasValues(userRegistrationModel))
         {
             UserRegistrationModel newUserWithHashedPassword = new UserRegistrationModel
             {
-                FirstName = newUser.FirstName,
-                LastName = newUser.LastName,
-                Email = newUser.Email,
-                Password = bc.HashPassword(newUser.Password)
+                FirstName = userRegistrationModel.FirstName,
+                LastName = userRegistrationModel.LastName,
+                Email = userRegistrationModel.Email,
+                Password = bc.HashPassword(userRegistrationModel.Password)
             };
             return _userDatabaseAccessor.CreateUser(newUserWithHashedPassword);
         }
