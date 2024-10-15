@@ -12,6 +12,10 @@ namespace FoosballProLeague.Api.Controllers
     {
         private IUserLogic _userLogic;
         
+        public UserController(IUserLogic userLogic)
+        {
+            _userLogic = userLogic;
+        }
         
         [HttpPost("user")]
         public IActionResult CreateUser(UserRegistrationModel userRegistrationModel)
