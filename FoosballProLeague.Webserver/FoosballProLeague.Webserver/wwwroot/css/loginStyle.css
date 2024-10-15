@@ -1,0 +1,90 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+}
+
+.login-container {
+    display: flex;
+    height: 100vh;
+}
+
+.login-sidebar {
+    width: 30%;
+    background-color: #1a1e2e;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-sidebar h1 {
+    font-size: 2rem;
+}
+
+.login-form {
+    width: 70%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-box {
+    width: 300px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-box h2 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.login-box input[type="text"],
+.login-box input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+.login-box .remember-me {
+    display: flex;
+    align-items: center;
+}
+
+.login-box .remember-me input {
+    margin-right: 10px;
+}
+
+.login-box button {
+    width: 100%;
+    padding: 10px;
+    background-color: #6a0dad;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.login-box button:hover {
+    background-color: #5b08bd;
+}
+
+.login-box a {
+    display: block;
+    margin: 10px 0;
+    text-align: center;
+    color: #6a0dad;
+    text-decoration: none;
+}
+
+.login-box a:hover {
+    text-decoration: underline;
+}
