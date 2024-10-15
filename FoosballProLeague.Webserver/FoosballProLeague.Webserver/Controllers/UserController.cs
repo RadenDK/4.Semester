@@ -28,7 +28,7 @@ namespace FoosballProLeague.Webserver.Controllers
                 return View("Registration", newUser);
             }
 
-            var response = await _userLogic.SendUserToApi(newUser);
+            HttpResponseMessage response = await _userLogic.SendUserToApi(newUser);
             return null;
         }
     }
