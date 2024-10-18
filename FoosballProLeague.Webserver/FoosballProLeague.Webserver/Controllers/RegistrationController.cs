@@ -4,13 +4,13 @@ using FoosballProLeague.Webserver.BusinessLogic;
 
 namespace FoosballProLeague.Webserver.Controllers
 {
-    public class UserController : Controller
+    public class RegistrationController : Controller
     {
-        private readonly IUserLogic _userLogic;
+        private readonly IRegistrationLogic _registrationLogic;
 
-        public UserController(IUserLogic userLogic)
+        public RegistrationController(IRegistrationLogic registrationLogic)
         {
-            _userLogic = userLogic;
+            _registrationLogic = registrationLogic;
         }
 
         [HttpGet("Registration")]
@@ -28,10 +28,10 @@ namespace FoosballProLeague.Webserver.Controllers
                 return View("Registration", newUser);
             }
             
-            HttpResponseMessage response = await _userLogic.SendUserToApi(newUser);
+            HttpResponseMessage response = await _registrationLogic.SendUserToApi(newUser);
             if (response.IsSuccessStatusCode)
             {
-                return RedirectToAction("Succes");
+                return RedirectToAction("Login", "Login");
             }
             else
             {

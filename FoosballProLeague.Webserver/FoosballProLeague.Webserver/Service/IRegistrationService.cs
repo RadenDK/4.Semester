@@ -2,7 +2,7 @@ using FoosballProLeague.Webserver.Models;
 
 namespace FoosballProLeague.Webserver.Service;
 
-public interface IUserService
+public interface IRegistrationService
 {
     Task<HttpResponseMessage> SendUserToApi(UserRegistrationModel newUser);
 }

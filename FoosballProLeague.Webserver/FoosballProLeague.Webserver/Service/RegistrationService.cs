@@ -6,11 +6,11 @@ using FoosballProLeague.Webserver.Models;
 
 namespace FoosballProLeague.Webserver.Service;
 
-public class UserService : IUserService
+public class RegistrationService : IRegistrationService
 {
     private readonly IHttpClientService _httpClientService;
     
-    public UserService(IHttpClientService httpClientService)
+    public RegistrationService(IHttpClientService httpClientService)
     {
         _httpClientService = httpClientService;
     }
