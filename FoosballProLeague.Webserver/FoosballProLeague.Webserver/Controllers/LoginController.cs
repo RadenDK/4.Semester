@@ -22,9 +22,15 @@ public class LoginController : Controller
     
     // Login method
     [HttpPut("Login")]
-    public async Task<IActionResult> LoginUser(UserModel user)
+    public async Task<IActionResult> LoginUser([FromBody]LoginUserModel user)
     {
-        return View();
+        HttpResponseMessage response = await _loginLogic.LoginUser(user.Email, user.Password);
+        if (response.IsSuccessStatusCode)
+        {
+            return RedirectToAction("HomePage", "HomePage");
+        }
+        ModelState.AddModelError(string.Empty, "Login attemp failed");
+        return View("Login");
     }
     
     
