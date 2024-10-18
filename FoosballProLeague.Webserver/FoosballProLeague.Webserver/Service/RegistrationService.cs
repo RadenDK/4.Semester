@@ -25,8 +25,8 @@ public class RegistrationService : IRegistrationService
         };
         
         string json = JsonSerializer.Serialize(user);
-        StringContent data = new StringContent(json, Encoding.UTF8, "application/json");
+        StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
         
-        return await _httpClientService.PostAsync("/User/user", data);
+        return await _httpClientService.PostAsync("/User/user", content);
     }
 }
