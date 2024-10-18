@@ -31,6 +31,10 @@ packages/
 .DS_Store
 Thumbs.db
 
+# Ignore appsettings.json files
+appsettings.json
+appsettings.*.json
+
 # Rider temp files
 .RiderUserTasks.xml
 
