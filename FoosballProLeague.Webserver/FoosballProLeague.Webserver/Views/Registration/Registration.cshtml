@@ -31,7 +31,12 @@ Layout = null;
         <label for="password">Password</label>
         <input type="password" id="password" name="Password" asp-for="Password" required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$" title="Password must be at least 8 characters, include at least one upper case letter, one lower case letter, and one numeric digit.">
         <span asp-validation-for="Password" class="text-danger"></span>
-        
+
+        <label for="confirmPassword">Confirm Password</label>
+        <input type="password" id="confirmPassword" name="ConfirmPassword" asp-for="ConfirmPassword" required>
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+
+
         <button type="submit">Submit</button>
     </form>
 </div>
