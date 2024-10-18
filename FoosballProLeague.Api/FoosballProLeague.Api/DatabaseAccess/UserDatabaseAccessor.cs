@@ -49,7 +49,7 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
     public List<UserModel> GetUsers()
     {
         List<UserModel> users = new List<UserModel>();
-        string query = "SELECT id, first_name, last_name, email, department_id, company_id, elo_1v1, elo_2v2 " +
+        string query = "SELECT id AS Id, first_name AS FirstName, last_name AS LastName, email AS Email, elo_1v1 AS Elo1v1, elo_2v2 AS Elo2v2 " +
                        "FROM users";
 
         using (IDbConnection connection = new NpgsqlConnection(_connectionString))
