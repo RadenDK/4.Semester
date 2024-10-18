@@ -17,8 +17,9 @@ public class LoginLogic : ILoginLogic
     }
     
     //Logic for login user
-    public async Task<HttpResponseMessage> LoginUser(LoginUserModel loginModel)
+    public async Task<HttpResponseMessage> LoginUser(string email, string password)
     {
-        return await _loginService.LoginUser(loginModel);
+        return await _loginService.LoginUser(email, password);
     }
+    
 }

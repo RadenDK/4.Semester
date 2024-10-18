@@ -4,5 +4,5 @@ namespace FoosballProLeague.Webserver.Service;
 
 public interface ILoginService
 {
-    Task<HttpResponseMessage> LoginUser(LoginUserModel loginModel);
+    Task<HttpResponseMessage> LoginUser(string email, string password);
 }
