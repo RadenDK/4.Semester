@@ -14,6 +14,7 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
         _connectionString = configuration.GetConnectionString("DefaultConnection");
     }
     
+    // method to create user for registration
     public bool CreateUser(UserRegistrationModel newUserWithHashedPassword)
     {
         bool userInserted = false;
@@ -30,7 +31,7 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
         return userInserted;
     }
 
-
+    // method to login user / method to get user by email
     public UserModel GetUser(string email)
     {
         UserModel user = null;

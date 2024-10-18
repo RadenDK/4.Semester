@@ -12,6 +12,8 @@ public class UserLogic : IUserLogic
     {
         _userDatabaseAccessor = userDatabaseAccessor;
     }
+    
+    // method to create user for registration
     public bool CreateUser(UserRegistrationModel userRegistrationModel)
     {
         if (AccountHasValues(userRegistrationModel))
@@ -28,6 +30,7 @@ public class UserLogic : IUserLogic
         return false;
     }
     
+    // checks if the account has values
     private bool AccountHasValues(UserRegistrationModel newUser)
     {
         return !string.IsNullOrEmpty(newUser.FirstName) && !string.IsNullOrEmpty(newUser.LastName) && !string.IsNullOrEmpty(newUser.Email) && !string.IsNullOrEmpty(newUser.Password);
@@ -45,7 +48,7 @@ public class UserLogic : IUserLogic
         return false;
     }
     
-
+    // get all user in a list
     public List<UserModel> GetUsers()
     {
         return _userDatabaseAccessor.GetUsers();
