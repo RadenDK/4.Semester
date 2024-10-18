@@ -8,8 +8,8 @@ builder.Services.AddControllersWithViews();
 
 // Register Services
 builder.Services.AddHttpClient<IHttpClientService, HttpClientService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IUserLogic, UserLogic>();
+builder.Services.AddScoped<IRegistrationService, RegistrationService>();
+builder.Services.AddScoped<IRegistrationLogic, RegistrationLogic>();
 
 // Login services
 builder.Services.AddScoped<ILoginService, LoginService>();

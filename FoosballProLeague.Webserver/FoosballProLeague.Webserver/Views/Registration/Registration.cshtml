@@ -1,15 +1,44 @@
-﻿
+﻿@model FoosballProLeague.Webserver.Models.UserRegistrationModel
+
 @{
-    Layout = null;
+Layout = null;
 }
 
 <!DOCTYPE html>
-
-<html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Registration</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Profile</title>
+    <link rel="stylesheet" href="~/css/Registration.css">
 </head>
 <body>
+<div class="form-container">
+    <h1>Create profile</h1>
+    <form asp-action="CreateUser" method="post">
+        <label for="firstName">First name</label>
+        <input type="text" id="firstName" name="FirstName" asp-for="FirstName" required>
+        <span asp-validation-for="FirstName" class="text-danger"></span>
+        
+        <label for="lastName">Last name</label>
+        <input type="text" id="lastName" name="LastName" asp-for="LastName" required>
+        <span asp-validation-for="LastName" class="text-danger"></span>
+        
+        <label for="email">Email</label>
+        <input type="email" id="email" name="Email" asp-for="Email" required>
+        <span asp-validation-for="Email" class="text-danger"></span>
+        
+        <label for="password">Password</label>
+        <input type="password" id="password" name="Password" asp-for="Password" required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$" title="Password must be at least 8 characters, include at least one upper case letter, one lower case letter, and one numeric digit.">
+        <span asp-validation-for="Password" class="text-danger"></span>
+        
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.19.2/jquery.validate.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/mvc/5.2.3/jquery.validate.unobtrusive.min.js"></script>
+    
 </body>
 </html>
