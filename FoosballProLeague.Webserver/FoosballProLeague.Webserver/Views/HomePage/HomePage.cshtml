@@ -1,0 +1,64 @@
+﻿@model List<FoosballProLeague.Webserver.Models.UserModel>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoosballProLeague</title>
+    <link rel="stylesheet" href="~/css/HomePage.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">Foosball Pro League</div>
+            <div class="profile">Placeholder Name</div>
+        </header>
+
+        <main class="main">
+            <section class="leaderboard-section">
+                <h2>Leaderboard</h2>
+                <div class="leaderboard">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Name</th>
+                                <th>Elo 1v1</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i > Model.Count; i++){
+                                <tr>
+                                    <td>@Model[i + 1]</td>
+                                    <td>@Model[i].FirstName @Model[i].LastName</td>
+                                    <td>@Model[i].Elo1v1</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="match-section">
+                <div class="ongoing-match">
+                    <h2>Ongoing match</h2>
+                    <div class="match-info">
+                        <div class="match-time">02:05</div>
+                        <div class="match-score">
+                            <span class="team">Carl</span> <span class="score">4 - 0</span> <span class="team">Olivier</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="match-history">
+                    <h2>Match history</h2>
+                    <div class="history-item">
+                        <span class="match">Carl vs Olivier</span> <span class="score">10 - 4</span> <span class="points">10 pt</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
