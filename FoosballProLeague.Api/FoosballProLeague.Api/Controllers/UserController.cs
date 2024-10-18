@@ -17,6 +17,7 @@ namespace FoosballProLeague.Api.Controllers
             _userLogic = userLogic;
         }
         
+        // method to handle registration of a new user (create user)
         [HttpPost("user")]
         public IActionResult CreateUser(UserRegistrationModel userRegistrationModel)
         {
@@ -30,7 +31,23 @@ namespace FoosballProLeague.Api.Controllers
             }
         }
         
+        // method to get all users in a list
+        [HttpGet("users")]
+        public IActionResult GetUsers()
+        {
+            try
+            {
+                List<UserModel> users = _userLogic.GetUsers();
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         
+        
+        // Method to handle user login
         [HttpPut("login")]
         
         public IActionResult LoginUser(UserLoginModel userLoginModel)
@@ -48,20 +65,6 @@ namespace FoosballProLeague.Api.Controllers
             } catch (Exception e)
             {
                 return StatusCode(500, new { message = "An error occurred while logging in the user" });
-            }
-        }
-
-        [HttpGet("users")]
-        public IActionResult GetUsers()
-        {
-            try
-            {
-                List<UserModel> users = _userLogic.GetUsers();
-                return Ok(users);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
             }
         }
     }
