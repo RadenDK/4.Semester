@@ -37,7 +37,19 @@ label {
     color: #ffffff;
 }
 
-input[type="name"],
+#firstName, #lastName, #email, #password {
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+    margin-bottom: 10px;
+    font-size: 14px;
+    background-color: #333344;
+    color: #ffffff;
+}
+
+/*
+input[type="text"],
 input[type="email"],
 input[type="password"] {
     padding: 10px;
@@ -48,6 +60,14 @@ input[type="password"] {
     font-size: 14px;
     background-color: #333344;
     color: #ffffff;
+}
+*/
+
+.text-danger {
+    color: #ff4d4d;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
 }
 
 button {
