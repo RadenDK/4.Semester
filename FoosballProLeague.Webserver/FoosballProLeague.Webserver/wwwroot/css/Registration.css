@@ -37,7 +37,7 @@ label {
     color: #ffffff;
 }
 
-#firstName, #lastName, #email, #password {
+#firstName, #lastName, #email, #password, #confirmPassword {
     padding: 10px;
     border-radius: 5px;
     border: none;
