@@ -1,5 +1,9 @@
 ﻿@model List<FoosballProLeague.Webserver.Models.UserModel>
 
+@{
+    Layout = null;
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,10 +14,6 @@
 </head>
 <body>
     <div class="container">
-        <header class="header">
-            <div class="logo">Foosball Pro League</div>
-            <div class="profile">Placeholder Name</div>
-        </header>
 
         <main class="main">
             <section class="leaderboard-section">
@@ -28,11 +28,21 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @for (int i = 0; i > Model.Count; i++){
+                            @if (Model != null && Model.Count > 0)
+                            {
+                                @for (int i = 0; i < Model.Count; i++)
+                                {
+                                    <tr>
+                                        <td>@(i + 1)</td>
+                                        <td>@Model[i].FirstName @Model[i].LastName</td>
+                                        <td>@Model[i].Elo1v1</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
                                 <tr>
-                                    <td>@Model[i + 1]</td>
-                                    <td>@Model[i].FirstName @Model[i].LastName</td>
-                                    <td>@Model[i].Elo1v1</td>
+                                    <td colspan="3">No users available</td>
                                 </tr>
                             }
                         </tbody>
