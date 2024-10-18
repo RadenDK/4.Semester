@@ -14,9 +14,10 @@ namespace FoosballProLeague.Webserver.Controllers
         }
 
         [HttpGet("HomePage")]
-        public IActionResult HomePage()
+        public async Task<IActionResult> HomePage()
         {
-            return View();
+            return await GetUsers();
+            
         }
 
         [HttpGet]
@@ -30,7 +31,7 @@ namespace FoosballProLeague.Webserver.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, "Could not load leaderboard");
-                return View("HomePage");
+                return View("HomePage", new List<UserModel>());
             }
         }
     }
