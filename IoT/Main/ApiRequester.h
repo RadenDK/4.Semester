@@ -2,7 +2,7 @@
 #define APIREQUESTER_H
 
 namespace ApiRequester {
-  void sendHttpRequest();
+    void sendHttpRequest();
 }
 
 #endif
