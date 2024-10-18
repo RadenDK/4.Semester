@@ -13,6 +13,11 @@ public class LoginController : Controller
         _loginLogic = loginLogic;
     }
     
+    [HttpGet("Login")]
+    public IActionResult Login()
+    {
+        return View();
+    }
     
     
     // Login method
