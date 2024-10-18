@@ -11,7 +11,7 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
     
     public UserDatabaseAccessor(IConfiguration configuration)
     {
-        _connectionString = configuration.GetConnectionString("DefaultConnection");
+        _connectionString = configuration.GetConnectionString("DatabaseConnection");
     }
     
     public bool CreateUser(UserRegistrationModel newUserWithHashedPassword)
