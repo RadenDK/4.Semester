@@ -11,6 +11,10 @@ builder.Services.AddHttpClient<IHttpClientService, HttpClientService>();
 builder.Services.AddScoped<IRegistrationService, RegistrationService>();
 builder.Services.AddScoped<IRegistrationLogic, RegistrationLogic>();
 
+// Homepage services
+builder.Services.AddScoped<IHomePageLogic, HomePageLogic>();
+builder.Services.AddScoped<IHomePageService, HomePageService>();
+
 // Login services
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<ILoginLogic, LoginLogic>();
