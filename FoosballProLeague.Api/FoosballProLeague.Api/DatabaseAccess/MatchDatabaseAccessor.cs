@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Data.SqlClient;
+using Npgsql;
+
 
 namespace FoosballProLeague.Api.DatabaseAccess
 {
@@ -20,7 +22,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         {
             string query = "SELECT active_match_id FROM foosball_tables WHERE id = @TableId";
 
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
 
@@ -35,7 +37,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         {
             string query = "SELECT " + teamSide + "_team_id FROM foosall_matches WHERE match_id = @MatchId";
 
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
 
@@ -50,7 +52,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         {
             string query = "INSERT INTO match_log (match_id, team_id, side, log_time) VALUES (@MatchId, @TeamId, @Side, @LogTime)";
 
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
 
@@ -65,7 +67,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         {
             string query = "INSERT INTO foosball_matches (table_id, red_team_id, blue_team_id) OUTPUT INSERTED.match_id VALUES (@TableId, @RedTeamId, @BlueTeamId)";
 
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
 
@@ -80,7 +82,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         {
             string query = "SELECT team_id FROM teams WHERE player1_id IN @Players AND player2_id IN @PlayerIds";
 
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
 
@@ -95,7 +97,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         {
             string query = "INSERT INTO teams (player1_id, player2_id) OUTPUT INSERTED.team_id VALUES (@Player1Id, @Player2Id)";
 
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
 
@@ -110,7 +112,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         {
             string query = "UPDATE foosball_matches SET team_red_score = @TeamRedScore, team_blue_score = @TeamBlueScore WHERE match_id = @MatchId";
 
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
 
@@ -125,7 +127,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         {
             string query = "UPDATE foosball_tables SET active_match_id = @MatchId WHERE id = @TableId";
 
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
 
@@ -140,7 +142,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         {
             string query = "SELECT * FROM foosball_matches WHERE match_id = @MatchId";
 
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
 
@@ -155,7 +157,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         {
             string query = "UPDATE foosball_matches SET end_time = @EndTime WHERE match_id = @MatchId";
 
-            using (SqlConnection connection = new SqlConnection(_connectionString))
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
 
