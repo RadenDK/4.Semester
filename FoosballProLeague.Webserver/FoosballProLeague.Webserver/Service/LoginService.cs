@@ -26,7 +26,6 @@ public class LoginService : ILoginService
    }
    
    //service call for login out user 
-
    public async Task<HttpResponseMessage> LogoutUser(int playerId)
    {
        StringContent content = new StringContent(JsonConvert.SerializeObject(new{PlayerId = playerId}), Encoding.UTF8, "application/json");
