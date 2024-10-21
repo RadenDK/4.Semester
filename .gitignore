@@ -34,3 +34,5 @@ Thumbs.db
 # Rider temp files
 .RiderUserTasks.xml
 
+# Ignore all appsettings files
+appsettings*.json
