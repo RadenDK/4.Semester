@@ -2,6 +2,9 @@
 
 @{
     Layout = null;
+    var mode = ViewBag.Mode as string ?? "1v1";
+    var sortedModel = mode == "1v1" ? Model?.OrderByDescending(user => user.Elo1v1).ToList() : Model?.OrderByDescending(user => user.Elo2v2).ToList();
+
 }
 
 <!DOCTYPE html>
@@ -16,25 +19,29 @@
     <div class="container">
         <main class="main">
             <section class="leaderboard-section">
-                <h2>Leaderboard</h2>
                 <div class="leaderboard">
+                    <div class="leaderboard-header">
+                        <h2>Leaderboard</h2>
+                        <a href="/HomePage/1v1" class="elo-button @(mode == "1v1" ? "active" : "")">1v1</a>
+                        <a href="/HomePage/2v2" class="elo-button @(mode == "2v2" ? "active" : "")">2v2</a>
+                    </div>
                     <table>
                         <thead>
                             <tr>
                                 <th>Rank</th>
                                 <th>Name</th>
-                                <th>Elo 1v1</th>
+                                <th>Elo</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @if (Model != null && Model.Count > 0)
+                        <tbody id="leaderboardBody">
+                            @if (sortedModel != null && sortedModel.Count > 0)
                             {
-                                @for (int i = 0; i < Model.Count; i++)
+                                @for (int i = 0; i < sortedModel.Count; i++)
                                 {
                                     <tr>
                                         <td>@(i + 1)</td>
-                                        <td>@Model[i].FirstName @Model[i].LastName</td>
-                                        <td>@Model[i].Elo1v1</td>
+                                        <td>@sortedModel[i].FirstName @sortedModel[i].LastName</td>
+                                        <td>@(mode == "1v1" ? sortedModel[i].Elo1v1 : sortedModel[i].Elo2v2)</td>
                                     </tr>
                                 }
                             }
@@ -50,22 +57,26 @@
             </section>
 
             <section class="match-section">
-                <div class="ongoing-match">
-                    <h2>Ongoing match</h2>
-                    <div class="match-info">
-                        <div class="match-time">02:05</div>
-                        <div class="match-score">
-                            <span class="team">Carl</span> <span class="score">4 - 0</span> <span class="team">Olivier</span>
+                <section class="ongoing-match-section">
+                    <div class="ongoing-match">
+                        <h2>Ongoing match</h2>
+                        <div class="match-info">
+                            <div class="match-time">02:05</div>
+                            <div class="match-score">
+                                <span class="team">Carl</span> <span class="score">4 - 0</span> <span class="team">Olivier</span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <div class="match-history">
-                    <h2>Match history</h2>
-                    <div class="history-item">
-                        <span class="match">Carl vs Olivier</span> <span class="score">10 - 4</span> <span class="points">10 pt</span>
+                <section class="match-history-section">
+                    <div class="match-history">
+                        <h2>Match history</h2>
+                        <div class="history-item">
+                            <span class="match">Carl vs Olivier</span> <span class="score">10 - 4</span> <span class="points">10 pt</span>
+                        </div>
                     </div>
-                </div>
+                </section>
             </section>
         </main>
     </div>
