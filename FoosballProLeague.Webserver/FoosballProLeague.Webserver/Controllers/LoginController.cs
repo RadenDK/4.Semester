@@ -7,17 +7,18 @@ namespace FoosballProLeague.Webserver.Controllers;
 public class LoginController : Controller
 {
     private readonly ILoginLogic _loginLogic;
-    
+
     public LoginController(ILoginLogic loginLogic)
     {
         _loginLogic = loginLogic;
     }
-    
+
     [HttpGet("Login")]
     public IActionResult Login()
     {
         return View();
     }
+
     
     
     // Login method
@@ -29,7 +30,7 @@ public class LoginController : Controller
         {
             return RedirectToAction("HomePage", "HomePage");
         }
-        ModelState.AddModelError(string.Empty, "Login attemp failed");
+        ModelState.AddModelError(string.Empty, "Login attempt failed");
         return View("Login");
     }
     
