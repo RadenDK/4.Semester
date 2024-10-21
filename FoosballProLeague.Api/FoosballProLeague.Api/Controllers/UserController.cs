@@ -48,7 +48,7 @@ namespace FoosballProLeague.Api.Controllers
         
         
         // Method to handle user login
-        [HttpPut("login")]
+        [HttpPost("login")]
         
         public IActionResult LoginUser(UserLoginModel userLoginModel)
         {
