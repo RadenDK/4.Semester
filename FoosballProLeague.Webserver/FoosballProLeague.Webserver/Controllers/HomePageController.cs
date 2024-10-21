@@ -14,9 +14,9 @@ namespace FoosballProLeague.Webserver.Controllers
         }
 
         [HttpGet("HomePage")]
-        public async Task<IActionResult> HomePage()
+        public IActionResult HomePage()
         {
-            return await GetUsers();
+            return View();
             
         }
 
