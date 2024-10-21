@@ -12,6 +12,11 @@ namespace FoosballProLeague.Api.BusinessLogic
 
         private readonly Dictionary<int, PendingMatchTeamsModel> _pendingMatchTeams = new Dictionary<int, PendingMatchTeamsModel>();
 
+        public MatchLogic(IMatchDatabaseAccessor matchDatabaseAccessor)
+        {
+            _matchDatabaseAccessor = matchDatabaseAccessor;
+        }
+
         public bool LoginOnTable(TableLoginRequest tableLoginRequest)
         {
             if (GetActiveMatchAtTable(tableLoginRequest.TableId) == null)

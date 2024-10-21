@@ -10,6 +10,11 @@ namespace FoosballProLeague.Api.Controllers
 
         private IMatchLogic _matchLogic;
 
+        public MatchController(IMatchLogic matchLogic)
+        {
+            _matchLogic = matchLogic;
+        }
+
         [HttpPost("LoginOnTable")]
         public IActionResult LoginOnTable([FromBody] TableLoginRequest tableLoginRequest)
         {
