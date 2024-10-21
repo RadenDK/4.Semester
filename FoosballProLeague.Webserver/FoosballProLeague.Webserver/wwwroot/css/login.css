@@ -129,6 +129,15 @@ body, html {
     outline: none;
     border-color: rgba(25, 24, 24, 0);
     background-color: #333355;
+    background: #333355;
+}
+
+.login-box input:-webkit-autofill {
+    background-color: #333344 !important;
+    -webkit-box-shadow: 0 0 0px 1000px #333344 inset;
+    box-shadow: 0 0 0px 1000px #333344 inset;
+    -webkit-text-fill-color: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0);
 }
 
 .login-box button.login {
