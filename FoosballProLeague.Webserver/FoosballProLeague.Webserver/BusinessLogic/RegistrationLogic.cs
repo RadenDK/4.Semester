@@ -16,4 +16,14 @@ public class RegistrationLogic : IRegistrationLogic
     {
         return await _registrationService.SendUserToApi(newUser);
     }
+
+    public async Task<List<CompanyModel>> GetCompaniesAsync()
+    {
+        return await _registrationService.GetCompaniesAsync();
+    }
+
+    public async Task<List<DepartmentModel>> GetDepartmentByCompanyId(int companyId)
+    {
+        return await _registrationService.GetDepartmentByCompanyId(companyId);
+    }
 }
