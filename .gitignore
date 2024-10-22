@@ -38,4 +38,7 @@ appsettings.*.json
 # Rider temp files
 .RiderUserTasks.xml
 
-FoosballProLeague.Api/FoosballProLeague.Api/appsettings.Development.json
+
+# Ignore all appsettings files
+appsettings*.json
+
