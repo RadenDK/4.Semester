@@ -7,24 +7,50 @@ namespace FoosballProLeague.Api.BusinessLogic;
 public class UserLogic : IUserLogic
 {
     IUserDatabaseAccessor _userDatabaseAccessor;
-    public bool CreateUser(UserRegistrationModel newUser)
+    
+    public UserLogic(IUserDatabaseAccessor userDatabaseAccessor)
     {
-        if (AccountHasValues(newUser))
+        _userDatabaseAccessor = userDatabaseAccessor;
+    }
+    
+    // method to create user for registration
+    public bool CreateUser(UserRegistrationModel userRegistrationModel)
+    {
+        if (AccountHasValues(userRegistrationModel))
         {
             UserRegistrationModel newUserWithHashedPassword = new UserRegistrationModel
             {
-                FirstName = newUser.FirstName,
-                LastName = newUser.LastName,
-                Email = newUser.Email,
-                Password = bc.HashPassword(newUser.Password)
+                FirstName = userRegistrationModel.FirstName,
+                LastName = userRegistrationModel.LastName,
+                Email = userRegistrationModel.Email,
+                Password = bc.HashPassword(userRegistrationModel.Password)
             };
             return _userDatabaseAccessor.CreateUser(newUserWithHashedPassword);
         }
         return false;
     }
     
+    // checks if the account has values
     private bool AccountHasValues(UserRegistrationModel newUser)
     {
         return !string.IsNullOrEmpty(newUser.FirstName) && !string.IsNullOrEmpty(newUser.LastName) && !string.IsNullOrEmpty(newUser.Email) && !string.IsNullOrEmpty(newUser.Password);
+    }
+    
+    //method to login user
+    public bool LoginUser(string email, string password)
+    {
+        UserModel user = _userDatabaseAccessor.GetUser(email);
+        if (user != null)
+        {
+            return bc.Verify(password, user.Password);
+        }
+
+        return false;
+    }
+    
+    // get all user in a list
+    public List<UserModel> GetUsers()
+    {
+        return _userDatabaseAccessor.GetUsers();
     }
 }

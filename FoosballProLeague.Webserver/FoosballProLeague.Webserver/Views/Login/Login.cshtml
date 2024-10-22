@@ -1,0 +1,42 @@
+﻿@model FoosballProLeague.Webserver.Models.LoginUserModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoosballProLeague</title>
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+<div class="login-container">
+    <div class="login-sidebar">
+        <h1>FPL</h1>
+    </div>
+    <div class="login-form">
+        <div class="login-box">
+
+            <h2>Welcome</h2>
+            <form id="loginForm" asp-action="LoginUser" asp-controller="Login" method="post">
+                <input type="text" placeholder="Email" id="email" asp-for="Email" required />
+
+                <input type="password" placeholder="Password" id="password" asp-for="Password" required />
+
+                <button type="submit" class="login">Sign in</button>
+            </form>
+
+                <form action="/Registration" method="get">
+                    <button type="submit" class="create-profile">Create profile</button>
+                </form>
+               
+            
+        </div>
+    </div>
+</div>
+<script src="/js/login.js"></script>
+</body>
+</html>

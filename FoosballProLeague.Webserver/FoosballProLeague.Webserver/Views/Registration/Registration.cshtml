@@ -1,0 +1,97 @@
+﻿@model FoosballProLeague.Webserver.Models.UserRegistrationModel
+
+@{
+Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Profile</title>
+    <link rel="stylesheet" href="~/css/Registration.css">
+</head>
+<body>
+<div class="form-container">
+    <h1>Create profile</h1>
+    <form asp-action="CreateUser" method="post">
+        <label for="firstName">First name</label>
+        <input type="text" id="firstName" name="FirstName" asp-for="FirstName" required>
+        <span asp-validation-for="FirstName" class="text-danger"></span>
+        
+        <label for="lastName">Last name</label>
+        <input type="text" id="lastName" name="LastName" asp-for="LastName" required>
+        <span asp-validation-for="LastName" class="text-danger"></span>
+        
+        <label for="email">Email</label>
+        <input type="email" id="email" name="Email" asp-for="Email" required>
+        <span asp-validation-for="Email" class="text-danger"></span>
+        
+        <label for="password">Password</label>
+        <input type="password" id="password" name="Password" asp-for="Password" required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$" title="Password must be at least 8 characters, include at least one upper case letter, one lower case letter, and one numeric digit.">
+        <span asp-validation-for="Password" class="text-danger"></span>
+
+        <label for="confirmPassword">Confirm Password</label>
+        <input type="password" id="confirmPassword" name="ConfirmPassword" asp-for="ConfirmPassword" required>
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        
+        <form id="companyForm" asp-action="GetDepartments" method="post">
+        <label for ="company">Company</label>
+        <select id="company" name="companyId" asp-for="CompanyId" required>
+            <option value="">Select a company</option>
+            @foreach (CompanyModel company in ViewBag.Companies)
+            {
+                <option value="@company.Id">@company.Name</option>
+            }
+        </select>
+        </form>
+        
+        <label for="department">Department</label>
+        <select id="department" name="Department" asp-for="DepartmentId" disabled required>
+            <option value="">Select a department</option>
+            @if (ViewBag.Departments != null)
+            {
+                @foreach (DepartmentModel department in ViewBag.Departments)
+                {
+                    <option value="@department.Id">@department.Name</option>
+                }
+            }
+        </select>
+
+
+        <button type="submit">Submit</button>
+    </form>
+</div>
+
+<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.19.2/jquery.validate.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/mvc/5.2.3/jquery.validate.unobtrusive.min.js"></script>
+<script>
+/*    document.getElementById('company').addEventListener('change', function() {
+        var companyId = this.value;
+        fetch('@Url.Action("GetDepartments", "Registration")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(companyId)
+        })
+            .then(response => response.json())
+            .then(data => {
+                var departmentSelect = document.getElementById('department');
+                departmentSelect.innerHTML = '<option value="">Select a department</option>';
+                data.forEach(department => {
+                    var option = document.createElement('option');
+                    option.value = department.id;
+                    option.text = department.name;
+                    departmentSelect.appendChild(option);
+                });
+                departmentSelect.disabled = false;
+            })
+            .catch(error => console.error('Error:', error));
+    });*/
+</script>
+    
+</body>
+</html>
