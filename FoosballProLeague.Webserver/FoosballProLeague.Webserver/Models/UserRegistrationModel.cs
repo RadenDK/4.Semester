@@ -17,4 +17,10 @@ public class UserRegistrationModel
     [Required(ErrorMessage = "Field is required")]
     [Compare("Password", ErrorMessage = "Passwords are not equal")]
     public string ConfirmPassword { get; set; }
+    
+    [Required(ErrorMessage = "Company is required")]
+    public int CompanyId { get; set; }
+    
+    [Required(ErrorMessage = "Department is required")]
+    public int DepartmentId { get; set; }
 }
