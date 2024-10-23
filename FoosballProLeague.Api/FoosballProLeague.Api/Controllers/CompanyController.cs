@@ -29,12 +29,12 @@ namespace FoosballProLeague.Api.Controllers
             }
         }
 
-        [HttpPost("departments")]
-        public IActionResult GetDepartments([FromBody] int companyId)
+        [HttpGet("departments")]
+        public IActionResult GetDepartments()
         {
             try
             {
-                List<DepartmentModel> departments = _companyLogic.GetDepartments(companyId);
+                List<DepartmentModel> departments = _companyLogic.GetDepartments();
                 return Ok(departments);
             }
             catch (Exception ex)
