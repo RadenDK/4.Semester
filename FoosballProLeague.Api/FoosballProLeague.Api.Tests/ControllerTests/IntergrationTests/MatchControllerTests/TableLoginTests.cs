@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FoosballProLeague.Api.Tests
 {
     // SUT = System Under Test
+
     [Collection("Non-Parallel Database Collection")]
     public class TableLoginTests : DatabaseTestBase
     {
@@ -19,7 +20,6 @@ namespace FoosballProLeague.Api.Tests
         public void Login_WhenTableIsEmpty_ShouldRegisterOnePlayer()
         {
             // Arrange
-            _dbHelper.ClearDatabase(); // Ensure the database is clean before the test
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
 
@@ -46,7 +46,6 @@ namespace FoosballProLeague.Api.Tests
         public void Login_MultiplePlayersOnEmptyTable_ShouldRegisterMultiplePlayers()
         {
             // Arrange
-            _dbHelper.ClearDatabase(); // Ensure the database is clean before the test
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3), (4)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
 
@@ -79,7 +78,6 @@ namespace FoosballProLeague.Api.Tests
         public void Login_WhenTeamIsFull_ShouldNotAllowAdditionalPlayers()
         {
             // Arrange
-            _dbHelper.ClearDatabase(); // Ensure the database is clean before the test
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
 
@@ -107,7 +105,6 @@ namespace FoosballProLeague.Api.Tests
         public void Login_WhenTableIsFull_ShouldNotAllowAdditionalPlayers()
         {
             // Arrange
-            _dbHelper.ClearDatabase(); // Ensure the database is clean before the test
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3), (4), (5), (6)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
 
@@ -145,7 +142,6 @@ namespace FoosballProLeague.Api.Tests
         public void Login_WhenMatchIsActiveAndTeamIsFull_ShouldNotAllowNewLogins()
         {
             // Arrange
-            _dbHelper.ClearDatabase(); // Ensure the database is clean before the test
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3), (4), (5)");
             _dbHelper.InsertData("INSERT INTO teams (id, player1_id, player2_id) VALUES (1, 1, 2), (2, 3, 4)"); // Red and Blue teams are full
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
@@ -171,15 +167,14 @@ namespace FoosballProLeague.Api.Tests
         public void Login_WhenMatchIsActiveAndTeamHasRoom_ShouldAllowLogin()
         {
             // Arrange
-            _dbHelper.ClearDatabase(); // Ensure the database is clean before the test
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id) VALUES (1, 1), (2, 2)"); // Red team has room (only one player), blue team is full
+            _dbHelper.InsertData("INSERT INTO teams (player1_id) VALUES (1), (2)"); 
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id) VALUES (1, 1, 1, 2)"); // Active match
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
 
             int mockTableId = 1;
-            TableLoginRequest mockTableLoginRequest = new TableLoginRequest { PlayerId = 5, TableId = mockTableId, Side = "red" }; // Attempt to join the red side
+            TableLoginRequest mockTableLoginRequest = new TableLoginRequest { PlayerId = 3, TableId = mockTableId, Side = "red" }; // Attempt to join the red side
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
             IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor);
@@ -192,6 +187,30 @@ namespace FoosballProLeague.Api.Tests
             Assert.IsType<OkResult>(result); // Expect the login to succeed since there is room on the red team
         }
 
+        // Test: Existing team should be reused if players are the same
+        [Fact]
+        public void RegisterGoal_WhenPreviousTeamExists_ShouldReuseExistingTeamId()
+        {
+            // Arrange
+            _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3)");
+            _dbHelper.InsertData("INSERT INTO teams (player1_id) VALUES (1), (2)");
+            _dbHelper.InsertData("INSERT INTO teams (player1_id, player2_id) VALUES (1, 3)");
+            _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
+            _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id) VALUES (1, 1, 1, 2)"); // Active match
+            _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
 
+            int mockTableId = 1;
+            TableLoginRequest mockTableLoginRequest = new TableLoginRequest { PlayerId = 3, TableId = mockTableId, Side = "red" }; // Attempt to join the red side
+
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor);
+            MatchController SUT = new MatchController(matchLogic);
+
+            // Act
+            IActionResult result = SUT.LoginOnTable(mockTableLoginRequest); // Player tries to log in during an active match
+
+            // Assert
+            Assert.IsType<OkResult>(result); // Expect the login to succeed since there is room on the red team
+        }
     }
 }
