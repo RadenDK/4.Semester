@@ -37,7 +37,18 @@ label {
     color: #ffffff;
 }
 
-#firstName, #lastName, #email, #password, #confirmPassword {
+#firstName, #lastName, #email, #password, #confirmPassword, #company, #department{
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+    margin-bottom: 10px;
+    font-size: 14px;
+    background-color: #333344;
+    color: #ffffff;
+}
+
+.dropdown select{
     padding: 10px;
     border-radius: 5px;
     border: none;
