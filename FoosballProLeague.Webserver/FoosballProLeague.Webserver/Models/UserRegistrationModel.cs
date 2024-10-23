@@ -19,8 +19,12 @@ public class UserRegistrationModel
     public string ConfirmPassword { get; set; }
     
     [Required(ErrorMessage = "Company is required")]
-    public int CompanyId { get; set; }
+    public int? CompanyId { get; set; }
     
     [Required(ErrorMessage = "Department is required")]
-    public int DepartmentId { get; set; }
+    public int? DepartmentId { get; set; }
+
+    public int Elo1v1 { get; set; } = 0;
+
+    public int Elo2v2 { get; set; } = 0;
 }
