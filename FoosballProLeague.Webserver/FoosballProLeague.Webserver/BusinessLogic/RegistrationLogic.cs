@@ -22,8 +22,8 @@ public class RegistrationLogic : IRegistrationLogic
         return await _registrationService.GetCompaniesAsync();
     }
 
-    public async Task<List<DepartmentModel>> GetDepartmentByCompanyId(int companyId)
+    public async Task<List<DepartmentModel>> GetDepartments()
     {
-        return await _registrationService.GetDepartmentByCompanyId(companyId);
+        return await _registrationService.GetDepartments();
     }
 }

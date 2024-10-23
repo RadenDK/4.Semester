@@ -8,6 +8,6 @@ public class DepartmentModel
     public int Id { get; set; }
     [JsonPropertyName("name")]
     public string Name { get; set; }
-    [JsonPropertyName("companyid")]
+    [JsonPropertyName("companyId")]
     public int? CompanyId { get; set; }
 }

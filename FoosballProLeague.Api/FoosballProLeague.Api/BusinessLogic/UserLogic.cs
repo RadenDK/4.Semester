@@ -23,7 +23,11 @@ public class UserLogic : IUserLogic
                 FirstName = userRegistrationModel.FirstName,
                 LastName = userRegistrationModel.LastName,
                 Email = userRegistrationModel.Email,
-                Password = bc.HashPassword(userRegistrationModel.Password)
+                Password = bc.HashPassword(userRegistrationModel.Password),
+                DepartmentId = userRegistrationModel.DepartmentId,
+                CompanyId = userRegistrationModel.CompanyId,
+                Elo1v1 = 500,
+                Elo2v2 = 500
             };
             return _userDatabaseAccessor.CreateUser(newUserWithHashedPassword);
         }
@@ -33,7 +37,10 @@ public class UserLogic : IUserLogic
     // checks if the account has values
     private bool AccountHasValues(UserRegistrationModel newUser)
     {
-        return !string.IsNullOrEmpty(newUser.FirstName) && !string.IsNullOrEmpty(newUser.LastName) && !string.IsNullOrEmpty(newUser.Email) && !string.IsNullOrEmpty(newUser.Password);
+        return !string.IsNullOrEmpty(newUser.FirstName) && 
+               !string.IsNullOrEmpty(newUser.LastName) && 
+               !string.IsNullOrEmpty(newUser.Email) && 
+               !string.IsNullOrEmpty(newUser.Password);
     }
     
     //method to login user
