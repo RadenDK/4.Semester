@@ -7,7 +7,7 @@ namespace FoosballProLeague.Webserver.Service;
 public class HttpClientService : IHttpClientService
 {
     private readonly HttpClient _httpClient;
-    private Uri BaseAddress = new Uri("http://localhost:5000/");
+    private Uri BaseAddress = new Uri("http://localhost:5001/");
 
     public HttpClientService(HttpClient httpClient)
     {
