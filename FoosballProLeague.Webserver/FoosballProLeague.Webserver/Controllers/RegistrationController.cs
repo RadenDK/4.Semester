@@ -18,28 +18,7 @@ namespace FoosballProLeague.Webserver.Controllers
         {
             await PopulateViewBags();
             return View("Registration", new UserRegistrationModel());
-            //return await GetCompaniesAndDepartments();
         }
-
-        /*[HttpGet]
-        public async Task<IActionResult> GetCompaniesAndDepartments()
-        {
-            try
-            {
-                List<CompanyModel> companies = await _registrationLogic.GetCompaniesAsync();
-                ViewBag.Companies = companies;
-
-                List<DepartmentModel> departments = await _registrationLogic.GetDepartments();
-                ViewBag.Departments = departments;
-                
-                return View("Registration", new UserRegistrationModel());
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-        }*/
 
         [HttpPost]
         public async Task<IActionResult> CreateUser(UserRegistrationModel newUser)
