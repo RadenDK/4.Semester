@@ -67,7 +67,18 @@ label {
     display: block;
 }
 
-button {
+.back-button {
+    position: absolute;
+    top: 20px; /* Adjust as needed */
+    left: 500px; /* Adjust as needed */
+}
+
+.button-container{
+    display: flex;
+    justify-content: space-between;
+}
+
+button, .button {
     background-color: #6c49eb;
     color: #fff;
     border: none;
@@ -78,8 +89,12 @@ button {
     cursor: pointer;
     margin-top: 30px;
     transition: background-color 0.5s;
+    text-decoration: none;
+    text-align: center;
 }
 
-    button:hover {
+    button:hover, .button:hover {
         background-color: #3c327d;
     }
+
+

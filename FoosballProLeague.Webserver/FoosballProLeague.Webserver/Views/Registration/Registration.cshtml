@@ -14,20 +14,21 @@ Layout = null;
 </head>
 <body>
 <div class="form-container">
+    <a class="button back-button" asp-controller="Login" asp-action="Login">Back</a>
     <h1>Create profile</h1>
     <form asp-action="CreateUser" method="post">
         <label for="firstName">First name</label>
         <input type="text" id="firstName" name="FirstName" asp-for="FirstName" required>
         <span asp-validation-for="FirstName" class="text-danger"></span>
-        
+
         <label for="lastName">Last name</label>
         <input type="text" id="lastName" name="LastName" asp-for="LastName" required>
         <span asp-validation-for="LastName" class="text-danger"></span>
-        
+
         <label for="email">Email</label>
         <input type="email" id="email" name="Email" asp-for="Email" required>
         <span asp-validation-for="Email" class="text-danger"></span>
-        
+
         <label for="password">Password</label>
         <input type="password" id="password" name="Password" asp-for="Password" required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$" title="Password must be at least 8 characters, include at least one upper case letter, one lower case letter, and one numeric digit.">
         <span asp-validation-for="Password" class="text-danger"></span>
@@ -35,8 +36,8 @@ Layout = null;
         <label for="confirmPassword">Confirm Password</label>
         <input type="password" id="confirmPassword" name="ConfirmPassword" asp-for="ConfirmPassword" required>
         <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-        
-        <label for ="company">Company</label>
+
+        <label for="company">Company</label>
         <select class="dropdown" id="company" name="companyId" asp-for="CompanyId" required>
             <option value="">Select a company</option>
             @if (ViewBag.Companies != null)
@@ -47,7 +48,7 @@ Layout = null;
                 }
             }
         </select>
-        
+
         <label for="department">Department</label>
         <select class="dropdown" id="department" name="DepartmentId" asp-for="DepartmentId" disabled required>
             <option value="">Select a department</option>
@@ -60,8 +61,9 @@ Layout = null;
             }
         </select>
 
-
-        <button type="submit">Submit</button>
+        <div>
+            <button type="submit">Submit</button>
+        </div>
     </form>
 </div>
 
