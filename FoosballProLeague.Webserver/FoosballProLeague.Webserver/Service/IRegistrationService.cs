@@ -8,5 +8,5 @@ public interface IRegistrationService
     
     Task<List<CompanyModel>> GetCompaniesAsync();
 
-    Task<List<DepartmentModel>> GetDepartmentByCompanyId(int companyId);
+    Task<List<DepartmentModel>> GetDepartments();
 }
