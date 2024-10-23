@@ -17,6 +17,40 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
     [Collection("Non-Parallel Database Collection")]
     public class ScoringTests : DatabaseTestBase
     {
+        // Test: Goal registered with no players logged in should return BadRequest and not create match or teams
+        [Fact]
+        public void GoalScored_WithNoPlayersLoggedIn_ShouldReturnBadRequestAndNotCreateMatchOrTeams()
+        {
+            // Arrange
+            _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
+
+            int mockTableId = 1;
+            RegisterGoalRequest mockRegisterGoalRequestRedSide = new RegisterGoalRequest { TableId = mockTableId, Side = "red" };
+
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor);
+            MatchController SUT = new MatchController(matchLogic);
+
+            // Act
+            IActionResult result = SUT.RegisterGoal(mockRegisterGoalRequestRedSide);
+
+            // Assert
+            // Ensure the result is a BadRequest
+            Assert.IsType<BadRequestResult>(result);
+
+            // Ensure no match was created
+            IEnumerable<MatchModel> matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
+            Assert.True(matches.Count() == 0); // No match should be created
+
+            // Ensure no teams were created
+            IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
+            Assert.True(teams.Count() == 0); // No team should be created
+
+            // Ensure the table's active match ID remains null
+            IEnumerable<FoosballTableModel> table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
+            Assert.True(table.First().ActiveMatchId == null); // No active match should be set
+        }
+
         // Test: Goal scored on non-active table but with valid pending teams
         [Fact]
         public void GoalScored_OnNonActiveTableWithValidPendingTeams_ShouldCreateMatchAndRegisterGoal()
@@ -141,6 +175,54 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             Assert.True(teams.Last().Player1Id == 3 && teams.Last().Player2Id == null); // Check if the correct player was assigned to the blue team
         }
 
+        // Test: Running goals will be registered on the same match
+        [Fact]
+        public void GoalScored_RunningGoalsWillBeRegisteredOnSameMatch()
+        {
+            // Arrange
+            _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2)");
+            _dbHelper.InsertData("INSERT INTO teams (id, player1_id) VALUES (1, 1), (2, 2)");
+            _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
+            _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, 1, 2, 0, 0)"); // Active match where red has scored 0 goals and blue 0
+            _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
+
+            int mockTableId = 1;
+
+            RegisterGoalRequest mockRegisterGoalRequestRedSide = new RegisterGoalRequest { TableId = mockTableId, Side = "red" };
+            RegisterGoalRequest mockRegisterGoalRequestBlueSide = new RegisterGoalRequest { TableId = mockTableId, Side = "blue" };
+
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor);
+            MatchController SUT = new MatchController(matchLogic);
+
+            // Act
+            SUT.RegisterGoal(mockRegisterGoalRequestRedSide);
+            SUT.RegisterGoal(mockRegisterGoalRequestRedSide);
+            SUT.RegisterGoal(mockRegisterGoalRequestBlueSide);
+            SUT.RegisterGoal(mockRegisterGoalRequestRedSide);
+            SUT.RegisterGoal(mockRegisterGoalRequestBlueSide);
+            SUT.RegisterGoal(mockRegisterGoalRequestBlueSide);
+            SUT.RegisterGoal(mockRegisterGoalRequestBlueSide);
+
+            // Assert
+            IEnumerable<MatchModel> matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
+            IEnumerable<FoosballTableModel> table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
+
+            // Ensure only one match was created
+            Assert.True(matches.Count() == 1); // Ensure no new match was created
+            var match = matches.First();
+
+            // Check the match teams and score
+            Assert.True(match.RedTeamId == 1 && match.BlueTeamId == 2); // Check if the correct teams were assigned to the match
+            Assert.True(match.TeamRedScore == 3 && match.TeamBlueScore == 4); // Ensure the goals were registered correctly
+
+            // Ensure the match is still ongoing
+            Assert.True(match.EndTime == null); // Check that the match is not finished
+
+            // Check if the table still has the correct active match
+            Assert.True(table.First().ActiveMatchId == match.Id);
+        }
+
 
         // Test: Goal scored when side reaches 10 goals should complete the match and set active match to null
         [Fact]
@@ -234,87 +316,9 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             Assert.True(table.First().ActiveMatchId == newMatch.Id); // Ensure the table is linked to the new active match
         }
 
-        // Test: Running goals will be registered on the same match
-        [Fact]
-        public void GoalScored_RunningGoalsWillBeRegisteredOnSameMatch()
-        {
-            // Arrange
-            _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id) VALUES (1, 1), (2, 2)");
-            _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
-            _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, 1, 2, 0, 0)"); // Active match where red has scored 0 goals and blue 0
-            _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
+        
 
-            int mockTableId = 1;
-
-            RegisterGoalRequest mockRegisterGoalRequestRedSide = new RegisterGoalRequest { TableId = mockTableId, Side = "red" };
-            RegisterGoalRequest mockRegisterGoalRequestBlueSide = new RegisterGoalRequest { TableId = mockTableId, Side = "blue" };
-
-            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor);
-            MatchController SUT = new MatchController(matchLogic);
-
-            // Act
-            SUT.RegisterGoal(mockRegisterGoalRequestRedSide);
-            SUT.RegisterGoal(mockRegisterGoalRequestRedSide);
-            SUT.RegisterGoal(mockRegisterGoalRequestBlueSide);
-            SUT.RegisterGoal(mockRegisterGoalRequestRedSide);
-            SUT.RegisterGoal(mockRegisterGoalRequestBlueSide);
-            SUT.RegisterGoal(mockRegisterGoalRequestBlueSide);
-            SUT.RegisterGoal(mockRegisterGoalRequestBlueSide);
-
-            // Assert
-            IEnumerable<MatchModel> matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
-            IEnumerable<FoosballTableModel> table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
-
-            // Ensure only one match was created
-            Assert.True(matches.Count() == 1); // Ensure no new match was created
-            var match = matches.First();
-
-            // Check the match teams and score
-            Assert.True(match.RedTeamId == 1 && match.BlueTeamId == 2); // Check if the correct teams were assigned to the match
-            Assert.True(match.TeamRedScore == 3 && match.TeamBlueScore == 4); // Ensure the goals were registered correctly
-
-            // Ensure the match is still ongoing
-            Assert.True(match.EndTime == null); // Check that the match is not finished
-
-            // Check if the table still has the correct active match
-            Assert.True(table.First().ActiveMatchId == match.Id);
-        }
-
-        // Test: Goal registered with no players logged in should return BadRequest and not create match or teams
-        [Fact]
-        public void GoalScored_WithNoPlayersLoggedIn_ShouldReturnBadRequestAndNotCreateMatchOrTeams()
-        {
-            // Arrange
-            _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
-
-            int mockTableId = 1;
-            RegisterGoalRequest mockRegisterGoalRequestRedSide = new RegisterGoalRequest { TableId = mockTableId, Side = "red" };
-
-            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor);
-            MatchController SUT = new MatchController(matchLogic);
-
-            // Act
-            IActionResult result = SUT.RegisterGoal(mockRegisterGoalRequestRedSide);
-
-            // Assert
-            // Ensure the result is a BadRequest
-            Assert.IsType<BadRequestResult>(result);
-
-            // Ensure no match was created
-            IEnumerable<MatchModel> matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
-            Assert.True(matches.Count() == 0); // No match should be created
-
-            // Ensure no teams were created
-            IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
-            Assert.True(teams.Count() == 0); // No team should be created
-
-            // Ensure the table's active match ID remains null
-            IEnumerable<FoosballTableModel> table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
-            Assert.True(table.First().ActiveMatchId == null); // No active match should be set
-        }
+        
 
 
     }

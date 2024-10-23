@@ -31,13 +31,19 @@ namespace FoosballProLeague.Api.Tests
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
-            SUT.LoginOnTable(mockTableLoginRequest);
+            IActionResult result = SUT.LoginOnTable(mockTableLoginRequest);
 
             // Assert
             IEnumerable<MatchModel> football_matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
             IEnumerable<FoosballTableModel> football_table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables where id = " + mockTableId);
+            IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
 
+            Assert.IsType<OkResult>(result); // Expect the login to succeed
+
+            // Both Asserts should be empty because a match and teams are only created when a goal is registered
             Assert.Empty(football_matches);
+            Assert.Empty(teams);
+
             Assert.True(football_table.First().ActiveMatchId == null);
         }
 
@@ -60,16 +66,25 @@ namespace FoosballProLeague.Api.Tests
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
-            SUT.LoginOnTable(mockTableLoginRequest1);
-            SUT.LoginOnTable(mockTableLoginRequest2);
-            SUT.LoginOnTable(mockTableLoginRequest3);
-            SUT.LoginOnTable(mockTableLoginRequest4);
+            IActionResult result1 = SUT.LoginOnTable(mockTableLoginRequest1);
+            IActionResult result2 = SUT.LoginOnTable(mockTableLoginRequest2);
+            IActionResult result3 = SUT.LoginOnTable(mockTableLoginRequest3);
+            IActionResult result4 = SUT.LoginOnTable(mockTableLoginRequest4);
 
             // Assert
             IEnumerable<MatchModel> football_matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
             IEnumerable<FoosballTableModel> football_table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables where id = " + mockTableId);
+            IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
 
+            Assert.IsType<OkResult>(result1);
+            Assert.IsType<OkResult>(result2);
+            Assert.IsType<OkResult>(result3);
+            Assert.IsType<OkResult>(result4);
+
+            // Both Asserts should be empty because a match and teams are only created when a goal is registered
             Assert.Empty(football_matches);
+            Assert.Empty(teams);
+
             Assert.True(football_table.First().ActiveMatchId == null);
         }
 
@@ -96,9 +111,20 @@ namespace FoosballProLeague.Api.Tests
             IActionResult result = SUT.LoginOnTable(mockTableLoginRequest3); // Third player tries to log in on the red side
 
             // Assert
-            Assert.IsType<BadRequestResult>(result); // Expect the third login to return a BadRequestResult
-        }
 
+            IEnumerable<MatchModel> football_matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
+            IEnumerable<FoosballTableModel> football_table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables where id = " + mockTableId);
+            IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
+
+            Assert.IsType<BadRequestResult>(result); // Expect the third login to return a BadRequestResult
+
+            // Both Asserts should be empty because a match and teams are only created when a goal is registered
+            Assert.Empty(football_matches);
+            Assert.Empty(teams);
+
+            Assert.True(football_table.First().ActiveMatchId == null);
+
+        }
 
         // Test: Login on full table (both teams have two players)
         [Fact]
@@ -131,11 +157,65 @@ namespace FoosballProLeague.Api.Tests
 
 
             // Assert
+
+            IEnumerable<MatchModel> football_matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
+            IEnumerable<FoosballTableModel> football_table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables where id = " + mockTableId);
+            IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
+
             Assert.IsType<BadRequestResult>(result1); // Expect the third red login to return a BadRequestResult
             Assert.IsType<BadRequestResult>(result2); // Expect the third blue login to return a BadRequestResult
 
+            // Both Asserts should be empty because a match and teams are only created when a goal is registered
+            Assert.Empty(football_matches);
+            Assert.Empty(teams);
+
+            Assert.True(football_table.First().ActiveMatchId == null);
+
         }
 
+        // Test: Login allowed when match is active but there is room on the team
+        [Fact]
+        public void Login_WhenMatchIsActiveAndTeamHasRoom_ShouldAllowLogin()
+        {
+            // Arrange
+            _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3)");
+            _dbHelper.InsertData("INSERT INTO teams (player1_id) VALUES (1), (2)");
+            _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
+            _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id) VALUES (1, 1, 1, 2)"); // Active match
+            _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
+
+            int mockTableId = 1;
+            TableLoginRequest mockTableLoginRequest = new TableLoginRequest { PlayerId = 3, TableId = mockTableId, Side = "red" }; // Attempt to join the red side
+
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor);
+            MatchController SUT = new MatchController(matchLogic);
+
+            // Act
+            IActionResult result = SUT.LoginOnTable(mockTableLoginRequest); // Player tries to log in during an active match
+
+            // Assert
+
+            IEnumerable<MatchModel> football_matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
+            IEnumerable<FoosballTableModel> football_table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables where id = " + mockTableId);
+            IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
+
+            Assert.IsType<OkResult>(result); // Expect the login to succeed since there is room on the red team
+
+            // There should be an active match
+            Assert.NotEmpty(football_matches);
+            Assert.Equal(1, football_matches.First().Id);
+
+            // The active match ID should be set on the table
+            Assert.NotNull(football_table.First().ActiveMatchId);
+            Assert.Equal(1, football_table.First().ActiveMatchId);
+
+            // Teams should not be empty since they are already registered
+            Assert.NotEmpty(teams);
+
+            // There should be a third team created
+            Assert.Equal(3, teams.Count()); // Two teams were assigned at the test start, and the third should be created in the code
+        }
 
         // Test: Login on table with an active match and full team
         [Fact]
@@ -159,33 +239,24 @@ namespace FoosballProLeague.Api.Tests
             IActionResult result = SUT.LoginOnTable(mockTableLoginRequest); // Player tries to log in during an active match
 
             // Assert
+
+            IEnumerable<MatchModel> football_matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
+            IEnumerable<FoosballTableModel> football_table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables where id = " + mockTableId);
+            IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
+
             Assert.IsType<BadRequestResult>(result); // Expect the login to fail since the match is active and the red team is full
-        }
 
-        // Test: Login allowed when match is active but there is room on the team
-        [Fact]
-        public void Login_WhenMatchIsActiveAndTeamHasRoom_ShouldAllowLogin()
-        {
-            // Arrange
-            _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3)");
-            _dbHelper.InsertData("INSERT INTO teams (player1_id) VALUES (1), (2)"); 
-            _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
-            _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id) VALUES (1, 1, 1, 2)"); // Active match
-            _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
+            // Assert that there is only one match, which is the one inserted in the database
+            Assert.Single(football_matches);
+            Assert.Equal(1, football_matches.First().Id);
 
-            int mockTableId = 1;
-            TableLoginRequest mockTableLoginRequest = new TableLoginRequest { PlayerId = 3, TableId = mockTableId, Side = "red" }; // Attempt to join the red side
+            // Assert that there are only the teams that were inserted in the database
+            Assert.Equal(2, teams.Count());
+            Assert.Contains(teams, t => t.Id == 1 && t.Player1Id == 1 && t.Player2Id == 2);
+            Assert.Contains(teams, t => t.Id == 2 && t.Player1Id == 3 && t.Player2Id == 4);
 
-            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor);
-            MatchController SUT = new MatchController(matchLogic);
-
-            // Act
-            IActionResult result = SUT.LoginOnTable(mockTableLoginRequest); // Player tries to log in during an active match
-
-            // Assert
-            Assert.IsType<OkResult>(result); // Expect the login to succeed since there is room on the red team
-        }
+            Assert.True(football_table.First().ActiveMatchId == 1);
+        }        
 
         // Test: Existing team should be reused if players are the same
         [Fact]
@@ -211,6 +282,23 @@ namespace FoosballProLeague.Api.Tests
 
             // Assert
             Assert.IsType<OkResult>(result); // Expect the login to succeed since there is room on the red team
+
+            IEnumerable<MatchModel> football_matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
+            IEnumerable<FoosballTableModel> football_table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables where id = " + mockTableId);
+            IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
+
+            // Assert that there is still only one match, which is the one inserted in the database
+            Assert.Single(football_matches);
+            Assert.Equal(1, football_matches.First().Id);
+
+            // Assert that the match is still active for the table
+            Assert.Equal(1, football_table.First().ActiveMatchId);
+
+            // Assert that no other teams have been created other than the teams inserted in the database
+            Assert.Equal(3, teams.Count());
+            Assert.Contains(teams, t => t.Player1Id == 1 && t.Player2Id == null);
+            Assert.Contains(teams, t => t.Player1Id == 2 && t.Player2Id == null);
+            Assert.Contains(teams, t => t.Player1Id == 1 && t.Player2Id == 3);
         }
     }
 }
