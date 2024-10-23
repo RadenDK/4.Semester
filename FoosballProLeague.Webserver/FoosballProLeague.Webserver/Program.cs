@@ -8,6 +8,8 @@ builder.Services.AddControllersWithViews();
 
 // Register Services
 builder.Services.AddHttpClient<IHttpClientService, HttpClientService>();
+
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 builder.Services.AddScoped<IRegistrationService, RegistrationService>();
 builder.Services.AddScoped<IRegistrationLogic, RegistrationLogic>();
 
