@@ -21,8 +21,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserContr
         // initialize UserLogic and UserController
         public LoginUserTests()
         {
-            _userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            _userController = new UserController(_userLogic);
+            _userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration())); // Initialize UserLogic with UserDatabaseAccessor
+            _userController = new UserController(_userLogic); // Initialize UserController with UserLogic
         }
 
         [Fact]
@@ -30,7 +30,6 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserContr
         {
             // Arrange: First clear the database 
             // then insert a user into the database
-            _dbHelper.ClearDatabase();
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword("Password123");
             string insertQuery = @" INSERT INTO users (first_name, last_name, email, password, elo_1v1, elo_2v2)
                                 VALUES ('John', 'Doe', 'john.doe@johndoe.com', '" + hashedPassword + "', 1500, 1600)";
@@ -40,7 +39,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserContr
             UserLoginModel loginModel = new UserLoginModel
             {
                 Email = "john.doe@johndoe.com",
-                Password = "Password123"
+                Password = hashedPassword
             };
 
             // Act: Call the LoginUser method
@@ -56,7 +55,6 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserContr
         {
             // Arrange: First clear the database 
             // then insert a user into the database
-            _dbHelper.ClearDatabase();
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword("Password123");
             string insertQuery = @" INSERT INTO users (first_name, last_name, email, password, elo_1v1, elo_2v2)
                                 VALUES ('John', 'Doe', 'john.doe@johndoe.com', '" + hashedPassword + "', 1500, 1600)";
