@@ -32,12 +32,12 @@ public class RegistrationService : IRegistrationService
         string json = JsonSerializer.Serialize(user);
         StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
         
-        return await _httpClientService.PostAsync("/User/user", content);
+        return await _httpClientService.PostAsync("/api/User", content);
     }
     
     public async Task<List<CompanyModel>> GetCompaniesAsync()
     {
-        HttpResponseMessage response = await _httpClientService.GetAsync("/Company/companies");
+        HttpResponseMessage response = await _httpClientService.GetAsync("/api/Company");
         if (response.IsSuccessStatusCode)
         {
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -51,7 +51,7 @@ public class RegistrationService : IRegistrationService
 
     public async Task<List<DepartmentModel>> GetDepartments()
     {
-        HttpResponseMessage response = await _httpClientService.GetAsync("/Company/departments");
+        HttpResponseMessage response = await _httpClientService.GetAsync("/api/Department");
         if (response.IsSuccessStatusCode)
         {
             string responseBody = await response.Content.ReadAsStringAsync();

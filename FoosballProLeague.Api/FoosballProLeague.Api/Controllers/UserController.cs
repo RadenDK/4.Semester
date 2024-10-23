@@ -7,7 +7,7 @@ using FoosballProLeague.Api.Models;
 namespace FoosballProLeague.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class UserController : Controller
     {
         private IUserLogic _userLogic;
@@ -18,7 +18,7 @@ namespace FoosballProLeague.Api.Controllers
         }
         
         // method to handle registration of a new user (create user)
-        [HttpPost("user")]
+        [HttpPost]
         public IActionResult CreateUser(UserRegistrationModel userRegistrationModel)
         {
             if(_userLogic.CreateUser(userRegistrationModel))
@@ -32,7 +32,7 @@ namespace FoosballProLeague.Api.Controllers
         }
         
         // method to get all users in a list
-        [HttpGet("users")]
+        [HttpGet]
         public IActionResult GetUsers()
         {
             try

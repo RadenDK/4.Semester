@@ -5,7 +5,7 @@ using FoosballProLeague.Api.Models;
 namespace FoosballProLeague.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class CompanyController : Controller
     {
         private ICompanyLogic _companyLogic;
@@ -15,27 +15,13 @@ namespace FoosballProLeague.Api.Controllers
             _companyLogic = companyLogic;
         }
         
-        [HttpGet("companies")]
+        [HttpGet]
         public IActionResult GetCompanies()
         {
             try
             {
                 List<CompanyModel> companies = _companyLogic.GetCompanies();
                 return Ok(companies);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpGet("departments")]
-        public IActionResult GetDepartments()
-        {
-            try
-            {
-                List<DepartmentModel> departments = _companyLogic.GetDepartments();
-                return Ok(departments);
             }
             catch (Exception ex)
             {

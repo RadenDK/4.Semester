@@ -22,7 +22,7 @@ public class LoginService : ILoginService
    {
        StringContent content = new StringContent(JsonConvert.SerializeObject(new{Email = email, Password = password} ), Encoding.UTF8, "application/json");
        
-       return await _httpClientService.PostAsync("/User/login", content);
+       return await _httpClientService.PostAsync("/api/User/login", content);
    }
    
    //service call for login out user 
@@ -30,7 +30,7 @@ public class LoginService : ILoginService
    {
        StringContent content = new StringContent(JsonConvert.SerializeObject(new{PlayerId = playerId}), Encoding.UTF8, "application/json");
        
-       return await _httpClientService.PutAsync("/User/logout", content);
+       return await _httpClientService.PutAsync("/api/User/logout", content);
    }
    
    
