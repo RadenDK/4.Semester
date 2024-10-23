@@ -16,16 +16,22 @@ namespace FoosballProLeague.Webserver.Controllers
         [HttpGet("Registration")]
         public async Task<IActionResult> Registration()
         {
-            return await GetCompanies();
+            await PopulateViewBags();
+            return View("Registration", new UserRegistrationModel());
+            //return await GetCompaniesAndDepartments();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetCompanies()
+        /*[HttpGet]
+        public async Task<IActionResult> GetCompaniesAndDepartments()
         {
             try
             {
                 List<CompanyModel> companies = await _registrationLogic.GetCompaniesAsync();
                 ViewBag.Companies = companies;
+
+                List<DepartmentModel> departments = await _registrationLogic.GetDepartments();
+                ViewBag.Departments = departments;
+                
                 return View("Registration", new UserRegistrationModel());
             }
             catch (Exception e)
@@ -33,13 +39,14 @@ namespace FoosballProLeague.Webserver.Controllers
                 Console.WriteLine(e);
                 throw;
             }
-        }
+        }*/
 
         [HttpPost]
         public async Task<IActionResult> CreateUser(UserRegistrationModel newUser)
         {
             if(!ModelState.IsValid)
             {
+                await PopulateViewBags();
                 return View("Registration", newUser);
             }
             
@@ -51,29 +58,15 @@ namespace FoosballProLeague.Webserver.Controllers
             else
             {
                 ModelState.AddModelError(string.Empty, "An error occurred while creating the user");
+                await PopulateViewBags();
                 return View("Registration", newUser);
             }
         }
-
-        [HttpPost("Departments")]
-        public async Task<IActionResult> GetDepartments([FromBody] int companyId)
+        
+        private async Task PopulateViewBags()
         {
-            try
-            {
-                List<DepartmentModel> departments = await _registrationLogic.GetDepartmentByCompanyId(companyId);
-                List<CompanyModel> companies = await _registrationLogic.GetCompaniesAsync();
-
-                ViewBag.Companies = companies;
-                ViewBag.Departments = departments;
-                
-                UserRegistrationModel userRegistrationModel = new UserRegistrationModel { CompanyId = companyId };
-                return View("Registration", userRegistrationModel);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            ViewBag.Companies = await _registrationLogic.GetCompaniesAsync();
+            ViewBag.Departments = await _registrationLogic.GetDepartments();
         }
     }
 }
