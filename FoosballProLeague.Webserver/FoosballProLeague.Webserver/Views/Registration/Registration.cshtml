@@ -36,25 +36,26 @@ Layout = null;
         <input type="password" id="confirmPassword" name="ConfirmPassword" asp-for="ConfirmPassword" required>
         <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
         
-        <form id="companyForm" asp-action="GetDepartments" method="post">
         <label for ="company">Company</label>
-        <select id="company" name="companyId" asp-for="CompanyId" required>
+        <select class="dropdown" id="company" name="companyId" asp-for="CompanyId" required>
             <option value="">Select a company</option>
-            @foreach (CompanyModel company in ViewBag.Companies)
+            @if (ViewBag.Companies != null)
             {
-                <option value="@company.Id">@company.Name</option>
+                @foreach (CompanyModel company in ViewBag.Companies)
+                {
+                    <option value="@company.Id">@company.Name</option>
+                }
             }
         </select>
-        </form>
         
         <label for="department">Department</label>
-        <select id="department" name="Department" asp-for="DepartmentId" disabled required>
+        <select class="dropdown" id="department" name="DepartmentId" asp-for="DepartmentId" disabled required>
             <option value="">Select a department</option>
             @if (ViewBag.Departments != null)
             {
                 @foreach (DepartmentModel department in ViewBag.Departments)
                 {
-                    <option value="@department.Id">@department.Name</option>
+                    <option value="@department.Id" data-company-id="@department.CompanyId">@department.Name</option>
                 }
             }
         </select>
@@ -68,29 +69,22 @@ Layout = null;
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.19.2/jquery.validate.min.js"></script>
 <script src="https://ajax.aspnetcdn.com/ajax/mvc/5.2.3/jquery.validate.unobtrusive.min.js"></script>
 <script>
-/*    document.getElementById('company').addEventListener('change', function() {
-        var companyId = this.value;
-        fetch('@Url.Action("GetDepartments", "Registration")', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(companyId)
-        })
-            .then(response => response.json())
-            .then(data => {
-                var departmentSelect = document.getElementById('department');
-                departmentSelect.innerHTML = '<option value="">Select a department</option>';
-                data.forEach(department => {
-                    var option = document.createElement('option');
-                    option.value = department.id;
-                    option.text = department.name;
-                    departmentSelect.appendChild(option);
-                });
-                departmentSelect.disabled = false;
-            })
-            .catch(error => console.error('Error:', error));
-    });*/
+    $(document).ready(function() {
+        $('#company').change(function() {
+            var selectedCompanyId = $(this).val();
+            $('#department').val('');
+            $('#department option').each(function() {
+                var departmentCompanyId = $(this).data('company-id');
+                if (departmentCompanyId == selectedCompanyId || !selectedCompanyId) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+            $('#department').prop('disabled', !selectedCompanyId);
+        });
+        $('#company').change();
+    });
 </script>
     
 </body>
