@@ -17,6 +17,7 @@ Layout = null;
     <a class="button back-button" asp-controller="Login" asp-action="Login">Back</a>
     <h1>Create profile</h1>
     <form asp-action="CreateUser" method="post">
+        
         <label for="firstName">First name</label>
         <input type="text" id="firstName" name="FirstName" asp-for="FirstName" required>
         <span asp-validation-for="FirstName" class="text-danger"></span>
@@ -38,7 +39,7 @@ Layout = null;
         <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
 
         <label for="company">Company</label>
-        <select class="dropdown" id="company" name="companyId" asp-for="CompanyId" required>
+        <select class="dropdown" id="company" name="CompanyId" asp-for="CompanyId" required>
             <option value="">Select a company</option>
             @if (ViewBag.Companies != null)
             {
@@ -48,6 +49,7 @@ Layout = null;
                 }
             }
         </select>
+        <span asp-validation-for="CompanyId" class="text-danger"></span>
 
         <label for="department">Department</label>
         <select class="dropdown" id="department" name="DepartmentId" asp-for="DepartmentId" disabled required>
@@ -60,6 +62,7 @@ Layout = null;
                 }
             }
         </select>
+        <span asp-validation-for="DepartmentId" class="text-danger"></span>
 
         <div>
             <button type="submit">Submit</button>
@@ -86,6 +89,7 @@ Layout = null;
             $('#department').prop('disabled', !selectedCompanyId);
         });
         $('#company').change();
+        
     });
 </script>
     
