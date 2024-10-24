@@ -16,20 +16,49 @@ body, html {
     background-color: #0b1424;
 }
 
+/* Styling for the whole login container */
 .login-container {
     display: flex;
     width: 100vw;
     height: 100vh;
     background: #1b1b2f;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
     overflow: hidden;
 }
 
+ /*Animation for the gradient background*/
+@-webkit-keyframes sidebarGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@-moz-keyframes sidebarGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes sidebarGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Styling for the login sidebar (Left side of the container) */
 .login-sidebar {
     width: 40%;
-    background: #0e0e1d;
-    border-radius: 10px;
+    background: linear-gradient(271deg, #0b1b38, #6c49eb);
+    background-size: 400% 400%;
+    -webkit-animation: sidebarGradient 20s ease infinite;
+    -moz-animation: sidebarGradient 20s ease infinite;
+    animation: sidebarGradient 20s ease infinite;
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
     color: white;
     padding: 50px 30px;
     display: flex;
@@ -45,7 +74,7 @@ body, html {
     height: 100vh; 
     margin-bottom: 20px;
     color: #e6e6e6;
-    font-weight: bold;
+    font-weight: 1000;
 }
 
 .login-sidebar p {
@@ -53,6 +82,7 @@ body, html {
     line-height: 1.5;
 }
 
+/* Styling for the login form (Right side of the container) */
 .login-form {
     width: 60%;
     background-color: #1b1b2f;
@@ -62,8 +92,8 @@ body, html {
     flex-direction: column; 
 
 }
+
 #loginForm {
-    
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -121,6 +151,7 @@ body, html {
     background: #333355;
 }
 
+/* Styling for the input fields when autofilled */
 .login-box input:-webkit-autofill {
     background-color: #333344 !important;
     -webkit-box-shadow: 0 0 0px 1000px #333344 inset;
@@ -129,6 +160,7 @@ body, html {
     border-color: rgba(0, 0, 0, 0);
 }
 
+/* Login button styling */
 .login-box button.login {
     width: 38%;
     padding: 14px 20px;
@@ -164,6 +196,7 @@ body, html {
     text-decoration: underline;
 }
 
+/* Create profile button styling */
 .login-box button.create-profile {
     padding: 14px 20px;
     border: none;
