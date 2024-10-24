@@ -21,13 +21,25 @@ namespace FoosballProLeague.Api.Controllers
         [HttpPost]
         public IActionResult CreateUser(UserRegistrationModel userRegistrationModel)
         {
-            if(_userLogic.CreateUser(userRegistrationModel))
+            try
             {
-                return Ok(); // Return Ok if the user was created successfully
+                if (_userLogic.GetUser(userRegistrationModel.Email) != null)
+                {
+                    return BadRequest(new { message = "Email already exists" });
+                }
+                
+                if(_userLogic.CreateUser(userRegistrationModel))
+                {
+                    return Ok(); // Return Ok if the user was created successfully
+                }
+                else
+                {
+                    return BadRequest(new { message = "Error creating user" });
+                }
             }
-            else
+            catch (ArgumentException e)
             {
-                return BadRequest(new { message = "Error creating user" });
+                return BadRequest(new { message = e.Message });
             }
         }
         
