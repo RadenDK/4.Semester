@@ -21,6 +21,11 @@ namespace FoosballProLeague.Api.Controllers
         [HttpPost]
         public IActionResult CreateUser(UserRegistrationModel userRegistrationModel)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            
             try
             {
                 if (_userLogic.GetUser(userRegistrationModel.Email) != null)
