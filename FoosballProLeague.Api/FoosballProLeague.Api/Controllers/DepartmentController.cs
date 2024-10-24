@@ -9,11 +9,11 @@ namespace FoosballProLeague.Api.Controllers;
 
 public class DepartmentController : Controller
 {
-    private ICompanyLogic _companyLogic;
+    private IDepartmentLogic _departmentLogic;
     
-    public DepartmentController(ICompanyLogic companyLogic)
+    public DepartmentController(IDepartmentLogic departmentLogic)
     {
-        _companyLogic = companyLogic;
+        _departmentLogic = departmentLogic;
     }
     
     [HttpGet]
@@ -21,7 +21,7 @@ public class DepartmentController : Controller
     {
         try
         {
-            List<DepartmentModel> departments = _companyLogic.GetDepartments();
+            List<DepartmentModel> departments = _departmentLogic.GetDepartments();
             return Ok(departments);
         }
         catch (Exception ex)

@@ -9,6 +9,8 @@ builder.Services.AddScoped<ICompanyLogic, CompanyLogic>();
 builder.Services.AddScoped<ICompanyDatabaseAccessor, CompanyDatabaseAccessor>();
 builder.Services.AddScoped<IUserLogic, UserLogic>();
 builder.Services.AddScoped<IUserDatabaseAccessor, UserDatabaseAccessor>();
+builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
+builder.Services.AddScoped<IDepartmentDatabaseAccessor, DepartmentDatabaseAccessor>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
