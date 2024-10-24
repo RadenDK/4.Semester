@@ -37,10 +37,32 @@ public class UserLogic : IUserLogic
     // checks if the account has values
     private bool AccountHasValues(UserRegistrationModel newUser)
     {
-        return !string.IsNullOrEmpty(newUser.FirstName) && 
-               !string.IsNullOrEmpty(newUser.LastName) && 
-               !string.IsNullOrEmpty(newUser.Email) && 
-               !string.IsNullOrEmpty(newUser.Password);
+        if (newUser == null)
+        {
+            return false;
+        }
+        
+        if (string.IsNullOrEmpty(newUser.FirstName))
+        {
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(newUser.LastName))
+        {
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(newUser.Email) && _userDatabaseAccessor.GetUser(newUser.Email) != null)
+        {
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(newUser.Password))
+        {
+            return false;
+        }
+
+        return true;
     }
     
     //method to login user
@@ -59,5 +81,10 @@ public class UserLogic : IUserLogic
     public List<UserModel> GetUsers()
     {
         return _userDatabaseAccessor.GetUsers();
+    }
+
+    public UserModel GetUser(string email)
+    {
+        return _userDatabaseAccessor.GetUser(email);
     }
 }
