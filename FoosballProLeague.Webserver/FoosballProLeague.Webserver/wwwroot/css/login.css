@@ -16,14 +16,6 @@ body, html {
     background-color: #0b1424;
 }
 
-
-.login-box .remember-me label {
-    font-size: 15px;
-    font-weight: 400;
-    color: #e4e4e4;
-    cursor: pointer;
-}
-
 .login-container {
     display: flex;
     width: 100vw;
@@ -52,7 +44,7 @@ body, html {
     padding: 20px; 
     height: 100vh; 
     margin-bottom: 20px;
-    color: #fa6565;
+    color: #e6e6e6;
     font-weight: bold;
 }
 
@@ -90,7 +82,7 @@ body, html {
     text-align: center;
     margin-bottom: 60px;
     font-size: 34px;
-    color: whitesmoke;
+    color: #e3e3e3;
     font-weight: bold;
 }
 
@@ -101,9 +93,7 @@ body, html {
     font-size: 16px;
     background-color: #333344;
     transition: all 0.3s cubic-bezier(0.82,-0.1, 0.33, 1.35);
-    margin: 0 auto 15px; 
-    
-
+    margin: 0 auto 15px;
 }
 
 .login-box input#email,
@@ -128,7 +118,6 @@ body, html {
 .login-box input:focus {
     outline: none;
     border-color: rgba(25, 24, 24, 0);
-    background-color: #333355;
     background: #333355;
 }
 
