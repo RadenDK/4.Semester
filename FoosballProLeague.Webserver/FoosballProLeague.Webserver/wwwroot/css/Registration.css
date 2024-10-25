@@ -1,0 +1,100 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #0b1424;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.form-container {
+    width: 30%;
+    background-color: #0b1b38;
+    border-radius: 8px;
+    box-shadow: 0 0 15px 0 rgb(0, 0, 0, 0.5);
+    text-align: center;
+    padding: 20px 50px;
+}
+
+h1 {
+    margin-bottom: 10px;
+    font-size: 35px;
+    color: #fff;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    text-align: left;
+    font-size: 15px;
+    color: #fff;
+    font-weight: bold;
+}
+
+#firstName, #lastName, #email, #password, #confirmPassword, #company, #department{
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+    margin-bottom: 10px;
+    font-size: 15px;
+    background-color: #333344;
+    color: #fff;
+}
+
+.dropdown select{
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+    margin-bottom: 10px;
+    font-size: 15px;
+    background-color: #333344;
+    color: #fff;
+}
+
+.text-danger {
+    color: #ff4d4d;
+    font-size: 15px;
+    font-weight: bold;
+    margin-top: 5px;
+    display: block;
+}
+
+.back-button {
+    position: absolute;
+    top: 20px; /* Adjust as needed */
+    left: 500px; /* Adjust as needed */
+}
+
+.button-container{
+    display: flex;
+    justify-content: space-between;
+}
+
+button, .button {
+    background-color: #6c49eb;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 30px;
+    transition: background-color 0.5s;
+    text-decoration: none;
+    text-align: center;
+}
+
+    button:hover, .button:hover {
+        background-color: #3c327d;
+    }
+    
+

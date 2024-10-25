@@ -1,0 +1,218 @@
+﻿* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #0b1424;
+    color: #fff;
+}
+
+/*styling of scrollbar*/
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #6c49eb;
+    border-radius: 10px;
+}
+
+/*styling of container*/
+
+.container {
+    width: 100%;
+    margin: 0 auto;
+}
+
+
+.main {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    height: calc(100vh - 5px);
+}
+
+/*styling of leaderboard*/
+
+.leaderboard-section, .match-section {
+    width: 49%;
+}
+
+.leaderboard {
+    background-color: #0b1b38;
+    box-shadow: 0 0 15px 0 rgb(0, 0, 0, 0.5);
+    padding: 40px;
+    border-radius: 10px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.leaderboard-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+}
+
+    .leaderboard-header h2 {
+        margin-bottom: 20px;
+        font-size: 30px;
+        font-weight: bold;
+    }
+
+.elo-button {
+    margin-bottom: 15px;
+    background-color: #0b1b38;
+    border: 3px solid #6c49eb;
+    border-radius: 20px;
+    padding: 5px 20px;
+    font-size: 15px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.5s ease;
+}
+
+    .elo-button:hover {
+        background-color: #6c49eb;
+    }
+
+    .elo-button.active {
+        background-color: #6c49eb;
+        color: #fff;
+    }
+
+.leaderboard table {
+    width: 100%;
+    overflow: scroll;
+    border-collapse: collapse;
+}
+
+    .leaderboard table thead {
+        display: table-header-group;
+        background-color: #6c49eb;
+        border-radius: 10px;
+    }
+
+
+        .leaderboard table thead tr {
+            display: table-row;
+        }
+
+        .leaderboard table thead th {
+            text-align: left;
+            padding: 10px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+            .leaderboard table thead th:first-child {
+                text-align: center;
+            }
+
+            .leaderboard table thead th:first-child {
+                border-top-left-radius: 30px;
+                border-bottom-left-radius: 30px;
+            }
+
+            .leaderboard table thead th:last-child {
+                border-top-right-radius: 30px;
+                border-bottom-right-radius: 30px;
+            }
+
+    .leaderboard table tbody {
+        display: table-body-group;
+    }
+
+        .leaderboard table tbody tr {
+            display: table-row;
+        }
+
+        .leaderboard table tbody td {
+            text-align: left;
+            padding: 10px;
+            font-size: 20px;
+        }
+
+            .leaderboard table tbody td:first-child {
+                text-align: center;
+                font-weight: bold;
+            }
+
+
+/*styling of ongoing match*/
+
+.ongoing-match {
+    background-color: #0b1b38;
+    box-shadow: 0 0 15px 0 rgb(0, 0, 0, 0.5);
+    padding: 40px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+    .ongoing-match h2 {
+        margin-bottom: 20px;
+        font-size: 30px;
+        font-weight: bold;
+    }
+
+.match-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.match-time {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.match-score {
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+}
+
+    .match-score .team {
+        width: 80px;
+        text-align: center;
+    }
+
+    .match-score .score {
+        font-size: 20px;
+        color: #6c49eb;
+        font-weight: bold;
+    }
+
+.match-history {
+    background-color: #0b1b38;
+    box-shadow: 0 0 15px 0 rgb(0, 0, 0, 0.5);
+    padding: 40px;
+    border-radius: 10px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+    .match-history h2 {
+        margin-bottom: 20px;
+        font-size: 30px;
+        font-weight: bold;
+    }
+
+    .match-history .history-item {
+        font-size: 20px;
+        display: flex;
+        justify-content: space-between;
+        background-color: #0b1424;
+        padding: 10px;
+        border: 3px solid #6c49eb;
+        border-radius: 20px;
+    }
