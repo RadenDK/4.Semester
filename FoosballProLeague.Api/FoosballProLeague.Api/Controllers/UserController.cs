@@ -71,13 +71,14 @@ namespace FoosballProLeague.Api.Controllers
         {
             try
             {
-                if(_userLogic.LoginUser(userLoginModel.Email, userLoginModel.Password))
+                bool loginSucces = _userLogic.LoginUser(userLoginModel.Email, userLoginModel.Password);
+                if(loginSucces)
                 {
                     return Ok(); // Return Ok if the user was logged in successfully
                 }
                 else
                 {
-                    return BadRequest(); // Return BadRequest if the user was not logged in successfully
+                    return BadRequest(new { message = "Email or password is incorrect"}); // Return BadRequest if the user was not logged in successfully
                 }
             } catch (Exception e)
             {
