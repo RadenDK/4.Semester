@@ -80,6 +80,7 @@ body, html {
 .login-sidebar p {
     font-size: 16px;
     line-height: 1.5;
+    
 }
 
 /* Styling for the login form (Right side of the container) */
@@ -279,7 +280,7 @@ body, html {
     filter: invert(50%);
 }
 
-.error.message p {
+.errormessage p {
     color: red;
 }
 

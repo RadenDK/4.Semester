@@ -30,7 +30,7 @@ Layout = null;
             </form>
             @if (!ViewData.ModelState.IsValid)
             {
-            <div class="error-message">
+            <div class="errormessage">
                 @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
                 {
                 <p>@error.ErrorMessage</p>
