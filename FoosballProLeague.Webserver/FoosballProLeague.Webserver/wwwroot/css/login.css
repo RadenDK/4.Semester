@@ -32,21 +32,21 @@ body, html {
 
  /*Animation for the gradient background*/
 @-webkit-keyframes sidebarGradient {
-    0% { background-position: 0% 50%; }
+    0% { background-position: 0 50%; }
     50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    100% { background-position: 0 50%; }
 }
 
 @-moz-keyframes sidebarGradient {
-    0% { background-position: 0% 50%; }
+    0% { background-position: 0 50%; }
     50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    100% { background-position: 0 50%; }
 }
 
 @keyframes sidebarGradient {
-    0% { background-position: 0% 50%; }
+    0% { background-position: 0 50%; }
     50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    100% { background-position: 0 50%; }
 }
 
 /* Styling for the login sidebar (Left side of the container) */
@@ -150,14 +150,13 @@ body, html {
 .login-box input:focus {
     outline: none;
     border-color: rgba(25, 24, 24, 0);
-    background: #333355;
 }
 
 /* Styling for the input fields when autofilled */
 .login-box input:-webkit-autofill {
     background-color: #333344 !important;
-    -webkit-box-shadow: 0 0 0px 1000px #333344 inset;
-    box-shadow: 0 0 0px 1000px #333344 inset;
+    -webkit-box-shadow: 0 0 0 1000px #333344 inset;
+    box-shadow: 0 0 0 1000px #333344 inset;
     -webkit-text-fill-color: #ffffff !important;
     border-color: rgba(0, 0, 0, 0);
 }
