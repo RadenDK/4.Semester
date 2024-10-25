@@ -11,8 +11,7 @@ public class CompanyDatabaseAccessor : ICompanyDatabaseAccessor
 
     public CompanyDatabaseAccessor(IConfiguration configuration)
     {
-        _connectionString = Environment.GetEnvironmentVariable("DatabaseConnection") 
-                        ?? configuration.GetConnectionString("DatabaseConnection");
+        _connectionString = configuration.GetConnectionString("DatabaseConnection");
     }
     
     public List<CompanyModel> GetCompanies()
