@@ -12,7 +12,8 @@ public class LoginController : Controller
     {
         _loginLogic = loginLogic;
     }
-    
+
+    [HttpGet("")]
     [HttpGet("Login")]
     public IActionResult Login()
     {
