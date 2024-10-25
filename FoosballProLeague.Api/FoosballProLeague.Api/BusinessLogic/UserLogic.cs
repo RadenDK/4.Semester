@@ -73,7 +73,6 @@ public class UserLogic : IUserLogic
         {
             return bc.Verify(password, user.Password);
         }
-
         return false;
     }
     
