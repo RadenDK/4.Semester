@@ -270,11 +270,11 @@ body, html {
 
 /* change the icon color when text visible */
 .icon-white {
-    filter: invert(50%);
+    filter: invert(10%);
 }
 
 /* change the icon color when text hidden */
 .icon-black {
-    filter: invert(10%);
+    filter: invert(50%);
 }
 
