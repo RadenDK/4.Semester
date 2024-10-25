@@ -56,7 +56,11 @@ jobs:
             docker ps -a  # List all containers, even stopped ones
             docker stop foosballproleague-api-container || true  # Stop any existing container
             docker rm foosballproleague-api-container || true    # Remove the container if it exists
-            docker run -d -p 5001:5001 --name foosballproleague-api-container foosballproleague-api:latest  # Run the container on port 5001
+            docker run -d -p 5001:5001 \
+            --name foosballproleague-api-container \
+            -e DatabaseConnection="${{ secrets.DATABASE_CONNECTION_STRING }}" \
+            foosballproleague-api:latest 
+
 
       # Optional Step 8: Clean up tar files from the server after deployment
       - name: Clean up tar files on DigitalOcean
