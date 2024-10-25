@@ -42,3 +42,6 @@ appsettings.*.json
 # Ignore all appsettings files
 appsettings*.json
 
+
+## Ignore Visual Studio Launch Settings
+**/launchSettings.json
