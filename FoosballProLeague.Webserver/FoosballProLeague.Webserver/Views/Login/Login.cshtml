@@ -26,17 +26,17 @@ Layout = null;
                     <input type="password" placeholder="Password" id="password" asp-for="Password" required />
                     <img id="togglePassword" class="toggle-password" src="~/eyepasswordvisibility.svg" alt="Toggle Password Visibility" />
                 </div>
+                @if (!ViewData.ModelState.IsValid)
+                {
+                <div class="errormessage">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                    <p>@error.ErrorMessage</p>
+                    }
+                </div>
+                }
                 <button type="submit" class="login">Sign in</button>
             </form>
-            @if (!ViewData.ModelState.IsValid)
-            {
-            <div class="errormessage">
-                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                {
-                <p>@error.ErrorMessage</p>
-                }
-            </div>
-            }
             <form action="/Registration" method="get">
                 <button type="submit" class="create-profile">Create profile</button>
             </form>
