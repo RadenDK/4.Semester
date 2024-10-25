@@ -1,8 +1,9 @@
+// Script for the login page to toggle the password visibility and change the icon color accordingly
 document.addEventListener('DOMContentLoaded', function() {
     var passwordField = document.getElementById('password');
     var togglePasswordIcon = document.getElementById('togglePassword');
 
-    // Set initial state of the icon based on the password field type
+    // Set initial state of the icon based on the password field type, to enforce the correct icon color upon page reload
     if (passwordField.type === 'password') {
         togglePasswordIcon.classList.add('icon-black');
     } else {
@@ -13,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var type = passwordField.type === 'password' ? 'text' : 'password';
         passwordField.type = type;
 
-        // Toggle icon color
+        // Toggle icon color depending on the password field type
         if (type === 'text') {
             this.classList.remove('icon-black');
             this.classList.add('icon-white');

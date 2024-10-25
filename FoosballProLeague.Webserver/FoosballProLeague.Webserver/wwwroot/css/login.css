@@ -220,7 +220,7 @@ body, html {
     cursor: pointer;
 }
 
-/*
+/* Wexo logo styling */
 .wexo-logo {
     max-width: 20%;
     height: auto;
@@ -231,7 +231,6 @@ body, html {
 /* Styling for the password container */
 .password-container {
     position: relative;
-    
 }
 
 .password-container input {
@@ -242,10 +241,11 @@ body, html {
     transform: scale(1.05);
 }
 
+/* Styling for the visibility icon */
 .toggle-password {
     position: absolute;
     right: 20px;
-    top: 35%;
+    top: 35%; /* forces it to be vertically centered in the password input field */
     transform: translateY(-50%);
     cursor: pointer;
     font-size: 18px;
@@ -255,7 +255,7 @@ body, html {
     font-weight: bold;
     transition: transform 0.4s cubic-bezier(0.6, -0.46, 0.3, 2.02), scale 0.4s cubic-bezier(0.6, -0.46, 0.3, 2.02);
 }
-
+/* makes the visibility icon animate with the password input field when the latter is hovered */
 .password-container input:hover + .toggle-password {
     transform: translateY(-50%) scale(1.10);
 }
@@ -269,10 +269,12 @@ body, html {
     transition-duration: 0.1s;
 }
 
+/* change the icon color when text visible */
 .icon-white {
     filter: invert(50%);
 }
 
+/* change the icon color when text hidden */
 .icon-black {
     filter: invert(10%);
 }
