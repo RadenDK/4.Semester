@@ -8,4 +8,5 @@ public interface IUserLogic
     
     public bool LoginUser(string email, string password);
     public List<UserModel> GetUsers();
+    public UserModel GetUser(string email);
 }

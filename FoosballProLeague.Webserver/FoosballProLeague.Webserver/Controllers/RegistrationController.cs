@@ -1,6 +1,9 @@
+using System.Net;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using FoosballProLeague.Webserver.Models;
 using FoosballProLeague.Webserver.BusinessLogic;
+using Newtonsoft.Json.Linq;
 
 namespace FoosballProLeague.Webserver.Controllers
 {
@@ -16,23 +19,8 @@ namespace FoosballProLeague.Webserver.Controllers
         [HttpGet("Registration")]
         public async Task<IActionResult> Registration()
         {
-            return await GetCompanies();
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetCompanies()
-        {
-            try
-            {
-                List<CompanyModel> companies = await _registrationLogic.GetCompaniesAsync();
-                ViewBag.Companies = companies;
-                return View("Registration", new UserRegistrationModel());
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            await PopulateViewBags();
+            return View("Registration", new UserRegistrationModel());
         }
 
         [HttpPost]
@@ -40,40 +28,52 @@ namespace FoosballProLeague.Webserver.Controllers
         {
             if(!ModelState.IsValid)
             {
+                await PopulateViewBags();
                 return View("Registration", newUser);
             }
             
             HttpResponseMessage response = await _registrationLogic.SendUserToApi(newUser);
             if (response.IsSuccessStatusCode)
             {
+                TempData["SuccesMessage"] = "Account was created succesfully!";
                 return RedirectToAction("Login", "Login");
             }
             else
             {
-                ModelState.AddModelError(string.Empty, "An error occurred while creating the user");
+                HandleErrorResponse(response);
+                await PopulateViewBags();
                 return View("Registration", newUser);
             }
         }
 
-        [HttpPost("Departments")]
-        public async Task<IActionResult> GetDepartments([FromBody] int companyId)
+        private async void HandleErrorResponse(HttpResponseMessage response)
         {
-            try
+            if (response.StatusCode == HttpStatusCode.BadRequest)
             {
-                List<DepartmentModel> departments = await _registrationLogic.GetDepartmentByCompanyId(companyId);
-                List<CompanyModel> companies = await _registrationLogic.GetCompaniesAsync();
-
-                ViewBag.Companies = companies;
-                ViewBag.Departments = departments;
-                
-                UserRegistrationModel userRegistrationModel = new UserRegistrationModel { CompanyId = companyId };
-                return View("Registration", userRegistrationModel);
+                var errorMessage = await GetErrorMessageFromResponse(response);
+                if (errorMessage == ApiErrorMessages.EmailExistsCode)
+                {
+                    ModelState.AddModelError("Email", "Email already exists");
+                }
             }
-            catch (Exception e)
+            else
             {
-                Console.WriteLine(e);
-                throw;
+                TempData["ErrorMessage"] = "An error occurred while trying to create the account. Please try again later.";
             }
+            
+        }
+        
+        private async Task<string> GetErrorMessageFromResponse(HttpResponseMessage response)
+        {
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var errorResponse = JObject.Parse(responseContent);
+            return errorResponse["message"].ToString();
+        }
+        
+        private async Task PopulateViewBags()
+        {
+            ViewBag.Companies = await _registrationLogic.GetCompaniesAsync();
+            ViewBag.Departments = await _registrationLogic.GetDepartments();
         }
     }
 }

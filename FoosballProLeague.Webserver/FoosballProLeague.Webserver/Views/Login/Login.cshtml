@@ -15,9 +15,7 @@
 <body>
 <div class="login-container">
     <div class="login-sidebar">
-        <img src="~/FPL Logo High Res.png" alt="FPL Logo" class="fpl-logo" />
-        <img src="~/X Mark removebg.png" alt="RemoveBG Preview" class="removebg-preview" />
-        <img src="~/Wexo logo (1).png" alt="Wexo Logo" class="wexo-logo" />
+        @* <img src="~/Wexo logo (1).png" alt="Wexo Logo" class="wexo-logo" /> *@
         <h1>FPL</h1>
     </div>
     <div class="login-form">
@@ -26,18 +24,19 @@
             <h2>Welcome</h2>
             <form id="loginForm" asp-action="LoginUser" asp-controller="Login" method="post">
                 <input type="text" placeholder="Email" id="email" asp-for="Email" required />
-
-                <input type="password" placeholder="Password" id="password" asp-for="Password" required />
-
+                <div class="password-container">
+                    <input type="password" placeholder="Password" id="password" asp-for="Password" required />
+                    <img id="togglePassword" class="toggle-password" src="~/eyepasswordvisibility.svg" alt="Toggle Password Visibility" />
+                </div>
                 <button type="submit" class="login">Sign in</button>
             </form>
 
-                <form action="/Registration" method="get">
-                    <button type="submit" class="create-profile">Create profile</button>
-                </form>
+            <form action="/Registration" method="get">
+                <button type="submit" class="create-profile">Create profile</button>
+            </form>
         </div>
     </div>
 </div>
-<script src="/js/login.js"></script>
+<script src="~/js/login.js"></script>
 </body>
 </html>

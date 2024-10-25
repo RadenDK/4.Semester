@@ -1,20 +1,23 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 
 namespace FoosballProLeague.Webserver.Service;
 
 public class HttpClientService : IHttpClientService
 {
     private readonly HttpClient _httpClient;
-    private Uri BaseAddress = new Uri("http://localhost:5000/");
+    private readonly IConfiguration _configuration;
 
-    public HttpClientService(HttpClient httpClient)
+    public HttpClientService(HttpClient httpClient, IConfiguration configuration)
     {
-        _httpClient = new HttpClient
+        _httpClient = httpClient;
+        _configuration = configuration;
+
+        string baseAddress = _configuration["HttpClientSettings:BaseAddress"];
+        if (!string.IsNullOrEmpty(baseAddress))
         {
-            BaseAddress = BaseAddress
-        };
+            _httpClient.BaseAddress = new Uri(baseAddress);
+        }
 
         _httpClient.DefaultRequestHeaders.Accept.Clear();
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));

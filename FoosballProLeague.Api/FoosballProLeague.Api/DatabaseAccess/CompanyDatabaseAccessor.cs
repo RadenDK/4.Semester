@@ -26,18 +26,4 @@ public class CompanyDatabaseAccessor : ICompanyDatabaseAccessor
         }
         return companies;
     }
-
-    public List<DepartmentModel> GetDepartments(int companyId)
-    {
-        List<DepartmentModel> departments = new List<DepartmentModel>();
-        string query = "SELECT id AS Id, name AS Name FROM departments WHERE company_Id = @CompanyId";
-
-        using (IDbConnection connection = new NpgsqlConnection(_connectionString))
-        {
-            connection.Open();
-            departments = connection.Query<DepartmentModel>(query, new { CompanyId = companyId}).ToList();
-        }
-
-        return departments;
-    }
 }

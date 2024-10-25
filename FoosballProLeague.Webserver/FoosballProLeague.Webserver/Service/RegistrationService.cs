@@ -22,18 +22,22 @@ public class RegistrationService : IRegistrationService
             FirstName = newUser.FirstName,
             LastName = newUser.LastName,
             Email = newUser.Email,
-            Password = newUser.Password
+            Password = newUser.Password,
+            DepartmentId = newUser.DepartmentId,
+            CompanyId = newUser.CompanyId,
+            Elo1v1 = 0,
+            Elo2v2 = 0
         };
         
         string json = JsonSerializer.Serialize(user);
         StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
         
-        return await _httpClientService.PostAsync("/User/user", content);
+        return await _httpClientService.PostAsync("/api/User", content);
     }
     
     public async Task<List<CompanyModel>> GetCompaniesAsync()
     {
-        HttpResponseMessage response = await _httpClientService.GetAsync("/Company/companies");
+        HttpResponseMessage response = await _httpClientService.GetAsync("/api/Company");
         if (response.IsSuccessStatusCode)
         {
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -45,11 +49,9 @@ public class RegistrationService : IRegistrationService
         }
     }
 
-    public async Task<List<DepartmentModel>> GetDepartmentByCompanyId(int companyId)
+    public async Task<List<DepartmentModel>> GetDepartments()
     {
-        var requestBody = new { companyId = companyId };
-        StringContent content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
-        HttpResponseMessage response = await _httpClientService.PostAsync("/Company/departments", content);
+        HttpResponseMessage response = await _httpClientService.GetAsync("/api/Department");
         if (response.IsSuccessStatusCode)
         {
             string responseBody = await response.Content.ReadAsStringAsync();

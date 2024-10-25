@@ -15,9 +15,4 @@ public class CompanyLogic : ICompanyLogic
     {
         return _companyDatabaseAccessor.GetCompanies();
     }
-
-    public List<DepartmentModel> GetDepartments(int companyId)
-    {
-        return _companyDatabaseAccessor.GetDepartments(companyId);
-    }
 }

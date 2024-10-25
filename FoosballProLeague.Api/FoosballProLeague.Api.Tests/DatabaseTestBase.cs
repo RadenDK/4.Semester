@@ -48,6 +48,7 @@ namespace FoosballProLeague.Api.Tests
         public Task DisposeAsync()
         {
             // You can add additional cleanup logic here if needed
+            _dbHelper.ClearDatabase(); // Clear the database after each test
             return Task.CompletedTask;
         }
     }

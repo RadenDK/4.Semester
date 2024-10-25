@@ -7,7 +7,7 @@ using FoosballProLeague.Api.Models;
 namespace FoosballProLeague.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class UserController : Controller
     {
         private IUserLogic _userLogic;
@@ -18,21 +18,38 @@ namespace FoosballProLeague.Api.Controllers
         }
         
         // method to handle registration of a new user (create user)
-        [HttpPost("user")]
+        [HttpPost]
         public IActionResult CreateUser(UserRegistrationModel userRegistrationModel)
         {
-            if(_userLogic.CreateUser(userRegistrationModel))
+            if (!ModelState.IsValid)
             {
-                return Ok(); // Return Ok if the user was created successfully
+                return BadRequest(ModelState);
             }
-            else
+            
+            try
             {
-                return BadRequest(new { message = "Error creating user" });
+                if (_userLogic.GetUser(userRegistrationModel.Email) != null)
+                {
+                    return BadRequest(new { message = "Email already exists" });
+                }
+                
+                if(_userLogic.CreateUser(userRegistrationModel))
+                {
+                    return Ok(); // Return Ok if the user was created successfully
+                }
+                else
+                {
+                    return BadRequest(new { message = "Error creating user" });
+                }
+            }
+            catch (ArgumentException e)
+            {
+                return BadRequest(new { message = e.Message });
             }
         }
         
         // method to get all users in a list
-        [HttpGet("users")]
+        [HttpGet]
         public IActionResult GetUsers()
         {
             try

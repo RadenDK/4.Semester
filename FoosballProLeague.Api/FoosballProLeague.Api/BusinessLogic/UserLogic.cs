@@ -23,7 +23,11 @@ public class UserLogic : IUserLogic
                 FirstName = userRegistrationModel.FirstName,
                 LastName = userRegistrationModel.LastName,
                 Email = userRegistrationModel.Email,
-                Password = bc.HashPassword(userRegistrationModel.Password)
+                Password = bc.HashPassword(userRegistrationModel.Password),
+                DepartmentId = userRegistrationModel.DepartmentId,
+                CompanyId = userRegistrationModel.CompanyId,
+                Elo1v1 = 500,
+                Elo2v2 = 500
             };
             return _userDatabaseAccessor.CreateUser(newUserWithHashedPassword);
         }
@@ -33,7 +37,32 @@ public class UserLogic : IUserLogic
     // checks if the account has values
     private bool AccountHasValues(UserRegistrationModel newUser)
     {
-        return !string.IsNullOrEmpty(newUser.FirstName) && !string.IsNullOrEmpty(newUser.LastName) && !string.IsNullOrEmpty(newUser.Email) && !string.IsNullOrEmpty(newUser.Password);
+        if (newUser == null)
+        {
+            return false;
+        }
+        
+        if (string.IsNullOrEmpty(newUser.FirstName))
+        {
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(newUser.LastName))
+        {
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(newUser.Email) && _userDatabaseAccessor.GetUser(newUser.Email) != null)
+        {
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(newUser.Password))
+        {
+            return false;
+        }
+
+        return true;
     }
     
     //method to login user
@@ -44,7 +73,6 @@ public class UserLogic : IUserLogic
         {
             return bc.Verify(password, user.Password);
         }
-
         return false;
     }
     
@@ -52,5 +80,10 @@ public class UserLogic : IUserLogic
     public List<UserModel> GetUsers()
     {
         return _userDatabaseAccessor.GetUsers();
+    }
+
+    public UserModel GetUser(string email)
+    {
+        return _userDatabaseAccessor.GetUser(email);
     }
 }

@@ -16,28 +16,49 @@ body, html {
     background-color: #0b1424;
 }
 
-
-.login-box .remember-me label {
-    font-size: 15px;
-    font-weight: 400;
-    color: #e4e4e4;
-    cursor: pointer;
-}
-
+/* Styling for the whole login container */
 .login-container {
     display: flex;
     width: 100vw;
     height: 100vh;
     background: #1b1b2f;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
     overflow: hidden;
 }
 
+ /*Animation for the gradient background*/
+@-webkit-keyframes sidebarGradient {
+    0% { background-position: 0 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
+}
+
+@-moz-keyframes sidebarGradient {
+    0% { background-position: 0 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
+}
+
+@keyframes sidebarGradient {
+    0% { background-position: 0 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
+}
+
+/* Styling for the login sidebar (Left side of the container) */
 .login-sidebar {
     width: 40%;
-    background: #0e0e1d;
-    border-radius: 10px;
+    background: linear-gradient(271deg, #0b1b38, #6c49eb);
+    background-size: 400% 400%;
+    -webkit-animation: sidebarGradient 20s ease infinite;
+    -moz-animation: sidebarGradient 20s ease infinite;
+    animation: sidebarGradient 20s ease infinite;
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
     color: white;
     padding: 50px 30px;
     display: flex;
@@ -52,8 +73,8 @@ body, html {
     padding: 20px; 
     height: 100vh; 
     margin-bottom: 20px;
-    color: #fa6565;
-    font-weight: bold;
+    color: #e6e6e6;
+    font-weight: 1000;
 }
 
 .login-sidebar p {
@@ -61,6 +82,7 @@ body, html {
     line-height: 1.5;
 }
 
+/* Styling for the login form (Right side of the container) */
 .login-form {
     width: 60%;
     background-color: #1b1b2f;
@@ -70,8 +92,8 @@ body, html {
     flex-direction: column; 
 
 }
+
 #loginForm {
-    
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -90,7 +112,7 @@ body, html {
     text-align: center;
     margin-bottom: 60px;
     font-size: 34px;
-    color: whitesmoke;
+    color: #e3e3e3;
     font-weight: bold;
 }
 
@@ -101,21 +123,21 @@ body, html {
     font-size: 16px;
     background-color: #333344;
     transition: all 0.3s cubic-bezier(0.82,-0.1, 0.33, 1.35);
-    margin: 0 auto 15px; 
-    
-
+    margin: 0 auto 15px;
 }
 
 .login-box input#email,
 .login-box input#password {
     width: 93%;
     padding: 15px;
-    margin-left: 16px;
+    margin-left: 8px;
     margin-bottom: 20px;
     border: 1px solid rgba(0, 0, 0, 0);
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 14px;
+    font-weight: bold;
     background-color: #333344;
+    color: #efefef;
     transition: all 0.3s cubic-bezier(0.82,-0.1, 0.33, 1.35);
 }
 
@@ -128,20 +150,20 @@ body, html {
 .login-box input:focus {
     outline: none;
     border-color: rgba(25, 24, 24, 0);
-    background-color: #333355;
-    background: #333355;
 }
 
+/* Styling for the input fields when autofilled */
 .login-box input:-webkit-autofill {
     background-color: #333344 !important;
-    -webkit-box-shadow: 0 0 0px 1000px #333344 inset;
-    box-shadow: 0 0 0px 1000px #333344 inset;
+    -webkit-box-shadow: 0 0 0 1000px #333344 inset;
+    box-shadow: 0 0 0 1000px #333344 inset;
     -webkit-text-fill-color: #ffffff !important;
     border-color: rgba(0, 0, 0, 0);
 }
 
+/* Login button styling */
 .login-box button.login {
-    width: 38%;
+    width: 70%;
     padding: 14px 20px;
     border: none;
     background-color: #6c5ce7;
@@ -175,6 +197,7 @@ body, html {
     text-decoration: underline;
 }
 
+/* Create profile button styling */
 .login-box button.create-profile {
     padding: 14px 20px;
     border: none;
@@ -196,23 +219,62 @@ body, html {
     cursor: pointer;
 }
 
-.fpl-logo {
-    max-width: 20%;
-    height: auto;
-    margin-bottom: 20px;
-}
-
-.removebg-preview {
-    max-width: 20%;
-    height: auto;
-    margin-bottom: 20px;
-}
-
+/* Wexo logo styling 
 .wexo-logo {
     max-width: 20%;
     height: auto;
     margin-bottom: 20px;
 }
+*/
 
+/* Styling for the password container */
+.password-container {
+    position: relative;
+}
 
+.password-container input {
+    transition: transform 0.3s ease-in-out;
+}
+
+.password-container input:hover {
+    transform: scale(1.05);
+}
+
+/* Styling for the visibility icon */
+.toggle-password {
+    position: absolute;
+    right: 20px;
+    top: 35%; /* forces it to be vertically centered in the password input field */
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    color: #efefef;
+    width: 20px;
+    height: 20px;
+    font-weight: bold;
+    transition: transform 0.4s cubic-bezier(0.6, -0.46, 0.3, 2.02), scale 0.4s cubic-bezier(0.6, -0.46, 0.3, 2.02);
+}
+/* makes the visibility icon animate with the password input field when the latter is hovered */
+.password-container input:hover + .toggle-password {
+    transform: translateY(-50%) scale(1.10);
+}
+
+.toggle-password:hover {
+    transform: translateY(-50%) scale(1.10);
+}
+
+.toggle-password:active {
+    transform: translateY(-50%) scale(0.95);
+    transition-duration: 0.1s;
+}
+
+/* change the icon color when text visible */
+.icon-white {
+    filter: invert(10%);
+}
+
+/* change the icon color when text hidden */
+.icon-black {
+    filter: invert(50%);
+}
 

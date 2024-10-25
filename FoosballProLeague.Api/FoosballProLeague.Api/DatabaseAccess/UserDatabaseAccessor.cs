@@ -19,8 +19,8 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
     {
         bool userInserted = false;
         
-        string query = "INSERT INTO users (first_name, last_name, email, password)" + 
-                       "VALUES (@FirstName, @LastName, @Email, @Password)";
+        string query = "INSERT INTO users (first_name, last_name, email, password, department_Id, company_Id, elo_1v1, elo_2v2)" + 
+                       "VALUES (@FirstName, @LastName, @Email, @Password, @DepartmentId, @CompanyId, @Elo1v1, @Elo2v2)";
 
         using (IDbConnection connection = new NpgsqlConnection(_connectionString))
         {
@@ -36,7 +36,7 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
     {
         UserModel user = null;
 
-        string query = "SELECT * FROM Users WHERE Email = @Email";
+        string query = "SELECT email AS Email, password AS Password FROM Users WHERE Email = @Email";
 
         using (IDbConnection connection = new NpgsqlConnection(_connectionString))
         {
