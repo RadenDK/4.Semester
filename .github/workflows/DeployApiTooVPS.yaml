@@ -58,7 +58,7 @@ jobs:
             docker rm foosballproleague-api-container || true    # Remove the container if it exists
             docker run -d -p 5001:5001 \
             --name foosballproleague-api-container \
-            -e DatabaseConnection="${{ secrets.DATABASE_CONNECTION_STRING }}" \
+            -e ConnectionStrings__DatabaseConnection="${{ secrets.DATABASE_CONNECTION_STRING }}" \
             foosballproleague-api:latest 
 
 
