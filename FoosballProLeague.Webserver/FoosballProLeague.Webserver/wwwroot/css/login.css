@@ -130,12 +130,14 @@ body, html {
 .login-box input#password {
     width: 93%;
     padding: 15px;
-    margin-left: 16px;
+    margin-left: 8px;
     margin-bottom: 20px;
     border: 1px solid rgba(0, 0, 0, 0);
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 14px;
+    font-weight: bold;
     background-color: #333344;
+    color: #efefef;
     transition: all 0.3s cubic-bezier(0.82,-0.1, 0.33, 1.35);
 }
 
@@ -162,7 +164,7 @@ body, html {
 
 /* Login button styling */
 .login-box button.login {
-    width: 38%;
+    width: 70%;
     padding: 14px 20px;
     border: none;
     background-color: #6c5ce7;
@@ -219,18 +221,6 @@ body, html {
 }
 
 /*
-.fpl-logo {
-    max-width: 20%;
-    height: auto;
-    margin-bottom: 20px;
-}
-
-.removebg-preview {
-    max-width: 20%;
-    height: auto;
-    margin-bottom: 20px;
-}
-
 .wexo-logo {
     max-width: 20%;
     height: auto;
@@ -238,5 +228,52 @@ body, html {
 }
 */
 
+/* Styling for the password container */
+.password-container {
+    position: relative;
+    
+}
 
+.password-container input {
+    transition: transform 0.3s ease-in-out;
+}
+
+.password-container input:hover {
+    transform: scale(1.05);
+}
+
+.toggle-password {
+    position: absolute;
+    right: 20px;
+    top: 35%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    color: #efefef;
+    width: 20px;
+    height: 20px;
+    font-weight: bold;
+    transition: transform 0.4s cubic-bezier(0.6, -0.46, 0.3, 2.02), scale 0.4s cubic-bezier(0.6, -0.46, 0.3, 2.02);
+}
+
+.password-container input:hover + .toggle-password {
+    transform: translateY(-50%) scale(1.10);
+}
+
+.toggle-password:hover {
+    transform: translateY(-50%) scale(1.10);
+}
+
+.toggle-password:active {
+    transform: translateY(-50%) scale(0.95);
+    transition-duration: 0.1s;
+}
+
+.icon-white {
+    filter: invert(50%);
+}
+
+.icon-black {
+    filter: invert(10%);
+}
 
