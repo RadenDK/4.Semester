@@ -24,15 +24,5 @@ public class LoginService : ILoginService
        
        return await _httpClientService.PostAsync("/api/User/login", content);
    }
-   
-   //service call for login out user 
-   public async Task<HttpResponseMessage> LogoutUser(int playerId)
-   {
-       StringContent content = new StringContent(JsonConvert.SerializeObject(new{PlayerId = playerId}), Encoding.UTF8, "application/json");
-       
-       return await _httpClientService.PutAsync("/api/User/logout", content);
-   }
-   
-   
 }
 

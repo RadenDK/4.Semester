@@ -34,12 +34,4 @@ public class LoginController : Controller
         ModelState.AddModelError(string.Empty, "Login attempt failed");
         return View("Login");
     }
-    
-    
-    // Logout method
-    [HttpPut("Logout")]
-    public async Task<IActionResult> LogoutUser(UserModel user)
-    {
-        return View();
-    }
 }
