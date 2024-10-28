@@ -17,10 +17,17 @@ namespace FoosballProLeague.Api.BusinessLogic
             _matchDatabaseAccessor = matchDatabaseAccessor;
         }
 
+
+        /*
+         * LoginOnTable should take a login request which contains information about the player, table and side.
+         * The Method should try to add players to a pending list waiting for a match to start.
+         * It should also check if there is an active match at the table and if there is, try to add the player to the active match if there is room.
+        */
         public bool LoginOnTable(TableLoginRequest tableLoginRequest)
         {
             bool playerSuccessfullyAdded = false;
 
+            // First check if there is no active match at the table
             int? activateMatchId = GetActiveMatchIdAtTable(tableLoginRequest.TableId);
             if (activateMatchId == null) // there is no active match at the table
             {
@@ -35,7 +42,6 @@ namespace FoosballProLeague.Api.BusinessLogic
             }
             else
             {
-
                 if (CheckForRoomOnActiveMatchTeamSide(activateMatchId.Value, tableLoginRequest))
                 {
                     playerSuccessfullyAdded = AddPlayerTooActiveMatchTeam(activateMatchId.Value, tableLoginRequest);
@@ -68,7 +74,7 @@ namespace FoosballProLeague.Api.BusinessLogic
                 team = _matchDatabaseAccessor.GetTeamById(activeMatch.BlueTeamId);
             }
 
-            if (team.Player2Id == null)
+            if (team != null && team.Player2Id == null)
             {
                 roomOnTeam = true;
             }
@@ -105,45 +111,83 @@ namespace FoosballProLeague.Api.BusinessLogic
             return _matchDatabaseAccessor.UpdateTeamId(matchId, tableLoginRequest.Side, newTeamId.Value);
         }
 
+        /*
+         * StartMatch should take a tableId and try to start a match with the pending teams at the table.
+         * It should create a match in the database and set the table to have an active match.
+         * It should also remove the pending teams from memory.
+         * If there is already an active match at the table, it should return false.
+        */
+        public bool StartMatch(int tableId)
+        {
+            bool matchStarted = false;
+
+            int? activeMatchId = GetActiveMatchIdAtTable(tableId);
+
+            if (activeMatchId != null)
+            {
+                return false; // There is already an active match at the table
+            }
+            else
+            {
+                int redTeamId = _matchDatabaseAccessor.RegisterTeam(_pendingMatchTeams[tableId].Teams["red"]);
+                int blueTeamId = _matchDatabaseAccessor.RegisterTeam(_pendingMatchTeams[tableId].Teams["blue"]);
+
+                // Create the match
+                int matchId = _matchDatabaseAccessor.CreateMatch(tableId, redTeamId, blueTeamId);
+
+                // Set the table active match
+                bool activeMatchWasSet = _matchDatabaseAccessor.SetTableActiveMatch(tableId, matchId);
+
+                // Remove the pending teams from memory
+                _pendingMatchTeams.Remove(tableId);
+
+                matchStarted = matchId != 0 && redTeamId != 0 && blueTeamId != 0 && activeMatchWasSet; // Check if all the operations were successful
+            }
+
+            return matchStarted;
+
+        }
+
+        private int? GetActiveMatchIdAtTable(int tableId)
+        {
+            int? activeMatchId = _matchDatabaseAccessor.GetActiveMatchIdByTableId(tableId);
+
+            return activeMatchId;
+        }
 
         public bool RegisterGoal(RegisterGoalRequest registerGoalRequest)
         {
+
+            bool goalRegistered = false;
+
             int? matchId = _matchDatabaseAccessor.GetActiveMatchIdByTableId(registerGoalRequest.TableId);
 
             if (matchId == null)
             {
-                // Check if the table has pending teams before trying to access them
-                if (!_pendingMatchTeams.ContainsKey(registerGoalRequest.TableId) || !_pendingMatchTeams[registerGoalRequest.TableId].IsMatchReady())
+                return goalRegistered; // No active match at the table, so goal will not be registered
+            }
+            else
+            {
+                int teamId = _matchDatabaseAccessor.GetTeamIdByMatchId(matchId.Value, registerGoalRequest.Side);
+
+                MatchLogModel matchLog = new MatchLogModel
                 {
-                    // Return false or handle the case where no pending teams exist for the table
-                    return false; // or return a BadRequest in the controller
+                    MatchId = matchId.Value,
+                    Side = registerGoalRequest.Side,
+                    LogTime = DateTime.Now,
+                    TeamId = teamId
+                };
+
+                if (!_matchDatabaseAccessor.LogGoal(matchLog))
+                {
+                    goalRegistered = false; ; // LogGoal failed
                 }
 
-                // Create match if the teams are ready
-                matchId = CreateMatchAndTeamsAndUpdateTableStatus(registerGoalRequest);
+                UpdateScoreAndCheckMatchCompletion(matchId.Value, registerGoalRequest);
+
             }
 
-            int teamId = _matchDatabaseAccessor.GetTeamIdByMatchId(matchId.Value, registerGoalRequest.Side);
-
-            MatchLogModel matchLog = new MatchLogModel
-            {
-                MatchId = matchId.Value,
-                Side = registerGoalRequest.Side,
-                LogTime = DateTime.Now,
-                TeamId = teamId
-            };
-
-            if (!_matchDatabaseAccessor.LogGoal(matchLog))
-            {
-                return false; // LogGoal failed
-            }
-
-            if (!UpdateScoreAndCheckMatchCompletion(matchId.Value, registerGoalRequest))
-            {
-                return false; // Score update failed or match completion failed
-            }
-
-            return true;
+            return goalRegistered;
         }
 
         private bool UpdateScoreAndCheckMatchCompletion(int matchId, RegisterGoalRequest registerGoalRequest)
@@ -172,43 +216,20 @@ namespace FoosballProLeague.Api.BusinessLogic
             return true;
         }
 
-
-        private int CreateMatchAndTeamsAndUpdateTableStatus(RegisterGoalRequest registerGoalRequest)
+        public void InterruptMatch(int tableId)
         {
-            int matchId;
 
-            // Get team IDs for both sides
-            int? redTeamId = _matchDatabaseAccessor.GetTeamIdByPlayers(_pendingMatchTeams[registerGoalRequest.TableId].Teams["red"]);
-            int? blueTeamId = _matchDatabaseAccessor.GetTeamIdByPlayers(_pendingMatchTeams[registerGoalRequest.TableId].Teams["blue"]);
+            int? matchId = _matchDatabaseAccessor.GetActiveMatchIdByTableId(tableId);
 
-            // Register teams if they don't exist
-            if (redTeamId == null)
+            if (matchId == null)
             {
-                redTeamId = _matchDatabaseAccessor.RegisterTeam(_pendingMatchTeams[registerGoalRequest.TableId].Teams["red"]);
+                return; // No active match at the table
             }
-            if (blueTeamId == null)
+            else
             {
-                blueTeamId = _matchDatabaseAccessor.RegisterTeam(_pendingMatchTeams[registerGoalRequest.TableId].Teams["blue"]);
+                _matchDatabaseAccessor.SetTableActiveMatch(tableId, null);
+                _matchDatabaseAccessor.EndMatch(matchId.Value);
             }
-
-            // Create the match
-            matchId = _matchDatabaseAccessor.CreateMatch(registerGoalRequest.TableId, redTeamId.Value, blueTeamId.Value);
-
-            // Set the table active match
-            _matchDatabaseAccessor.SetTableActiveMatch(registerGoalRequest.TableId, matchId);
-
-            // Remove the pending teams from memory
-            _pendingMatchTeams.Remove(registerGoalRequest.TableId);
-
-            return matchId;
-        }
-
-
-        private int? GetActiveMatchIdAtTable(int tableId)
-        {
-            int? activeMatchId = _matchDatabaseAccessor.GetActiveMatchIdByTableId(tableId);
-
-            return activeMatchId;
         }
     }
 }
