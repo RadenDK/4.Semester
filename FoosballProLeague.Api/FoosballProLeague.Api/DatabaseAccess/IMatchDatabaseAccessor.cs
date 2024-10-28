@@ -1,4 +1,5 @@
 ﻿using FoosballProLeague.Api.Models.FoosballModels;
+using FoosballProLeague.Api.Models;
 
 namespace FoosballProLeague.Api.DatabaseAccess
 {
@@ -23,5 +24,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         public int RegisterTeam(List<int> playerIds);
 
         public bool EndMatch(int matchId);
+
+        public List<UserModel> GetUsersByTeamId(int teamId);
     }
 }

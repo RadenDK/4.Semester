@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using FoosballProLeague.Api.Models.FoosballModels;
+using FoosballProLeague.Api.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
 using System;
@@ -165,6 +166,18 @@ namespace FoosballProLeague.Api.DatabaseAccess
                 int rowsAffected = connection.Execute(query, new { MatchId = matchId, EndTime = DateTime.Now });
 
                 return rowsAffected > 0;
+            }
+        }
+
+        public List<UserModel> GetUsersByTeamId(int teamId)
+        {
+            string query = "SELECT u.id, u.name FROM Users u JOIN team_players tp ON u.id = tp.player_id WHERE tp.team_id = @TeamId";
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                List<UserModel> users = connection.Query<UserModel>(query, new { TeamId = teamId }).AsList();
+                return users;
             }
         }
     }
