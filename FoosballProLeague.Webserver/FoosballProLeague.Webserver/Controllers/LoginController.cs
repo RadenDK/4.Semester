@@ -38,4 +38,9 @@ public class LoginController : Controller
         ModelState.AddModelError(string.Empty, errorMessage);
         return View("Login");
     }
+
+    public async Task<IActionResult> Logout()
+    {
+        return View("Login");
+    }
 }
