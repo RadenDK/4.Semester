@@ -41,6 +41,6 @@ public class LoginController : Controller
 
     public async Task<IActionResult> Logout()
     {
-        return View("Login");
+        return RedirectToAction("Login", "Login");
     }
 }

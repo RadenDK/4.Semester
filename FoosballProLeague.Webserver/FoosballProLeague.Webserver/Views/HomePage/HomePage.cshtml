@@ -1,10 +1,9 @@
 ﻿@model List<FoosballProLeague.Webserver.Models.UserModel>
 
 @{
-    Layout = null;
+    Layout = "_LayoutHomePage";
     var mode = ViewBag.Mode as string ?? "1v1";
     var sortedModel = mode == "1v1" ? Model?.OrderByDescending(user => user.Elo1v1).ToList() : Model?.OrderByDescending(user => user.Elo2v2).ToList();
-
 }
 
 <!DOCTYPE html>
@@ -14,6 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FoosballProLeague</title>
     <link rel="stylesheet" href="~/css/HomePage.css">
+    <link rel="stylesheet" href="~/css/layoutHomepage.css">
 </head>
 <body>
     <div class="container">
