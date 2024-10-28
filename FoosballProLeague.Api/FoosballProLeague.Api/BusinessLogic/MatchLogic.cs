@@ -95,7 +95,9 @@ namespace FoosballProLeague.Api.BusinessLogic
         public bool StartMatch(int tableId)
         {
             if (_matchDatabaseAccessor.GetActiveMatchIdByTableId(tableId) != null)
+            {
                 return false;
+            }
 
             int? redTeamId = GetOrRegisterTeam(_pendingMatchTeams[tableId].Teams["red"]);
             int? blueTeamId = GetOrRegisterTeam(_pendingMatchTeams[tableId].Teams["blue"]);
@@ -105,13 +107,23 @@ namespace FoosballProLeague.Api.BusinessLogic
 
             _pendingMatchTeams.Remove(tableId);
 
-            return matchId != 0 && redTeamId != 0 && blueTeamId != 0 && activeMatchWasSet;
+            if (matchId != 0 && redTeamId != 0 && blueTeamId != 0 && activeMatchWasSet)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public bool RegisterGoal(RegisterGoalRequest registerGoalRequest)
         {
             int? matchId = _matchDatabaseAccessor.GetActiveMatchIdByTableId(registerGoalRequest.TableId);
-            if (matchId == null) return false;
+            if (matchId == null)
+            {
+                return false;
+            }
 
             int teamId = _matchDatabaseAccessor.GetTeamIdByMatchId(matchId.Value, registerGoalRequest.Side);
             MatchLogModel matchLog = new MatchLogModel
@@ -122,9 +134,13 @@ namespace FoosballProLeague.Api.BusinessLogic
                 TeamId = teamId
             };
 
-            if (!_matchDatabaseAccessor.LogGoal(matchLog)) return false;
+            if (!_matchDatabaseAccessor.LogGoal(matchLog))
+            {
+                return false;
+            }
 
             UpdateScoreAndCheckMatchCompletion(matchId.Value, registerGoalRequest);
+            
             return true;
         }
 

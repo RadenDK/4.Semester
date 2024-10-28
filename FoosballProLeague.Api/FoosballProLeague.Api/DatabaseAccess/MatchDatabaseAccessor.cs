@@ -76,7 +76,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
                     SELECT id 
                     FROM teams 
                     WHERE player1_id = @Player1Id 
-                        AND (player2_id = @Player2Id OR (@Player2Id IS NULL AND player2_id IS NULL))";
+                        AND (player2_id = @Player2Id OR @Player2Id IS NULL)";
 
             using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
