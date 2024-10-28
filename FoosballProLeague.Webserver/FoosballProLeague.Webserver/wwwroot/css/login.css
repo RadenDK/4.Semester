@@ -134,7 +134,7 @@ body, html {
     width: 95%;
     padding: 15px;
     margin-left: 6px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     border: 1px solid rgba(0, 0, 0, 0);
     border-radius: 5px;
     font-size: 14px;
@@ -178,7 +178,7 @@ body, html {
     cursor: pointer;
     transition: color 0.6s cubic-bezier(0.49,-0.36, 0, 0.94), background-color 0.3s cubic-bezier(0.85,-0.27, 0, 1.41), transform 0.4s cubic-bezier(0.6,-0.46, 0.3, 2.02);
     display: block;
-    margin: 30px auto 15px;
+    margin: 35px auto 15px;
     font-weight: 700;
     max-width: 146px;
     max-height: 47px;
@@ -296,6 +296,7 @@ body, html {
     white-space: pre-wrap;
     align-self: center; 
     justify-self: center;
+    animation: easeIn 0.5s ease-in;
 }
 
 .errormessage p {
@@ -309,3 +310,13 @@ body, html {
     text-align: center;
 }
 
+@keyframes easeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
