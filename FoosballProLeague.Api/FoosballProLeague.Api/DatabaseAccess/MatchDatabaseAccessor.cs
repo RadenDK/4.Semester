@@ -72,7 +72,11 @@ namespace FoosballProLeague.Api.DatabaseAccess
 
         public int? GetTeamIdByPlayers(List<int?> playerIds)
         {
-            string query = "SELECT id FROM teams WHERE player1_id = @Player1Id AND player2_id = @Player2Id";
+            string query = @"
+                    SELECT id 
+                    FROM teams 
+                    WHERE player1_id = @Player1Id 
+                        AND (player2_id = @Player2Id OR (@Player2Id IS NULL AND player2_id IS NULL))";
 
             using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
@@ -81,6 +85,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
                 return teamId;
             }
         }
+
 
         public TeamModel GetTeamById(int teamId)
         {
