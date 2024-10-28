@@ -80,6 +80,7 @@ body, html {
 .login-sidebar p {
     font-size: 16px;
     line-height: 1.5;
+    
 }
 
 /* Styling for the login form (Right side of the container) */
@@ -90,6 +91,7 @@ body, html {
     justify-content: center;
     align-items: center;
     flex-direction: column; 
+    
 
 }
 
@@ -106,6 +108,7 @@ body, html {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    max-width: 208px;
 }
 
 .login-box h2 {
@@ -128,10 +131,10 @@ body, html {
 
 .login-box input#email,
 .login-box input#password {
-    width: 93%;
+    width: 95%;
     padding: 15px;
-    margin-left: 8px;
-    margin-bottom: 20px;
+    margin-left: 6px;
+    margin-bottom: 25px;
     border: 1px solid rgba(0, 0, 0, 0);
     border-radius: 5px;
     font-size: 14px;
@@ -139,6 +142,8 @@ body, html {
     background-color: #333344;
     color: #efefef;
     transition: all 0.3s cubic-bezier(0.82,-0.1, 0.33, 1.35);
+   
+    
 }
 
 .login-box input:focus,
@@ -173,8 +178,10 @@ body, html {
     cursor: pointer;
     transition: color 0.6s cubic-bezier(0.49,-0.36, 0, 0.94), background-color 0.3s cubic-bezier(0.85,-0.27, 0, 1.41), transform 0.4s cubic-bezier(0.6,-0.46, 0.3, 2.02);
     display: block;
-    margin: 30px auto 15px;
+    margin: 35px auto 15px;
     font-weight: 700;
+    max-width: 146px;
+    max-height: 47px;
 }
 
 .login-box button.login:hover {
@@ -192,6 +199,7 @@ body, html {
     font-size: 14px;
     text-decoration: none;
 }
+
 
 .login-box a:hover {
     text-decoration: underline;
@@ -278,3 +286,37 @@ body, html {
     filter: invert(50%);
 }
 
+.errormessage {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    word-wrap: break-word; 
+    overflow-wrap: break-word;
+    max-width: 100%; 
+    white-space: pre-wrap;
+    align-self: center; 
+    justify-self: center;
+    animation: easeIn 0.5s ease-in;
+}
+
+.errormessage p {
+    color: red;
+    font-size: 10px;
+    font-weight: bold;
+    margin: 0;
+    word-wrap: break-word; 
+    overflow-wrap: break-word; 
+    white-space: pre-wrap;
+    text-align: center;
+}
+
+@keyframes easeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

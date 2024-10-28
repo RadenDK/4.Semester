@@ -69,11 +69,11 @@ public class UserLogic : IUserLogic
     public bool LoginUser(string email, string password)
     {
         UserModel user = _userDatabaseAccessor.GetUser(email);
-        if (user != null)
+        if (user == null)
         {
-            return bc.Verify(password, user.Password);
+            return false;
         }
-        return false;
+        return bc.Verify(password, user.Password);
     }
     
     // get all user in a list

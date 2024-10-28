@@ -1,4 +1,5 @@
-﻿using FoosballProLeague.Webserver.Models;
+﻿using System.Text.Json;
+using FoosballProLeague.Webserver.Models;
 using FoosballProLeague.Webserver.BusinessLogic;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,8 +32,10 @@ public class LoginController : Controller
         {
             return RedirectToAction("HomePage", "HomePage");
         }
-        
-        ModelState.AddModelError(string.Empty, "Login attempt failed");
+
+        string errorContent = await response.Content.ReadAsStringAsync();
+        string errorMessage = JsonDocument.Parse(errorContent).RootElement.GetProperty("message").GetString();
+        ModelState.AddModelError(string.Empty, errorMessage);
         return View("Login");
     }
 }
