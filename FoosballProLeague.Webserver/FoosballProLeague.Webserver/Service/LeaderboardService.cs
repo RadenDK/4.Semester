@@ -29,7 +29,6 @@ public class LeaderboardService : IHostedService
 
         _hubConnection.On<List<UserModel>>("ReceiveLeaderboardUpdate", (leaderboard) =>
         {
-            _logger.LogInformation("Leaderboard update received");
             OnLeaderboardUpdated?.Invoke(leaderboard);
         });
 
