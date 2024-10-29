@@ -2,17 +2,23 @@
 using FoosballProLeague.Api.Models.FoosballModels;
 using FoosballProLeague.Api.Models.RequestModels;
 using System.Collections.Generic;
+using FoosballProLeague.Api.Hubs;
+using Microsoft.AspNetCore.SignalR;
+using FoosballProLeague.Api.Models;
+
 
 namespace FoosballProLeague.Api.BusinessLogic
 {
     public class MatchLogic : IMatchLogic
     {
         private IMatchDatabaseAccessor _matchDatabaseAccessor;
+        private readonly IHubContext<GoalHub> _goalHubContext;
         private readonly Dictionary<int, PendingMatchTeamsModel> _pendingMatchTeams = new Dictionary<int, PendingMatchTeamsModel>();
 
-        public MatchLogic(IMatchDatabaseAccessor matchDatabaseAccessor)
+        public MatchLogic(IMatchDatabaseAccessor matchDatabaseAccessor, IHubContext<GoalHub> goalHubContext)
         {
             _matchDatabaseAccessor = matchDatabaseAccessor;
+            _goalHubContext = goalHubContext;
         }
 
         // Helper method to retrieve team by side
@@ -141,7 +147,52 @@ namespace FoosballProLeague.Api.BusinessLogic
 
             UpdateScoreAndCheckMatchCompletion(matchId.Value, registerGoalRequest);
             
+            //fetching data to signalR hub
+            int redTeamId = _matchDatabaseAccessor.GetTeamIdByMatchId(matchId.Value, "red");
+            int blueTeamId = _matchDatabaseAccessor.GetTeamIdByMatchId(matchId.Value, "blue");
+
+            TeamModel redTeam = GetTeamRed(redTeamId);
+            TeamModel blueTeam = GetTeamBlue(blueTeamId);
+
+            MatchModel match = _matchDatabaseAccessor.GetMatchById(matchId.Value);
+            int redScore = match.RedScore;
+            int blueScore = match.BlueScore;
+
+            NotifyGoalsScored(redTeam, blueTeam, redScore, blueScore).Wait();
+
             return true;
+        }
+
+        public TeamModel GetTeamRed(int teamId)
+        {
+            List<UserModel> usersTeamRed = _matchDatabaseAccessor.GetUsersByTeamId(teamId);
+
+            TeamModel teamRed = new TeamModel
+            {
+                Id = teamId,
+                teamRed = usersTeamRed
+            };
+            
+            return teamRed;
+        }
+
+        public TeamModel GetTeamBlue(int teamId)
+        {
+            List<UserModel> usersTeamBlue = _matchDatabaseAccessor.GetUsersByTeamId(teamId);
+
+            TeamModel teamBlue = new TeamModel
+            {
+                Id = teamId,
+                teamBlue = usersTeamBlue
+            };
+
+            return teamBlue;
+        }
+
+
+        public async Task NotifyGoalsScored(TeamModel teamRed, TeamModel teamBlue, int redScore, int blueScore)
+        {
+            await _goalHubContext.Clients.All.SendAsync("RecieveGoalUpdate", teamRed, teamBlue, redScore, blueScore);
         }
 
         private bool UpdateScoreAndCheckMatchCompletion(int matchId, RegisterGoalRequest registerGoalRequest)

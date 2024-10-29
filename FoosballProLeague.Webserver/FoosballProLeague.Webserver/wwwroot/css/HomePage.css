@@ -175,22 +175,45 @@ body {
     font-weight: bold;
 }
 
-.match-score {
-    display: flex;
-    justify-content: space-between;
-    font-size: 20px;
+.match-team {
+    display: grid;
+    align-items: center;
+    justify-content: center;
 }
 
-    .match-score .team {
-        width: 80px;
+    .match-team .team-red {
         text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        color: red;
+    }
+
+    .match-team .team-blue {
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        color: blue;
+    }
+
+    .match-team .team p{
+        text-align: center;
+        font-size: 15px;
+    }
+
+    .match-score .dash {
+        font-size: 20px;
+        color: #fff;
+        font-weight: bold;
     }
 
     .match-score .score {
         font-size: 20px;
-        color: #6c49eb;
+        color: #fff;
         font-weight: bold;
     }
+
+
+/*styling of match history*/
 
 .match-history {
     background-color: #0b1b38;
