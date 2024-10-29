@@ -37,6 +37,7 @@ body {
     justify-content: space-between;
     padding: 20px;
     height: calc(85vh - 5px);
+    margin-top: -50px;
 }
 
 /*styling of leaderboard*/

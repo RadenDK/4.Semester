@@ -1,7 +1,7 @@
 ﻿@model List<FoosballProLeague.Webserver.Models.UserModel>
 
 @{
-    Layout = "_LayoutHomePage";
+    Layout = "_Layout";
     var mode = ViewBag.Mode as string ?? "1v1";
     var pageNumber = ViewBag.PageNumber as int? ?? 1;
     var pageSize = ViewBag.PageSize as int? ?? 10;
@@ -16,7 +16,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FoosballProLeague</title>
     <link rel="stylesheet" href="~/css/HomePage.css">
-    <link rel="stylesheet" href="~/css/layoutHomepage.css">
+    <link rel="stylesheet" href="~/css/layout.css">
 </head>
 <body>
     <div class="container">
