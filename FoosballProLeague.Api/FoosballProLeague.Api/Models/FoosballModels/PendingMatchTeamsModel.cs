@@ -1,34 +1,42 @@
-﻿namespace FoosballProLeague.Api.Models.FoosballModels
+﻿using System.Diagnostics.Eventing.Reader;
+
+namespace FoosballProLeague.Api.Models.FoosballModels
 {
     public class PendingMatchTeamsModel
     {
-        public Dictionary<string, List<int>> Teams { get; private set; }
+        public Dictionary<string, List<int?>> Teams { get; private set; }
 
         public PendingMatchTeamsModel()
         {
-            // Initialize teams for both sides (red and blue)
-            Teams = new Dictionary<string, List<int>>
-        {
-            { "red", new List<int>() },
-            { "blue", new List<int>() }
-        };
+            // Initialize teams for both sides (red and blue) with two null values
+            Teams = new Dictionary<string, List<int?>>
+            {
+                { "red", new List<int?> { null, null } },
+                { "blue", new List<int?> { null, null } }
+            };
         }
 
-        public void AddPlayer(string side, int playerId)
+        public bool AddPlayer(string side, int playerId)
         {
-            if (Teams[side].Count < 2) // Limit to 2 players per side
+            // Replace the first null value with the player ID
+            for (int i = 0; i < Teams[side].Count; i++)
             {
-                Teams[side].Add(playerId);
+                if (Teams[side][i] == null)
+                {
+                    Teams[side][i] = playerId;
+                    return true;
+                }
             }
-            else
-            {
-                throw new InvalidOperationException($"Cannot add more players to the {side} team.");
-            }
+            // If no null spots are left, return false
+
+            return false;
+
         }
 
         public bool IsMatchReady()
         {
-            return Teams["red"].Count > 0 && Teams["blue"].Count > 0;
+            // Check if both teams have at least one player
+            return Teams["red"].Any(p => p != null) && Teams["blue"].Any(p => p != null); // Check if both teams have at least one player
         }
     }
 }
