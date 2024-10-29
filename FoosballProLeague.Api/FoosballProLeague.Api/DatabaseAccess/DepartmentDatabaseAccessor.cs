@@ -5,21 +5,19 @@ using Npgsql;
 
 namespace FoosballProLeague.Api.DatabaseAccess;
 
-public class DepartmentDatabaseAccessor : IDepartmentDatabaseAccessor
+public class DepartmentDatabaseAccessor : DatabaseAccessor, IDepartmentDatabaseAccessor
 {
-    private readonly string _connectionString;
 
-    public DepartmentDatabaseAccessor(IConfiguration configuration)
+    public DepartmentDatabaseAccessor(IConfiguration configuration) : base(configuration)
     {
-        _connectionString = configuration.GetConnectionString("DatabaseConnection");
     }
     
     public List<DepartmentModel> GetDepartments()
     {
         List<DepartmentModel> departments = new List<DepartmentModel>();
-        string query = "SELECT id AS Id, name AS Name, company_id AS CompanyId FROM departments";
+        string query = "SELECT id, name, company_id FROM departments";
 
-        using (IDbConnection connection = new NpgsqlConnection(_connectionString))
+        using (IDbConnection connection = GetConnection())
         {
             connection.Open();
             departments = connection.Query<DepartmentModel>(query).ToList();

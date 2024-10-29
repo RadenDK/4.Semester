@@ -5,13 +5,11 @@ using System.Data;
 
 namespace FoosballProLeague.Api.DatabaseAccess;
 
-public class UserDatabaseAccessor : IUserDatabaseAccessor
+public class UserDatabaseAccessor : DatabaseAccessor, IUserDatabaseAccessor
 {
-    private readonly string _connectionString;
     
-    public UserDatabaseAccessor(IConfiguration configuration)
+    public UserDatabaseAccessor(IConfiguration configuration) : base(configuration)
     {
-        _connectionString = configuration.GetConnectionString("DatabaseConnection");
     }
     
     // method to create user for registration
@@ -19,10 +17,10 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
     {
         bool userInserted = false;
         
-        string query = "INSERT INTO users (first_name, last_name, email, password, department_Id, company_Id, elo_1v1, elo_2v2)" + 
-                       "VALUES (@FirstName, @LastName, @Email, @Password, @DepartmentId, @CompanyId, @Elo1v1, @Elo2v2)";
+        string query = @"INSERT INTO users (first_name, last_name, email, password, department_Id, company_Id, elo_1v1, elo_2v2)
+                        VALUES (@FirstName, @LastName, @Email, @Password, @DepartmentId, @CompanyId, @Elo1v1, @Elo2v2)";
 
-        using (IDbConnection connection = new NpgsqlConnection(_connectionString))
+        using (IDbConnection connection = GetConnection())
         {
             connection.Open();
             int rowsAffected = connection.Execute(query, newUserWithHashedPassword);
@@ -36,9 +34,9 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
     {
         UserModel user = null;
 
-        string query = "SELECT email AS Email, password AS Password FROM Users WHERE Email = @Email";
+        string query = "SELECT email, password FROM Users WHERE email = @Email";
 
-        using (IDbConnection connection = new NpgsqlConnection(_connectionString))
+        using (IDbConnection connection = GetConnection())
         {
             connection.Open();
             user = connection.QuerySingleOrDefault<UserModel>(query, new { Email = email });
@@ -49,10 +47,9 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
     public List<UserModel> GetUsers()
     {
         List<UserModel> users = new List<UserModel>();
-        string query = "SELECT id AS Id, first_name AS FirstName, last_name AS LastName, email AS Email, elo_1v1 AS Elo1v1, elo_2v2 AS Elo2v2 " +
-                       "FROM users";
+        string query = "SELECT id, first_name, last_name, email, elo_1v1, elo_2v2 FROM users";
 
-        using (IDbConnection connection = new NpgsqlConnection(_connectionString))
+        using (IDbConnection connection = GetConnection())
         {
             connection.Open();
             users = connection.Query<UserModel>(query).ToList();
