@@ -80,5 +80,51 @@
             </section>
         </main>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("http://localhost:5001/leaderboardHub")  // Your API's URL
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        async function start() {
+            try {
+                await connection.start();
+                console.log("SignalR Connected.");
+            } catch (err) {
+                console.log(err);
+                setTimeout(start, 5000);
+            }
+        };
+
+        connection.onclose(async () => {
+            await start();
+        });
+
+        start();
+
+        connection.on("ReceiveLeaderboardUpdate", function (leaderboard) {
+            console.log("Received leaderboard update", leaderboard);
+            updateLeaderboard(leaderboard);
+        });
+
+        function updateLeaderboard(leaderboard) {
+            console.log("Updating leaderboard UI");
+            const leaderboardBody = document.querySelector('#leaderboardBody');
+            leaderboardBody.innerHTML = '';
+
+            leaderboard.forEach((player, index) => {
+                const row = `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${player.firstName} ${player.lastName}</td>
+                <td>${player.elo1v1}</td>
+            </tr>
+        `;
+                leaderboardBody.innerHTML += row;
+            });
+            console.log("Leaderboard UI updated");
+        }
+    </script>
 </body>
 </html>

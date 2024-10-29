@@ -8,4 +8,5 @@ public interface IUserDatabaseAccessor
 
     public UserModel GetUser(string email);
     public List<UserModel> GetUsers();
+   
 }

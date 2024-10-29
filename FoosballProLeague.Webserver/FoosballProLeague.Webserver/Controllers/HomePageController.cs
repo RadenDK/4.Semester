@@ -1,16 +1,19 @@
 ﻿using FoosballProLeague.Webserver.BusinessLogic;
 using FoosballProLeague.Webserver.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Json;
 
 namespace FoosballProLeague.Webserver.Controllers
 {
     public class HomePageController : Controller
     {
         private readonly IHomePageLogic _homePageLogic;
+        private readonly HttpClient _httpClient; // er httpclient nødvendig her? virker overflødig hvis den er korrekt implementeret i HomePageService, no??
 
-        public HomePageController(IHomePageLogic homePageLogic)
+        public HomePageController(IHomePageLogic homePageLogic, IHttpClientFactory httpClientFactory)
         {
             _homePageLogic = homePageLogic;
+            _httpClient = httpClientFactory.CreateClient("APIClient");
         }
 
         [HttpGet("HomePage")]
@@ -30,7 +33,6 @@ namespace FoosballProLeague.Webserver.Controllers
         {
             return await GetUsers("2v2");
         }
-
 
         [HttpGet]
         public async Task<IActionResult> GetUsers(string mode)
