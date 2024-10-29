@@ -57,7 +57,7 @@ jobs:
             docker rm foosballproleague-webserver-container || true    # Remove the container if it exists
             docker run -d -p 5000:5000 \
             --name foosballproleague-webserver-container \
-            -e BaseAddress="${{ secrets.BASE_API_URL }}" \
+            -e HttpClientSettings__BaseAddress="${{ secrets.BASE_API_URL }}" \
             foosballproleague-webserver:latest
 
 
