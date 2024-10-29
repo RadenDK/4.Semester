@@ -36,7 +36,7 @@ body {
     display: flex;
     justify-content: space-between;
     padding: 20px;
-    height: calc(100vh - 5px);
+    height: calc(85vh - 5px);
 }
 
 /*styling of leaderboard*/
@@ -216,3 +216,34 @@ body {
         border: 3px solid #6c49eb;
         border-radius: 20px;
     }
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    margin: 0 10px;
+    padding: 10px 20px;
+    background-color: #6c49eb;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.pagination a:hover {
+    background-color: #4a36c4;
+}
+
+.pagination a.disabled {
+    background-color: #ccc;
+    pointer-events: none;
+}
+
+.pagination span {
+    margin: 0 10px;
+    font-size: 18px;
+}

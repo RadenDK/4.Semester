@@ -3,6 +3,9 @@
 @{
     Layout = "_LayoutHomePage";
     var mode = ViewBag.Mode as string ?? "1v1";
+    var pageNumber = ViewBag.PageNumber as int? ?? 1;
+    var pageSize = ViewBag.PageSize as int? ?? 10;
+    var totalUserCount = ViewBag.TotalUserCount as int? ?? 0;
     var sortedModel = mode == "1v1" ? Model?.OrderByDescending(user => user.Elo1v1).ToList() : Model?.OrderByDescending(user => user.Elo2v2).ToList();
 }
 
@@ -27,32 +30,40 @@
                     </div>
                     <table>
                         <thead>
-                            <tr>
-                                <th>Rank</th>
-                                <th>Name</th>
-                                <th>Elo</th>
-                            </tr>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Name</th>
+                            <th>Elo</th>
+                        </tr>
                         </thead>
                         <tbody id="leaderboardBody">
-                            @if (sortedModel != null && sortedModel.Count > 0)
-                            {
-                                @for (int i = 0; i < sortedModel.Count; i++)
-                                {
-                                    <tr>
-                                        <td>@(i + 1)</td>
-                                        <td>@sortedModel[i].FirstName @sortedModel[i].LastName</td>
-                                        <td>@(mode == "1v1" ? sortedModel[i].Elo1v1 : sortedModel[i].Elo2v2)</td>
-                                    </tr>
-                                }
-                            }
-                            else
+                        @if (sortedModel != null && sortedModel.Count > 0)
+                        {
+                            @for (int i = 0; i < sortedModel.Count; i++)
                             {
                                 <tr>
-                                    <td colspan="3">No users available</td>
+                                    <td>@(i + 1)</td>
+                                    <td>@sortedModel[i].FirstName @sortedModel[i].LastName</td>
+                                    <td>@(mode == "1v1" ? sortedModel[i].Elo1v1 : sortedModel[i].Elo2v2)</td>
                                 </tr>
                             }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="3">No users available</td>
+                            </tr>
+                        }
                         </tbody>
                     </table>
+                    <div class="pagination">
+                        <a href="/HomePage/@mode?pageNumber=@(pageNumber - 1)&pageSize=@pageSize" class="@(pageNumber == 1 ? "disabled" : "")">Previous</a>
+                        <span>Page @pageNumber</span>
+                        @if (pageNumber * pageSize < totalUserCount)
+                        {
+                        <a href="/HomePage/@mode?pageNumber=@(pageNumber + 1)&pageSize=@pageSize">Next</a>
+                        }
+                    </div>
                 </div>
             </section>
 
@@ -104,12 +115,12 @@
         start();
 
         connection.on("ReceiveLeaderboardUpdate", function (leaderboard) {
-            console.log("Received leaderboard update", leaderboard);
+           // console.log("Received leaderboard update", leaderboard);
             updateLeaderboard(leaderboard);
         });
 
         function updateLeaderboard(leaderboard) {
-            console.log("Updating leaderboard UI");
+           // console.log("Updating leaderboard UI");
             const leaderboardBody = document.querySelector('#leaderboardBody');
             leaderboardBody.innerHTML = '';
 
@@ -123,7 +134,7 @@
         `;
                 leaderboardBody.innerHTML += row;
             });
-            console.log("Leaderboard UI updated");
+           // console.log("Leaderboard UI updated");
         }
     </script>
 </body>
