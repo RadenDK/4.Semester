@@ -13,9 +13,13 @@ builder.Services.AddScoped<IUserLogic, UserLogic>();
 builder.Services.AddScoped<IUserDatabaseAccessor, UserDatabaseAccessor>();
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IDepartmentDatabaseAccessor, DepartmentDatabaseAccessor>();
+builder.Services.AddScoped<IMatchLogic, MatchLogic>();
+builder.Services.AddScoped<IMatchDatabaseAccessor, MatchDatabaseAccessor>();
 
 // Add SignalR service
 builder.Services.AddSignalR();
+
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

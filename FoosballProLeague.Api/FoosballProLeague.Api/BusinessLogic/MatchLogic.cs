@@ -80,14 +80,14 @@ namespace FoosballProLeague.Api.BusinessLogic
         {
             MatchModel activeMatch = _matchDatabaseAccessor.GetMatchById(activeMatchId);
             TeamModel team = GetTeamBySide(activeMatch, tableLoginRequest.Side);
-            return team != null && team.Player2Id == null;
+            return team != null && team.teamRed.Count == null;
         }
 
         private bool AddPlayerToActiveMatchTeam(int matchId, TableLoginRequest tableLoginRequest)
         {
             MatchModel activeMatch = _matchDatabaseAccessor.GetMatchById(matchId);
             TeamModel currentTeam = GetTeamBySide(activeMatch, tableLoginRequest.Side);
-            List<int?> playerIds = new List<int?> { currentTeam.Player1Id, tableLoginRequest.PlayerId };
+            List<int?> playerIds = new List<int?> { currentTeam.teamRed[0].Id, tableLoginRequest.PlayerId };
             int? newTeamId = GetOrRegisterTeam(playerIds);
             return _matchDatabaseAccessor.UpdateTeamId(matchId, tableLoginRequest.Side, newTeamId.Value);
         }
@@ -155,8 +155,8 @@ namespace FoosballProLeague.Api.BusinessLogic
             TeamModel blueTeam = GetTeamBlue(blueTeamId);
 
             MatchModel match = _matchDatabaseAccessor.GetMatchById(matchId.Value);
-            int redScore = match.RedScore;
-            int blueScore = match.BlueScore;
+            int redScore = match.TeamRedScore;
+            int blueScore = match.TeamBlueScore;
 
             NotifyGoalsScored(redTeam, blueTeam, redScore, blueScore).Wait();
 
