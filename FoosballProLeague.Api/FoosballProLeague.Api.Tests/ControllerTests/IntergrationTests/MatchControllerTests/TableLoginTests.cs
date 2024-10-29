@@ -38,7 +38,7 @@ namespace FoosballProLeague.Api.Tests
             IEnumerable<FoosballTableModel> football_table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables where id = " + mockTableId);
             IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
 
-            Assert.IsType<OkResult>(result); // Expect the login to succeed
+            Assert.IsType<OkObjectResult>(result); // Expect the login to succeed
 
             // Both Asserts should be empty because a match and teams are only created when a goal is registered
             Assert.Empty(football_matches);
@@ -76,10 +76,10 @@ namespace FoosballProLeague.Api.Tests
             IEnumerable<FoosballTableModel> football_table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables where id = " + mockTableId);
             IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
 
-            Assert.IsType<OkResult>(result1);
-            Assert.IsType<OkResult>(result2);
-            Assert.IsType<OkResult>(result3);
-            Assert.IsType<OkResult>(result4);
+            Assert.IsType<OkObjectResult>(result1);
+            Assert.IsType<OkObjectResult>(result2);
+            Assert.IsType<OkObjectResult>(result3);
+            Assert.IsType<OkObjectResult>(result4);
 
             // Both Asserts should be empty because a match and teams are only created when a goal is registered
             Assert.Empty(football_matches);
@@ -116,7 +116,7 @@ namespace FoosballProLeague.Api.Tests
             IEnumerable<FoosballTableModel> football_table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables where id = " + mockTableId);
             IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
 
-            Assert.IsType<BadRequestResult>(result); // Expect the third login to return a BadRequestResult
+            Assert.IsType<BadRequestObjectResult>(result); // Expect the third login to return a BadRequestObjectResult
 
             // Both Asserts should be empty because a match and teams are only created when a goal is registered
             Assert.Empty(football_matches);
@@ -162,8 +162,8 @@ namespace FoosballProLeague.Api.Tests
             IEnumerable<FoosballTableModel> football_table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables where id = " + mockTableId);
             IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
 
-            Assert.IsType<BadRequestResult>(result1); // Expect the third red login to return a BadRequestResult
-            Assert.IsType<BadRequestResult>(result2); // Expect the third blue login to return a BadRequestResult
+            Assert.IsType<BadRequestObjectResult>(result1); // Expect the third red login to return a BadRequestObjectResult
+            Assert.IsType<BadRequestObjectResult>(result2); // Expect the third blue login to return a BadRequestObjectResult
 
             // Both Asserts should be empty because a match and teams are only created when a goal is registered
             Assert.Empty(football_matches);
@@ -200,7 +200,7 @@ namespace FoosballProLeague.Api.Tests
             IEnumerable<FoosballTableModel> football_table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables where id = " + mockTableId);
             IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
 
-            Assert.IsType<OkResult>(result); // Expect the login to succeed since there is room on the red team
+            Assert.IsType<OkObjectResult>(result); // Expect the login to succeed since there is room on the red team
 
             // There should be an active match
             Assert.NotEmpty(football_matches);
@@ -244,7 +244,7 @@ namespace FoosballProLeague.Api.Tests
             IEnumerable<FoosballTableModel> football_table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables where id = " + mockTableId);
             IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
 
-            Assert.IsType<BadRequestResult>(result); // Expect the login to fail since the match is active and the red team is full
+            Assert.IsType<BadRequestObjectResult>(result); // Expect the login to fail since the match is active and the red team is full
 
             // Assert that there is only one match, which is the one inserted in the database
             Assert.Single(football_matches);
@@ -281,7 +281,7 @@ namespace FoosballProLeague.Api.Tests
             IActionResult result = SUT.LoginOnTable(mockTableLoginRequest); // Player tries to log in during an active match
 
             // Assert
-            Assert.IsType<OkResult>(result); // Expect the login to succeed since there is room on the red team
+            Assert.IsType<OkObjectResult>(result); // Expect the login to succeed since there is room on the red team
 
             IEnumerable<MatchModel> football_matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
             IEnumerable<FoosballTableModel> football_table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables where id = " + mockTableId);

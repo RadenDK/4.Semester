@@ -1,15 +1,13 @@
 ﻿using FoosballProLeague.Api.DatabaseAccess;
 using FoosballProLeague.Api.Models.FoosballModels;
-using System.Reflection.PortableExecutable;
 using FoosballProLeague.Api.Models.RequestModels;
+using System.Collections.Generic;
 
 namespace FoosballProLeague.Api.BusinessLogic
 {
     public class MatchLogic : IMatchLogic
     {
-
         private IMatchDatabaseAccessor _matchDatabaseAccessor;
-
         private readonly Dictionary<int, PendingMatchTeamsModel> _pendingMatchTeams = new Dictionary<int, PendingMatchTeamsModel>();
 
         public MatchLogic(IMatchDatabaseAccessor matchDatabaseAccessor)
@@ -17,6 +15,32 @@ namespace FoosballProLeague.Api.BusinessLogic
             _matchDatabaseAccessor = matchDatabaseAccessor;
         }
 
+        // Helper method to retrieve team by side
+        private TeamModel GetTeamBySide(MatchModel match, string side)
+        {
+            int teamId;
+            if (side == "red")
+            {
+                teamId = match.RedTeamId;
+            }
+            else
+            {
+                teamId = match.BlueTeamId;
+            }
+
+            return _matchDatabaseAccessor.GetTeamById(teamId);
+        }
+
+        // Helper method to get or register a team by player IDs
+        private int? GetOrRegisterTeam(List<int?> playerIds)
+        {
+            int? teamId = _matchDatabaseAccessor.GetTeamIdByPlayers(playerIds);
+            if (teamId == null)
+            {
+                teamId = _matchDatabaseAccessor.RegisterTeam(playerIds);
+            }
+            return teamId;
+        }
 
         /*
          * LoginOnTable should take a login request which contains information about the player, table and side.
@@ -25,89 +49,40 @@ namespace FoosballProLeague.Api.BusinessLogic
         */
         public bool LoginOnTable(TableLoginRequest tableLoginRequest)
         {
-            bool playerSuccessfullyAdded = false;
+            int? activeMatchId = _matchDatabaseAccessor.GetActiveMatchIdByTableId(tableLoginRequest.TableId);
 
-            // First check if there is no active match at the table
-            int? activateMatchId = GetActiveMatchIdAtTable(tableLoginRequest.TableId);
-            if (activateMatchId == null) // there is no active match at the table
+            if (activeMatchId == null)
             {
-                // If no pending match for the table, initialize it
                 if (!_pendingMatchTeams.ContainsKey(tableLoginRequest.TableId))
                 {
                     _pendingMatchTeams[tableLoginRequest.TableId] = new PendingMatchTeamsModel();
                 }
 
-                // Add player to the appropriate side. Will return false if player cannot be added
-                playerSuccessfullyAdded = _pendingMatchTeams[tableLoginRequest.TableId].AddPlayer(tableLoginRequest.Side, tableLoginRequest.PlayerId);
+                return _pendingMatchTeams[tableLoginRequest.TableId].AddPlayer(tableLoginRequest.Side, tableLoginRequest.PlayerId);
             }
-            else
+
+            bool roomAvailable = CheckForRoomOnActiveMatchTeamSide(activeMatchId.Value, tableLoginRequest);
+            if (roomAvailable)
             {
-                if (CheckForRoomOnActiveMatchTeamSide(activateMatchId.Value, tableLoginRequest))
-                {
-                    playerSuccessfullyAdded = AddPlayerTooActiveMatchTeam(activateMatchId.Value, tableLoginRequest);
-
-                    //TODO: Invalidate the ranking points of this match
-                }
-                else
-                {
-                    playerSuccessfullyAdded = false; // No room on the active match team side
-                }
+                return AddPlayerToActiveMatchTeam(activeMatchId.Value, tableLoginRequest);
             }
 
-            return playerSuccessfullyAdded;
+            return false;
         }
 
-        private bool CheckForRoomOnActiveMatchTeamSide(int activateMatchId, TableLoginRequest tableLoginRequest)
+        private bool CheckForRoomOnActiveMatchTeamSide(int activeMatchId, TableLoginRequest tableLoginRequest)
         {
-            bool roomOnTeam = false;
-
-            MatchModel activeMatch = _matchDatabaseAccessor.GetMatchById(activateMatchId);
-
-            TeamModel team = null;
-
-            if (tableLoginRequest.Side == "red")
-            {
-                team = _matchDatabaseAccessor.GetTeamById(activeMatch.RedTeamId);
-            }
-            else if (tableLoginRequest.Side == "blue")
-            {
-                team = _matchDatabaseAccessor.GetTeamById(activeMatch.BlueTeamId);
-            }
-
-            if (team != null && team.Player2Id == null)
-            {
-                roomOnTeam = true;
-            }
-
-            return roomOnTeam;
-
+            MatchModel activeMatch = _matchDatabaseAccessor.GetMatchById(activeMatchId);
+            TeamModel team = GetTeamBySide(activeMatch, tableLoginRequest.Side);
+            return team != null && team.Player2Id == null;
         }
 
-        private bool AddPlayerTooActiveMatchTeam(int matchId, TableLoginRequest tableLoginRequest)
+        private bool AddPlayerToActiveMatchTeam(int matchId, TableLoginRequest tableLoginRequest)
         {
             MatchModel activeMatch = _matchDatabaseAccessor.GetMatchById(matchId);
-            int? currentTeamId = null;
-
-            if (tableLoginRequest.Side == "red")
-            {
-                currentTeamId = activeMatch.RedTeamId;
-            }
-            else if (tableLoginRequest.Side == "blue")
-            {
-                currentTeamId = activeMatch.BlueTeamId;
-            }
-
-            TeamModel currentTeam = _matchDatabaseAccessor.GetTeamById(currentTeamId.Value);
-
+            TeamModel currentTeam = GetTeamBySide(activeMatch, tableLoginRequest.Side);
             List<int?> playerIds = new List<int?> { currentTeam.Player1Id, tableLoginRequest.PlayerId };
-
-            int? newTeamId = _matchDatabaseAccessor.GetTeamIdByPlayers(playerIds);
-
-            if (newTeamId == null)
-            {
-                newTeamId = _matchDatabaseAccessor.RegisterTeam(playerIds);
-            }
-
+            int? newTeamId = GetOrRegisterTeam(playerIds);
             return _matchDatabaseAccessor.UpdateTeamId(matchId, tableLoginRequest.Side, newTeamId.Value);
         }
 
@@ -119,75 +94,54 @@ namespace FoosballProLeague.Api.BusinessLogic
         */
         public bool StartMatch(int tableId)
         {
-            bool matchStarted = false;
-
-            int? activeMatchId = GetActiveMatchIdAtTable(tableId);
-
-            if (activeMatchId != null)
+            if (_matchDatabaseAccessor.GetActiveMatchIdByTableId(tableId) != null)
             {
-                return false; // There is already an active match at the table
+                return false;
+            }
+
+            int? redTeamId = GetOrRegisterTeam(_pendingMatchTeams[tableId].Teams["red"]);
+            int? blueTeamId = GetOrRegisterTeam(_pendingMatchTeams[tableId].Teams["blue"]);
+
+            int matchId = _matchDatabaseAccessor.CreateMatch(tableId, redTeamId.Value, blueTeamId.Value);
+            bool activeMatchWasSet = _matchDatabaseAccessor.SetTableActiveMatch(tableId, matchId);
+
+            _pendingMatchTeams.Remove(tableId);
+
+            if (matchId != 0 && redTeamId != 0 && blueTeamId != 0 && activeMatchWasSet)
+            {
+                return true;
             }
             else
             {
-                int redTeamId = _matchDatabaseAccessor.RegisterTeam(_pendingMatchTeams[tableId].Teams["red"]);
-                int blueTeamId = _matchDatabaseAccessor.RegisterTeam(_pendingMatchTeams[tableId].Teams["blue"]);
-
-                // Create the match
-                int matchId = _matchDatabaseAccessor.CreateMatch(tableId, redTeamId, blueTeamId);
-
-                // Set the table active match
-                bool activeMatchWasSet = _matchDatabaseAccessor.SetTableActiveMatch(tableId, matchId);
-
-                // Remove the pending teams from memory
-                _pendingMatchTeams.Remove(tableId);
-
-                matchStarted = matchId != 0 && redTeamId != 0 && blueTeamId != 0 && activeMatchWasSet; // Check if all the operations were successful
+                return false;
             }
-
-            return matchStarted;
-
-        }
-
-        private int? GetActiveMatchIdAtTable(int tableId)
-        {
-            int? activeMatchId = _matchDatabaseAccessor.GetActiveMatchIdByTableId(tableId);
-
-            return activeMatchId;
         }
 
         public bool RegisterGoal(RegisterGoalRequest registerGoalRequest)
         {
-
-            bool goalRegistered = false;
-
             int? matchId = _matchDatabaseAccessor.GetActiveMatchIdByTableId(registerGoalRequest.TableId);
-
             if (matchId == null)
             {
-                return goalRegistered; // No active match at the table, so goal will not be registered
+                return false;
             }
-            else
+
+            int teamId = _matchDatabaseAccessor.GetTeamIdByMatchId(matchId.Value, registerGoalRequest.Side);
+            MatchLogModel matchLog = new MatchLogModel
             {
-                int teamId = _matchDatabaseAccessor.GetTeamIdByMatchId(matchId.Value, registerGoalRequest.Side);
+                MatchId = matchId.Value,
+                Side = registerGoalRequest.Side,
+                LogTime = DateTime.Now,
+                TeamId = teamId
+            };
 
-                MatchLogModel matchLog = new MatchLogModel
-                {
-                    MatchId = matchId.Value,
-                    Side = registerGoalRequest.Side,
-                    LogTime = DateTime.Now,
-                    TeamId = teamId
-                };
-
-                if (!_matchDatabaseAccessor.LogGoal(matchLog))
-                {
-                    goalRegistered = false; ; // LogGoal failed
-                }
-
-                UpdateScoreAndCheckMatchCompletion(matchId.Value, registerGoalRequest);
-
+            if (!_matchDatabaseAccessor.LogGoal(matchLog))
+            {
+                return false;
             }
 
-            return goalRegistered;
+            UpdateScoreAndCheckMatchCompletion(matchId.Value, registerGoalRequest);
+            
+            return true;
         }
 
         private bool UpdateScoreAndCheckMatchCompletion(int matchId, RegisterGoalRequest registerGoalRequest)
@@ -203,10 +157,8 @@ namespace FoosballProLeague.Api.BusinessLogic
                 match.TeamBlueScore++;
             }
 
-            // Update score first
             _matchDatabaseAccessor.UpdateMatchScore(matchId, match.TeamRedScore, match.TeamBlueScore);
 
-            // Check if the match is finished
             if (match.TeamRedScore == 10 || match.TeamBlueScore == 10)
             {
                 _matchDatabaseAccessor.SetTableActiveMatch(registerGoalRequest.TableId, null);
@@ -218,14 +170,8 @@ namespace FoosballProLeague.Api.BusinessLogic
 
         public void InterruptMatch(int tableId)
         {
-
             int? matchId = _matchDatabaseAccessor.GetActiveMatchIdByTableId(tableId);
-
-            if (matchId == null)
-            {
-                return; // No active match at the table
-            }
-            else
+            if (matchId != null)
             {
                 _matchDatabaseAccessor.SetTableActiveMatch(tableId, null);
                 _matchDatabaseAccessor.EndMatch(matchId.Value);
