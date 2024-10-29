@@ -11,14 +11,6 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.UnitTests;
 
 public class LoginTest
 {
-    private readonly UserController _userController;
-    private readonly Mock<IUserLogic> _mockUserLogic;
-
-    public LoginTest()
-    {
-        _mockUserLogic = new Mock<IUserLogic>();
-        _userController = new UserController(_mockUserLogic.Object);
-    }
 
     /* Unit test utilising Moq library to test if it correctly returns ok result with valid login credentials */
     [Fact]
@@ -27,46 +19,48 @@ public class LoginTest
         // Arrange
         string validEmail = "john.doe@example.com";
         string validPassword = "password123";
-        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(validPassword);
-        UserLoginModel user = new UserLoginModel()
+        UserLoginModel mockUser = new UserLoginModel()
         {
             Email = validEmail,
-            Password = hashedPassword,
+            Password = validPassword,
         };
 
+        Mock<IUserLogic> _mockUserLogic = new Mock<IUserLogic>(); ;
         _mockUserLogic.Setup(logic => logic.LoginUser(validEmail, validPassword)).Returns(true);
 
+        UserController SUT = new UserController(_mockUserLogic.Object);
+
         // Act
-        OkResult result = _userController.LoginUser(new UserLoginModel { Email = validEmail, Password = validPassword }) as OkResult;
+        IActionResult result = SUT.LoginUser(mockUser);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal(200, result.StatusCode);
+        Assert.IsType<OkResult>(result);
     }
-    
+
     /* Unit test utilising Moq library to test if it correctly returns bad result with invalid password but valid email */
     [Fact]
     public void Login_ReturnsBadRequest_WithInvalidPassword()
     {
         // Arrange
         string validEmail = "john.doe@example.com";
-        string validPassword = "password123";
         string invalidPassword = "wrongpassword";
-        
-        UserLoginModel user = new UserLoginModel()
+
+        UserLoginModel mockUser = new UserLoginModel()
         {
             Email = validEmail,
             Password = invalidPassword
         };
 
+        Mock<IUserLogic> _mockUserLogic = new Mock<IUserLogic>(); ;
         _mockUserLogic.Setup(logic => logic.LoginUser(validEmail, invalidPassword)).Returns(false);
 
+        UserController SUT = new UserController(_mockUserLogic.Object);
+
         // Act
-        BadRequestResult result = _userController.LoginUser(new UserLoginModel { Email = validEmail, Password = invalidPassword }) as BadRequestResult;
+        IActionResult result = SUT.LoginUser(mockUser);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal(400, result.StatusCode);
+        Assert.IsType<BadRequestObjectResult>(result);
     }
 
     /* Unit test utilising Moq library to test if it correctly returns bad result with invalid email but valid password */
@@ -77,19 +71,21 @@ public class LoginTest
         string invalidEmail = "invalid@example.com";
         string validPassword = "password123";
 
-        UserLoginModel user = new UserLoginModel()
+        UserLoginModel mockUser = new UserLoginModel()
         {
             Email = invalidEmail,
             Password = validPassword
         };
 
+        Mock<IUserLogic> _mockUserLogic = new Mock<IUserLogic>(); ;
         _mockUserLogic.Setup(logic => logic.LoginUser(invalidEmail, validPassword)).Returns(false);
 
+        UserController SUT = new UserController(_mockUserLogic.Object);
+
         // Act
-        BadRequestResult result = _userController.LoginUser(new UserLoginModel { Email = invalidEmail, Password = validPassword }) as BadRequestResult;
+        IActionResult result = SUT.LoginUser(mockUser);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal(400, result.StatusCode);
+        Assert.IsType<BadRequestObjectResult>(result);
     }
 }
