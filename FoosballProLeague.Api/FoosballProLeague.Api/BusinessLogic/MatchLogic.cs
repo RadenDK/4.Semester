@@ -105,6 +105,13 @@ namespace FoosballProLeague.Api.BusinessLogic
                 return false;
             }
 
+            // If the table is not in the pendingMatchTeams then no one has tried to login into the table.
+            // Therefore we know that we cannot start a match and return false
+            if (!_pendingMatchTeams.ContainsKey(tableId) || !_pendingMatchTeams[tableId].IsMatchReady())
+            {
+                return false;
+            }
+
             int? redTeamId = GetOrRegisterTeam(_pendingMatchTeams[tableId].Teams["red"]);
             int? blueTeamId = GetOrRegisterTeam(_pendingMatchTeams[tableId].Teams["blue"]);
 
