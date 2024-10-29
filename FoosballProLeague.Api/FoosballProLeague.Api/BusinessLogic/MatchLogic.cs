@@ -83,8 +83,8 @@ namespace FoosballProLeague.Api.BusinessLogic
             int redTeamId = _matchDatabaseAccessor.GetTeamIdByMatchId(matchId.Value, "red");
             int blueTeamId = _matchDatabaseAccessor.GetTeamIdByMatchId(matchId.Value, "blue");
 
-            TeamNikoModel redTeam = GetTeamRed(redTeamId);
-            TeamNikoModel blueTeam = GetTeamBlue(blueTeamId);
+            TeamModel redTeam = GetTeamRed(redTeamId);
+            TeamModel blueTeam = GetTeamBlue(blueTeamId);
 
             MatchModel match = _matchDatabaseAccessor.GetMatchById(matchId.Value);
             int redScore = match.RedScore;
@@ -95,11 +95,11 @@ namespace FoosballProLeague.Api.BusinessLogic
             return true;
         }
 
-        public TeamNikoModel GetTeamRed(int teamId)
+        public TeamModel GetTeamRed(int teamId)
         {
             List<UserModel> usersTeamRed = _matchDatabaseAccessor.GetUsersByTeamId(teamId);
 
-            TeamNikoModel teamRed = new TeamNikoModel
+            TeamModel teamRed = new TeamModel
             {
                 Id = teamId,
                 teamRed = usersTeamRed
@@ -108,11 +108,11 @@ namespace FoosballProLeague.Api.BusinessLogic
             return teamRed;
         }
 
-        public TeamNikoModel GetTeamBlue(int teamId)
+        public TeamModel GetTeamBlue(int teamId)
         {
             List<UserModel> usersTeamBlue = _matchDatabaseAccessor.GetUsersByTeamId(teamId);
 
-            TeamNikoModel teamBlue = new TeamNikoModel
+            TeamModel teamBlue = new TeamModel
             {
                 Id = teamId,
                 teamBlue = usersTeamBlue
@@ -122,7 +122,7 @@ namespace FoosballProLeague.Api.BusinessLogic
         }
 
 
-        public async Task NotifyGoalsScored(TeamNikoModel teamRed, TeamNikoModel teamBlue, int redScore, int blueScore)
+        public async Task NotifyGoalsScored(TeamModel teamRed, TeamModel teamBlue, int redScore, int blueScore)
         {
             await _goalHubContext.Clients.All.SendAsync("RecieveGoalUpdate", teamRed, teamBlue, redScore, blueScore);
         }
