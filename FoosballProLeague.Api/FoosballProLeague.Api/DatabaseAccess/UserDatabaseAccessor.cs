@@ -2,6 +2,7 @@ using FoosballProLeague.Api.Models;
 using Npgsql;
 using Dapper;
 using System.Data;
+using Microsoft.AspNetCore.SignalR;
 
 namespace FoosballProLeague.Api.DatabaseAccess;
 
@@ -46,6 +47,20 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
         return user;
     }
 
+    public UserModel GetUserById(int userId)
+    {
+        UserModel user = null;
+
+        string query = "SELECT email AS Email, password AS Password FROM Users WHERE id = @userId";
+        
+        using (IDbConnection connection = new NpgsqlConnection(_connectionString))
+        {
+            connection.Open();
+            user = connection.QuerySingleOrDefault<UserModel>(query, new { userId = userId });
+        }
+        return user;
+    }
+
     public List<UserModel> GetUsers()
     {
         List<UserModel> users = new List<UserModel>();
@@ -59,4 +74,28 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
         }
         return users;
     }
+
+    public bool UpdateUserElo(int userId, int elo, bool is1v1)
+    {
+        bool rowsAffected = false;
+        string query;
+        if (is1v1)
+        {
+            query = "UPDATE users SET elo_1v1 = @elo WHERE id = @UserId";
+        }
+        else
+        {
+            query = "UPDATE users SET elo_2v2 = @elo WHERE id = @UserId";
+        }
+
+        using (IDbConnection connection = new NpgsqlConnection(_connectionString))
+        {
+            connection.Open();
+            int affectedRows = connection.Execute(query, new { UserId = userId, elo });
+            rowsAffected = affectedRows > 0;
+        }
+
+        return rowsAffected;
+    }
+    
 }
