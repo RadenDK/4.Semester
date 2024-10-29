@@ -3,7 +3,7 @@
     public class TeamModel
     {
         public int Id { get; set; }
-        public List<UserModel> teamRed { get; set; }
-        public List<UserModel> teamBlue { get; set; }
+        public UserModel User1 { get; set; }
+        public UserModel User2 { get; set; }
     }
 }
