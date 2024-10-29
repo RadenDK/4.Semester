@@ -6,7 +6,7 @@
         public int TeamId { get; set; }
         public string Side { get; set; }
 
-        public DateTime Log_time { get; set; }
+        public DateTime LogTime { get; set; }
 
     }
 }
