@@ -51,7 +51,7 @@ public class UserDatabaseAccessor : IUserDatabaseAccessor
     {
         UserModel user = null;
 
-        string query = "SELECT email AS Email, password AS Password FROM Users WHERE id = @userId";
+        string query = "SELECT id AS Id, first_name AS FirstName, last_name AS LastName, email AS Email, password AS Password, elo_1v1 AS Elo1v1, elo_2v2 AS Elo2v2 FROM Users WHERE id = @userId";
         
         using (IDbConnection connection = new NpgsqlConnection(_connectionString))
         {
