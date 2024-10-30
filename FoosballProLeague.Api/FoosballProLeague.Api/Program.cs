@@ -1,7 +1,5 @@
 using FoosballProLeague.Api.BusinessLogic;
 using FoosballProLeague.Api.DatabaseAccess;
-using FoosballProLeague.Api.Hubs;
-using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,9 +11,6 @@ builder.Services.AddScoped<IUserLogic, UserLogic>();
 builder.Services.AddScoped<IUserDatabaseAccessor, UserDatabaseAccessor>();
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IDepartmentDatabaseAccessor, DepartmentDatabaseAccessor>();
-
-// Add SignalR service
-builder.Services.AddSignalR();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -35,7 +30,5 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.MapHub<GoalHub>("/goalHub");
 
 app.Run();
