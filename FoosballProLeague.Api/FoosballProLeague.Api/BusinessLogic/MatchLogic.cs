@@ -16,10 +16,10 @@ namespace FoosballProLeague.Api.BusinessLogic
         private IMatchDatabaseAccessor _matchDatabaseAccessor;
         private IUserLogic _userLogic;
 
-        private readonly IHubContext<GoalHub> _goalHubContext;
+        private readonly IHubContext<MatchHub> _goalHubContext;
         private readonly Dictionary<int, PendingMatchTeamsModel> _pendingMatchTeams = new Dictionary<int, PendingMatchTeamsModel>();
 
-        public MatchLogic(IMatchDatabaseAccessor matchDatabaseAccessor, IHubContext<GoalHub> goalHubContext, IUserLogic userLogic)
+        public MatchLogic(IMatchDatabaseAccessor matchDatabaseAccessor, IHubContext<MatchHub> goalHubContext, IUserLogic userLogic)
         {
             _userLogic = userLogic;
             _matchDatabaseAccessor = matchDatabaseAccessor;
