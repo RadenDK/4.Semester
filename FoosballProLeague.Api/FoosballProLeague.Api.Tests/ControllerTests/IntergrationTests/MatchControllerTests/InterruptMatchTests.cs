@@ -1,8 +1,11 @@
 ﻿using FoosballProLeague.Api.BusinessLogic;
 using FoosballProLeague.Api.Controllers;
 using FoosballProLeague.Api.DatabaseAccess;
+using FoosballProLeague.Api.Hubs;
 using FoosballProLeague.Api.Models.FoosballModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +30,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             int mockTableId = 1;
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor);
+            Mock mockHubContext = new Mock<IHubContext<GoalHub>>();
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object);
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
@@ -47,7 +51,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         {
             // Arrange
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor);
+            Mock mockHubContext = new Mock<IHubContext<GoalHub>>();
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object);
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
