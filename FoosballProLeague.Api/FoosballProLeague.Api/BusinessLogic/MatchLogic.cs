@@ -204,9 +204,9 @@ namespace FoosballProLeague.Api.BusinessLogic
             int? matchId = _matchDatabaseAccessor.GetActiveMatchIdByTableId(tableId);
             if (matchId != null)
             {
-                NotifyMatchStartOrEnd(tableId, false).Wait();
                 _matchDatabaseAccessor.SetTableActiveMatch(tableId, null);
                 _matchDatabaseAccessor.EndMatch(matchId.Value);
+                NotifyMatchStartOrEnd(tableId, false).Wait();
             }
         }
 
