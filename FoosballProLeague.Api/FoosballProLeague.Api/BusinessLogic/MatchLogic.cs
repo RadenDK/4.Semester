@@ -80,14 +80,14 @@ namespace FoosballProLeague.Api.BusinessLogic
         {
             MatchModel activeMatch = _matchDatabaseAccessor.GetMatchById(activeMatchId);
             TeamModel team = GetTeamBySide(activeMatch, tableLoginRequest.Side);
-            return team != null && team.teamRed.Count == null;
+            return team != null && team.User2 == null;
         }
 
         private bool AddPlayerToActiveMatchTeam(int matchId, TableLoginRequest tableLoginRequest)
         {
             MatchModel activeMatch = _matchDatabaseAccessor.GetMatchById(matchId);
             TeamModel currentTeam = GetTeamBySide(activeMatch, tableLoginRequest.Side);
-            List<int?> playerIds = new List<int?> { currentTeam.teamRed[0].Id, tableLoginRequest.PlayerId };
+            List<int?> playerIds = new List<int?> { currentTeam.User1.Id, tableLoginRequest.PlayerId };
             int? newTeamId = GetOrRegisterTeam(playerIds);
             return _matchDatabaseAccessor.UpdateTeamId(matchId, tableLoginRequest.Side, newTeamId.Value);
         }
@@ -158,8 +158,8 @@ namespace FoosballProLeague.Api.BusinessLogic
             int redTeamId = _matchDatabaseAccessor.GetTeamIdByMatchId(matchId.Value, "red");
             int blueTeamId = _matchDatabaseAccessor.GetTeamIdByMatchId(matchId.Value, "blue");
 
-            TeamModel redTeam = GetTeamRed(redTeamId);
-            TeamModel blueTeam = GetTeamBlue(blueTeamId);
+            TeamModel redTeam = _matchDatabaseAccessor.GetTeamById(redTeamId);
+            TeamModel blueTeam = _matchDatabaseAccessor.GetTeamById(blueTeamId);
 
             MatchModel match = _matchDatabaseAccessor.GetMatchById(matchId.Value);
             int redScore = match.TeamRedScore;
@@ -168,32 +168,6 @@ namespace FoosballProLeague.Api.BusinessLogic
             NotifyGoalsScored(redTeam, blueTeam, redScore, blueScore).Wait();
 
             return true;
-        }
-
-        public TeamModel GetTeamRed(int teamId)
-        {
-            List<UserModel> usersTeamRed = _matchDatabaseAccessor.GetUsersByTeamId(teamId);
-
-            TeamModel teamRed = new TeamModel
-            {
-                Id = teamId,
-                teamRed = usersTeamRed
-            };
-            
-            return teamRed;
-        }
-
-        public TeamModel GetTeamBlue(int teamId)
-        {
-            List<UserModel> usersTeamBlue = _matchDatabaseAccessor.GetUsersByTeamId(teamId);
-
-            TeamModel teamBlue = new TeamModel
-            {
-                Id = teamId,
-                teamBlue = usersTeamBlue
-            };
-
-            return teamBlue;
         }
 
 
