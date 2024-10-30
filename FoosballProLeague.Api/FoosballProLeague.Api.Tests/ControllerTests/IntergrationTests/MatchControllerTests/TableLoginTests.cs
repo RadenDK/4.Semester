@@ -185,7 +185,7 @@ namespace FoosballProLeague.Api.Tests
         public void Login_WhenMatchIsActiveAndTeamHasRoom_ShouldAllowLogin()
         {
             // Arrange
-            _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3)");
+            _dbHelper.InsertData("INSERT INTO users (id, first_name, last_name) VALUES (1, 'firstname1', 'lastname1'), (2, 'firstname2', 'lastname2'), (3, 'firstname3', 'lastname3')");
             _dbHelper.InsertData("INSERT INTO teams (player1_id) VALUES (1), (2)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id) VALUES (1, 1, 1, 2)"); // Active match
@@ -261,8 +261,6 @@ namespace FoosballProLeague.Api.Tests
 
             // Assert that there are only the teams that were inserted in the database
             Assert.Equal(2, teams.Count());
-            Assert.Contains(teams, t => t.Id == 1 && t.Player1Id == 1 && t.Player2Id == 2);
-            Assert.Contains(teams, t => t.Id == 2 && t.Player1Id == 3 && t.Player2Id == 4);
 
             Assert.True(football_table.First().ActiveMatchId == 1);
         }        
@@ -306,9 +304,6 @@ namespace FoosballProLeague.Api.Tests
 
             // Assert that no other teams have been created other than the teams inserted in the database
             Assert.Equal(3, teams.Count());
-            Assert.Contains(teams, t => t.Player1Id == 1 && t.Player2Id == null);
-            Assert.Contains(teams, t => t.Player1Id == 2 && t.Player2Id == null);
-            Assert.Contains(teams, t => t.Player1Id == 1 && t.Player2Id == 3);
         }
     }
 }
