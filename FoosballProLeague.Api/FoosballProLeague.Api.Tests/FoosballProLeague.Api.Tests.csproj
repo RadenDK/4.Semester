@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
