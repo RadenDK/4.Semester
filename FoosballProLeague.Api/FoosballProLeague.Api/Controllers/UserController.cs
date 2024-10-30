@@ -8,6 +8,7 @@ namespace FoosballProLeague.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ApiKeyAuthorize]
     public class UserController : Controller
     {
         private IUserLogic _userLogic;
