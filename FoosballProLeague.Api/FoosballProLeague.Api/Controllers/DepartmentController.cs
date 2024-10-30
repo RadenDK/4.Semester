@@ -6,7 +6,7 @@ namespace FoosballProLeague.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-
+[ApiKeyAuthorize]
 public class DepartmentController : Controller
 {
     private IDepartmentLogic _departmentLogic;

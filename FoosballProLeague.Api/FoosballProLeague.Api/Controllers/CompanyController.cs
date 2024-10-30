@@ -6,6 +6,7 @@ namespace FoosballProLeague.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ApiKeyAuthorize]
     public class CompanyController : Controller
     {
         private ICompanyLogic _companyLogic;

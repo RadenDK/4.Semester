@@ -8,6 +8,7 @@ namespace FoosballProLeague.Api.Controllers
 {
     [ApiController]
     //[Route("[controller]")]
+    [ApiKeyAuthorize]
     public class MatchController : Controller
     {
         private readonly IMatchLogic _matchLogic;
