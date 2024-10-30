@@ -130,6 +130,7 @@ namespace FoosballProLeague.Api.BusinessLogic
 
             if (matchId != 0 && redTeamId != 0 && blueTeamId != 0 && activeMatchWasSet)
             {
+                NotifyMatchStartOrEnd(tableId, true).Wait();
                 return true;
             }
             else
@@ -161,26 +162,8 @@ namespace FoosballProLeague.Api.BusinessLogic
             }
 
             UpdateScoreAndCheckMatchCompletion(matchId.Value, registerGoalRequest);
-            
-            //fetching data to signalR hub
-            int redTeamId = _matchDatabaseAccessor.GetTeamIdByMatchId(matchId.Value, "red");
-            int blueTeamId = _matchDatabaseAccessor.GetTeamIdByMatchId(matchId.Value, "blue");
-
-            TeamModel redTeam = _matchDatabaseAccessor.GetTeamById(redTeamId);
-            TeamModel blueTeam = _matchDatabaseAccessor.GetTeamById(blueTeamId);
-
-            MatchModel match = _matchDatabaseAccessor.GetMatchById(matchId.Value);
-            int redScore = match.TeamRedScore;
-            int blueScore = match.TeamBlueScore;
-
-            NotifyGoalsScored(redTeam, blueTeam, redScore, blueScore).Wait();
-
+                
             return true;
-        }
-
-        public async Task NotifyGoalsScored(TeamModel teamRed, TeamModel teamBlue, int redScore, int blueScore)
-        {
-            await _goalHubContext.Clients.All.SendAsync("RecieveGoalUpdate", teamRed, teamBlue, redScore, blueScore);
         }
 
         private bool UpdateScoreAndCheckMatchCompletion(int matchId, RegisterGoalRequest registerGoalRequest)
@@ -195,8 +178,8 @@ namespace FoosballProLeague.Api.BusinessLogic
             {
                 match.TeamBlueScore++;
             }
-
             _matchDatabaseAccessor.UpdateMatchScore(matchId, match.TeamRedScore, match.TeamBlueScore);
+            NotifyGoalsScored(registerGoalRequest).Wait();
 
             if (match.TeamRedScore == 10 || match.TeamBlueScore == 10)
             {
@@ -209,6 +192,7 @@ namespace FoosballProLeague.Api.BusinessLogic
                 bool redTeamWon = match.TeamRedScore == 10;
                 bool is1v1 = redTeam.User2 == null && blueTeam.User2 == null;
                 
+                NotifyMatchStartOrEnd(registerGoalRequest.TableId, false).Wait();
                 _userLogic.UpdateTeamElo(redTeam, blueTeam, redTeamWon, is1v1);
             }
 
@@ -220,8 +204,52 @@ namespace FoosballProLeague.Api.BusinessLogic
             int? matchId = _matchDatabaseAccessor.GetActiveMatchIdByTableId(tableId);
             if (matchId != null)
             {
+                NotifyMatchStartOrEnd(tableId, false).Wait();
                 _matchDatabaseAccessor.SetTableActiveMatch(tableId, null);
                 _matchDatabaseAccessor.EndMatch(matchId.Value);
+            }
+        }
+
+        // Method to send data to SignalR MatchHub when a goal is scored
+        public async Task NotifyGoalsScored(RegisterGoalRequest registerGoalRequest)
+        {
+            int? matchId = _matchDatabaseAccessor.GetActiveMatchIdByTableId(registerGoalRequest.TableId);
+
+            int redTeamId = _matchDatabaseAccessor.GetTeamIdByMatchId(matchId.Value, "red");
+            int blueTeamId = _matchDatabaseAccessor.GetTeamIdByMatchId(matchId.Value, "blue");
+
+            TeamModel redTeam = _matchDatabaseAccessor.GetTeamById(redTeamId);
+            TeamModel blueTeam = _matchDatabaseAccessor.GetTeamById(blueTeamId);
+
+            MatchModel match = _matchDatabaseAccessor.GetMatchById(matchId.Value);
+            int redScore = match.TeamRedScore;
+            int blueScore = match.TeamBlueScore;
+
+            await _goalHubContext.Clients.All.SendAsync("RecieveGoalUpdate", redTeam, blueTeam, redScore, blueScore);
+        }
+
+        // Method to send data to SignalR MatchHub when a match is starting or ending
+        public async Task NotifyMatchStartOrEnd(int tableId, bool isMatchStart)
+        {
+            int? matchId = _matchDatabaseAccessor.GetActiveMatchIdByTableId(tableId);
+
+            if (matchId == null)
+            {
+                await _goalHubContext.Clients.All.SendAsync("RecieveMatchEnd", isMatchStart);
+            }
+            else
+            {
+                int redTeamId = _matchDatabaseAccessor.GetTeamIdByMatchId(matchId.Value, "red");
+                int blueTeamId = _matchDatabaseAccessor.GetTeamIdByMatchId(matchId.Value, "blue");
+
+                TeamModel redTeam = _matchDatabaseAccessor.GetTeamById(redTeamId);
+                TeamModel blueTeam = _matchDatabaseAccessor.GetTeamById(blueTeamId);
+
+                MatchModel match = _matchDatabaseAccessor.GetMatchById(matchId.Value);
+                int redScore = match.TeamRedScore;
+                int blueScore = match.TeamBlueScore;
+
+                await _goalHubContext.Clients.All.SendAsync("RecieveMatchStart", isMatchStart, redTeam, blueTeam, redScore, blueScore);
             }
         }
     }
