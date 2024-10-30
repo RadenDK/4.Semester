@@ -90,15 +90,40 @@ namespace FoosballProLeague.Api.DatabaseAccess
 
         public TeamModel GetTeamById(int teamId)
         {
-            string query = "SELECT * FROM teams WHERE id = @TeamId";
+            string query = @"
+        SELECT 
+            teams.id,
+            user1.id, user1.first_name, user1.last_name,
+            user2.id, user2.first_name, user2.last_name
+        FROM
+            teams
+        LEFT JOIN
+            users user1 ON teams.player1_id = user1.id
+        LEFT JOIN
+            users user2 ON teams.player2_id = user2.id
+        WHERE
+            teams.id = @TeamId";
 
             using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
-                TeamModel team = connection.QuerySingleOrDefault<TeamModel>(query, new { TeamId = teamId });
+
+                TeamModel team = connection.Query<TeamModel, UserModel, UserModel, TeamModel>(
+                    query,
+                    (teamResult, user1, user2) =>
+                    {
+                        teamResult.User1 = user1;
+                        teamResult.User2 = user2;
+                        return teamResult;
+                    },
+                    new { TeamId = teamId },
+                    splitOn: "id,id"  // Dapper needs this to split at user1.id and user2.id
+                ).FirstOrDefault();
+
                 return team;
             }
         }
+
 
         // CREATE METHODS
 
@@ -193,18 +218,6 @@ namespace FoosballProLeague.Api.DatabaseAccess
                 return rowsAffected > 0;
             }
 
-        }
-
-        public List<UserModel> GetUsersByTeamId(int teamId)
-        {
-            string query = "SELECT u.id, u.name FROM Users u JOIN team_players tp ON u.id = tp.player_id WHERE tp.team_id = @TeamId";
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
-            {
-                connection.Open();
-
-                List<UserModel> users = connection.Query<UserModel>(query, new { TeamId = teamId }).AsList();
-                return users;
-            }
         }
     }
 }
