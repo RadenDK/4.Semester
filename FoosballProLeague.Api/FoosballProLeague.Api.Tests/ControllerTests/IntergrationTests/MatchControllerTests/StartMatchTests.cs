@@ -1,17 +1,17 @@
 ﻿using FoosballProLeague.Api.BusinessLogic;
 using FoosballProLeague.Api.Controllers;
 using FoosballProLeague.Api.DatabaseAccess;
-using FoosballProLeague.Api.Hubs;
 using FoosballProLeague.Api.Models.FoosballModels;
 using FoosballProLeague.Api.Models.RequestModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FoosballProLeague.Api.Hubs;
+using Microsoft.AspNetCore.SignalR;
+using Moq;
 
 namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchControllerTests
 {
@@ -31,11 +31,12 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
             Mock mockHubContext = new Mock<IHubContext<GoalHub>>();
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
-            TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { PlayerId = mockPlayer1Id, TableId = mockTableId, Side = "red" };
-            TableLoginRequest mockTableLoginRequestPlayer2 = new TableLoginRequest { PlayerId = mockPlayer2Id, TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { UserId = mockPlayer1Id, TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequestPlayer2 = new TableLoginRequest { UserId = mockPlayer2Id, TableId = mockTableId, Side = "blue" };
 
             // Act
             SUT.LoginOnTable(mockTableLoginRequestPlayer1);
@@ -79,12 +80,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
             Mock mockHubContext = new Mock<IHubContext<GoalHub>>();
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
-            TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { PlayerId = mockPlayer1Id, TableId = mockTableId, Side = "red" };
-            TableLoginRequest mockTableLoginRequestPlayer2 = new TableLoginRequest { PlayerId = mockPlayer2Id, TableId = mockTableId, Side = "blue" };
-            TableLoginRequest mockTableLoginRequestPlayer3 = new TableLoginRequest { PlayerId = mockPlayer3Id, TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { UserId = mockPlayer1Id, TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequestPlayer2 = new TableLoginRequest { UserId = mockPlayer2Id, TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequestPlayer3 = new TableLoginRequest { UserId = mockPlayer3Id, TableId = mockTableId, Side = "blue" };
 
             // Act
             SUT.LoginOnTable(mockTableLoginRequestPlayer1);
@@ -125,7 +127,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
             Mock mockHubContext = new Mock<IHubContext<GoalHub>>();
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
@@ -154,11 +157,12 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
             Mock mockHubContext = new Mock<IHubContext<GoalHub>>();
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
-            TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { PlayerId = mockPlayer1Id, TableId = mockTableId, Side = "red" };
-            TableLoginRequest mockTableLoginRequestPlayer2 = new TableLoginRequest { PlayerId = mockPlayer2Id, TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { UserId = mockPlayer1Id, TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequestPlayer2 = new TableLoginRequest { UserId = mockPlayer2Id, TableId = mockTableId, Side = "blue" };
 
             // Act
             SUT.LoginOnTable(mockTableLoginRequestPlayer1);
@@ -202,11 +206,12 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
             Mock mockHubContext = new Mock<IHubContext<GoalHub>>();
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
-            TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { PlayerId = 1, TableId = mockTableId, Side = "red" };
-            TableLoginRequest mockTableLoginRequestPlayer2 = new TableLoginRequest { PlayerId = 2, TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { UserId = 1, TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequestPlayer2 = new TableLoginRequest { UserId = 2, TableId = mockTableId, Side = "blue" };
 
             // Act
             SUT.LoginOnTable(mockTableLoginRequestPlayer1);
@@ -248,11 +253,12 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
             Mock mockHubContext = new Mock<IHubContext<GoalHub>>();
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
-            TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { PlayerId = 1, TableId = mockTableId, Side = "red" };
-            TableLoginRequest mockTableLoginRequestPlayer2 = new TableLoginRequest { PlayerId = 2, TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { UserId = 1, TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequestPlayer2 = new TableLoginRequest { UserId = 2, TableId = mockTableId, Side = "blue" };
 
             // Act
             SUT.LoginOnTable(mockTableLoginRequestPlayer1);
@@ -286,12 +292,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
             Mock mockHubContext = new Mock<IHubContext<GoalHub>>();
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
-            TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { PlayerId = mockPlayer1Id, TableId = mockTableId, Side = "red" };
-            TableLoginRequest mockTableLoginRequestPlayer2 = new TableLoginRequest { PlayerId = mockPlayer2Id, TableId = mockTableId, Side = "blue" };
-            TableLoginRequest mockTableLoginRequestPlayer3 = new TableLoginRequest { PlayerId = mockPlayer3Id, TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { UserId = mockPlayer1Id, TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequestPlayer2 = new TableLoginRequest { UserId = mockPlayer2Id, TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequestPlayer3 = new TableLoginRequest { UserId = mockPlayer3Id, TableId = mockTableId, Side = "blue" };
 
             // Act
             SUT.LoginOnTable(mockTableLoginRequestPlayer1);
