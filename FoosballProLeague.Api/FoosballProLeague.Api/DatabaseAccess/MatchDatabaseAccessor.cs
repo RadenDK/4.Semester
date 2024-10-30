@@ -93,8 +93,8 @@ namespace FoosballProLeague.Api.DatabaseAccess
             string query = @"
         SELECT 
             teams.id,
-            user1.id, user1.first_name, user1.last_name,
-            user2.id, user2.first_name, user2.last_name
+            user1.id, user1.first_name, user1.last_name, user1.elo_1v1, user1.elo_2v2,
+            user2.id, user2.first_name, user2.last_name, user2.elo_1v1, user2.elo_2v2
         FROM
             teams
         LEFT JOIN
