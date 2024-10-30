@@ -291,7 +291,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             RegisterGoalRequest mockRegisterGoalRequestRedSide = new RegisterGoalRequest { TableId = mockTableId, Side = "red" };
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            Mock mockHubContext = new Mock<IHubContext<MatchHub>>();
+            Mock<IHubContext<MatchHub>> mockHubContext = new Mock<IHubContext<MatchHub>>();
+            Mock<IHubClients> mockClients = new Mock<IHubClients>();
+            Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
+
+            mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
+
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
             IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<MatchHub>)mockHubContext.Object, userLogic);
             MatchController SUT = new MatchController(matchLogic);
@@ -310,6 +316,14 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             Assert.True(table.First().ActiveMatchId == null);
 
             Assert.True(matchLogs.Count() == 1, "There should be exactly one match log created when the match is completed");
+
+            mockClientProxy.Verify(
+                client => client.SendCoreAsync(
+                    "RecieveMatchEnd",
+                    It.Is<object[]>(o => o != null && o.Length == 1 &&
+                                    (bool)o[0] == false),
+                default),
+                Times.Once);
         }
 
         // Test: Red team scores 10 goals, completing the match, and any new goal registration should fail
@@ -362,12 +376,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
 
             mockClientProxy.Verify(
                 client => client.SendCoreAsync(
-                    "RecieveGoalUpdate",
-                    It.Is<object[]>(o => o != null && o.Length == 4 &&
-                                    ((TeamModel)o[0]).Id == 1 &&
-                                    ((TeamModel)o[1]).Id == 2 &&
-                                    (int)o[2] == 10 &&
-                                    (int)o[3] == 0),
+                    "RecieveMatchEnd",
+                    It.Is<object[]>(o => o != null && o.Length == 1 && (bool)o[0] == false),
                 default),
                 Times.Once);
         }
