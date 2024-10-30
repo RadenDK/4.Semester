@@ -61,8 +61,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             Assert.True(table.First().ActiveMatchId == matches.First().Id);
 
             Assert.True(teams.Count() == 2);
-            Assert.True(teams.First().Player1Id == 1 && teams.First().Player2Id == null);
-            Assert.True(teams.Last().Player1Id == 2 && teams.Last().Player2Id == null);
+            Assert.True(teams.First().User1.Id == 1 && teams.First().User2.Id == null);
+            Assert.True(teams.Last().User1.Id == 2 && teams.Last().User2.Id == null);
         }
 
         [Fact]
@@ -102,8 +102,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
 
             Assert.True(matches.First() != null);
             Assert.True(matches.Count() == 1);
-            Assert.True(matches.First().RedTeamId == teams.First(t => t.Player1Id == mockPlayer1Id).Id);
-            Assert.True(matches.First().BlueTeamId == teams.First(t => t.Player1Id == mockPlayer2Id && t.Player2Id == mockPlayer3Id).Id);
+            Assert.True(matches.First().RedTeamId == teams.First(t => t.User1.Id == mockPlayer1Id).Id);
+            Assert.True(matches.First().BlueTeamId == teams.First(t => t.User1.Id == mockPlayer2Id && t.User2.Id == mockPlayer3Id).Id);
             Assert.True(matches.First().TeamRedScore == 0 && matches.First().TeamBlueScore == 0);
             Assert.True(matches.First().StartTime.AddSeconds(5) >= DateTime.Now);
             Assert.True(matches.First().EndTime == null);
@@ -111,8 +111,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             Assert.True(table.First().ActiveMatchId == matches.First().Id);
 
             Assert.True(teams.Count() == 2);
-            Assert.True(teams.First(t => t.Player1Id == mockPlayer1Id).Player2Id == null);
-            Assert.True(teams.First(t => t.Player1Id == mockPlayer2Id && t.Player2Id == mockPlayer3Id) != null);
+            Assert.True(teams.First(t => t.User1.Id == mockPlayer1Id).User2.Id == null);
+            Assert.True(teams.First(t => t.User1.Id == mockPlayer2Id && t.User2.Id == mockPlayer3Id) != null);
         }
 
         [Fact]
@@ -178,10 +178,10 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             Assert.Equal(createdMatch.Id, table.First().ActiveMatchId);
             Assert.Equal(2, teams.Count());
 
-            TeamModel redTeam = teams.FirstOrDefault(t => t.Player1Id == mockPlayer1Id && t.Player2Id == null);
+            TeamModel redTeam = teams.FirstOrDefault(t => t.User1.Id == mockPlayer1Id && t.User2.Id == null);
             Assert.NotNull(redTeam);
 
-            TeamModel blueTeam = teams.FirstOrDefault(t => t.Player1Id == mockPlayer2Id && t.Player2Id == null);
+            TeamModel blueTeam = teams.FirstOrDefault(t => t.User1.Id == mockPlayer2Id && t.User2.Id == null);
             Assert.NotNull(blueTeam);
 
             Assert.Equal(redTeam.Id, createdMatch.RedTeamId);
@@ -316,7 +316,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             TeamModel existingTeam = teams.FirstOrDefault(t => t.Id == existingTeamId);
             Assert.NotNull(existingTeam);
 
-            TeamModel newTeam = teams.FirstOrDefault(t => t.Player1Id == 2 && t.Player2Id == 3);
+            TeamModel newTeam = teams.FirstOrDefault(t => t.User1.Id == 2 && t.User2.Id == 3);
             Assert.NotNull(newTeam);
 
             Assert.Equal(existingTeam.Id, createdMatch.RedTeamId);
