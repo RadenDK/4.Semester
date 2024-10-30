@@ -40,6 +40,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapHub<GoalHub>("/goalHub");
+app.MapHub<GoalHub>("/goalhub");
 
 app.Run();
