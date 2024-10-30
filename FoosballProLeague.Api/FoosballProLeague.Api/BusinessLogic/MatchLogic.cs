@@ -43,14 +43,20 @@ namespace FoosballProLeague.Api.BusinessLogic
         }
 
         // Helper method to get or register a team by player IDs
-        private int? GetOrRegisterTeam(List<int?> playerIds)
+        private TeamModel GetOrRegisterTeam(List<int?> playerIds)
         {
             int? teamId = _matchDatabaseAccessor.GetTeamIdByPlayers(playerIds);
+            TeamModel team;
             if (teamId == null)
             {
-                teamId = _matchDatabaseAccessor.RegisterTeam(playerIds);
+                int newTeamId = _matchDatabaseAccessor.RegisterTeam(playerIds);
+                team = _matchDatabaseAccessor.GetTeamById(newTeamId);
             }
-            return teamId;
+            else
+            {
+                team = _matchDatabaseAccessor.GetTeamById(teamId.Value);
+            }
+            return team;
         }
 
         /*
@@ -95,9 +101,9 @@ namespace FoosballProLeague.Api.BusinessLogic
             TeamModel currentTeam = GetTeamBySide(activeMatch, tableLoginRequest.Side);
 
             List<int?> playerIds = new List<int?> { currentTeam.User1.Id, tableLoginRequest.UserId };
-            int? newTeamId = GetOrRegisterTeam(playerIds);
+            TeamModel newTeam = GetOrRegisterTeam(playerIds);
             
-            return _matchDatabaseAccessor.UpdateTeamId(matchId, tableLoginRequest.Side, newTeamId.Value);
+            return _matchDatabaseAccessor.UpdateTeamId(matchId, tableLoginRequest.Side, newTeam.Id);
         }
 
         /*
@@ -120,15 +126,17 @@ namespace FoosballProLeague.Api.BusinessLogic
                 return false;
             }
 
-            int? redTeamId = GetOrRegisterTeam(_pendingMatchTeams[tableId].Teams["red"]);
-            int? blueTeamId = GetOrRegisterTeam(_pendingMatchTeams[tableId].Teams["blue"]);
+            TeamModel redTeam = GetOrRegisterTeam(_pendingMatchTeams[tableId].Teams["red"]);
+            TeamModel blueTeam = GetOrRegisterTeam(_pendingMatchTeams[tableId].Teams["blue"]);
 
-            int matchId = _matchDatabaseAccessor.CreateMatch(tableId, redTeamId.Value, blueTeamId.Value);
+            int matchId = _matchDatabaseAccessor.CreateMatch(tableId, redTeam.Id, blueTeam.Id);
             bool activeMatchWasSet = _matchDatabaseAccessor.SetTableActiveMatch(tableId, matchId);
+
+
 
             _pendingMatchTeams.Remove(tableId);
 
-            if (matchId != 0 && redTeamId != 0 && blueTeamId != 0 && activeMatchWasSet)
+            if (matchId != 0 && redTeam.Id != 0 && blueTeam.Id != 0 && activeMatchWasSet)
             {
                 NotifyMatchStartOrEnd(tableId, true).Wait();
                 return true;
