@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using FoosballProLeague.Api.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Moq;
+using FoosballProLeague.Api.Models;
 
 namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchControllerTests
 {
@@ -218,20 +219,24 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             IEnumerable<MatchModel> matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
             IEnumerable<FoosballTableModel> table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
             IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
+            IEnumerable<UserModel> users = _dbHelper.ReadData<UserModel>("SELECT * FROM users");
 
             MatchModel createdMatch = matches.FirstOrDefault();
             Assert.NotNull(createdMatch);
             Assert.Equal(createdMatch.Id, table.First().ActiveMatchId);
             Assert.Equal(2, teams.Count());
 
-            TeamModel redTeam = teams.FirstOrDefault(t => t.User1.Id == mockPlayer1Id && t.User2 == null);
+            TeamModel redTeam = teams.FirstOrDefault(t => t.Id == createdMatch.RedTeamId);
             Assert.NotNull(redTeam);
+            Assert.Equal(mockPlayer1Id, redTeam.User1.Id);
+            Assert.Null(redTeam.User2);
 
-            TeamModel blueTeam = teams.FirstOrDefault(t => t.User1.Id == mockPlayer2Id && t.User2 == null);
+            TeamModel blueTeam = teams.FirstOrDefault(t => t.Id == createdMatch.BlueTeamId);
             Assert.NotNull(blueTeam);
+            Assert.Equal(mockPlayer1Id, blueTeam.User1.Id);
+            Assert.Null(blueTeam.User2);
 
-            Assert.Equal(redTeam.Id, createdMatch.RedTeamId);
-            Assert.Equal(blueTeam.Id, createdMatch.BlueTeamId);
+           
 
             mockClientProxy.Verify(
                 client => client.SendCoreAsync(
