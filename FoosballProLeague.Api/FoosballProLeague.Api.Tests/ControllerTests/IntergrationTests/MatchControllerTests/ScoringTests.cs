@@ -33,9 +33,12 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             RegisterGoalRequest mockRegisterGoalRequestRedSide = new RegisterGoalRequest { TableId = mockTableId, Side = "red" };
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
+
             Mock mockHubContext = new Mock<IHubContext<GoalHub>>();
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
             IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object, userLogic);
+
+
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
@@ -69,9 +72,16 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             RegisterGoalRequest mockRegisterGoalRequest = new RegisterGoalRequest { TableId = mockTableId, Side = "red" };
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            Mock mockHubContext = new Mock<IHubContext<GoalHub>>();
+            Mock<IHubContext<GoalHub>> mockHubContext = new Mock<IHubContext<GoalHub>>();
+            Mock<IHubClients> mockClients = new Mock<IHubClients>();
+            Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
+
+            mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
+
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
             IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object, userLogic);
+
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
@@ -87,6 +97,17 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             Assert.True(matches.First().EndTime == null); // Check if the match has not ended
             Assert.True(table.First().ActiveMatchId == matches.First().Id); // Check if the table has the correct active match
             Assert.True(matchLogs.Any(), "A match log should be created when a goal is registered"); // Check if a match log was created
+
+            mockClientProxy.Verify(
+                client => client.SendCoreAsync(
+                    "RecieveGoalUpdate",
+                    It.Is<object[]>(o => o != null && o.Length == 4 &&
+                                    ((TeamModel)o[0]).Id == 1 &&
+                                    ((TeamModel)o[1]).Id == 2 &&
+                                    (int)o[2] == 5 &&
+                                    (int)o[3] == 0),
+                default),
+                Times.Once);
         }
 
 
@@ -106,7 +127,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             RegisterGoalRequest mockRegisterGoalRequest = new RegisterGoalRequest { TableId = mockTableId, Side = "red" };
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            Mock mockHubContext = new Mock<IHubContext<GoalHub>>();
+            Mock<IHubContext<GoalHub>> mockHubContext = new Mock<IHubContext<GoalHub>>();
+            Mock<IHubClients> mockClients = new Mock<IHubClients>();
+            Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
+
+            mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
+
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
             IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object, userLogic);
             MatchController SUT = new MatchController(matchLogic);
@@ -124,6 +151,17 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             Assert.True(matches.First().EndTime == null); // Ensure the match is still ongoing
             Assert.True(table.First().ActiveMatchId == matches.First().Id); // Check if the table still has the correct active match
             Assert.True(matchLogs.Count() == 1, "There should be exactly one match log created when a goal is registered"); // Check if exactly one match log was created
+
+            mockClientProxy.Verify(
+                client => client.SendCoreAsync(
+                    "RecieveGoalUpdate",
+                    It.Is<object[]>(o => o != null && o.Length == 4 &&
+                                    ((TeamModel)o[0]).Id == 1 &&
+                                    ((TeamModel)o[1]).Id == 2 &&
+                                    (int)o[2] == 5 &&
+                                    (int)o[3] == 0),
+                default),
+                Times.Once);
         }
 
 
@@ -144,7 +182,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             RegisterGoalRequest mockRegisterGoalRequest = new RegisterGoalRequest { TableId = mockTableId, Side = "red" };
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            Mock mockHubContext = new Mock<IHubContext<GoalHub>>();
+            Mock<IHubContext<GoalHub>> mockHubContext = new Mock<IHubContext<GoalHub>>();
+            Mock<IHubClients> mockClients = new Mock<IHubClients>();
+            Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
+
+            mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
+
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
             IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object, userLogic);
             MatchController SUT = new MatchController(matchLogic);
@@ -163,6 +207,17 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             Assert.True(matches.First().EndTime == null); // Ensure the match has not ended
             Assert.True(table.First().ActiveMatchId == matches.First().Id); // Check if the table still has the correct active match
             Assert.True(matchLogs.Count() == 1, "There should be exactly one match log created when a goal is registered"); // Check if exactly one match log was created
+
+            mockClientProxy.Verify(
+                client => client.SendCoreAsync(
+                    "RecieveGoalUpdate",
+                    It.Is<object[]>(o => o != null && o.Length == 4 &&
+                                    ((TeamModel)o[0]).Id == 1 &&
+                                    ((TeamModel)o[1]).Id == 2 &&
+                                    (int)o[2] == 1 &&
+                                    (int)o[3] == 0),
+                default),
+                Times.Once);
         }
 
         // Test: Running goals will be registered on the same match
@@ -274,7 +329,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             RegisterGoalRequest mockRegisterGoalRequestAfterMatchEnd = new RegisterGoalRequest { TableId = mockTableId, Side = "blue" };
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            Mock mockHubContext = new Mock<IHubContext<GoalHub>>();
+            Mock<IHubContext<GoalHub>> mockHubContext = new Mock<IHubContext<GoalHub>>();
+            Mock<IHubClients> mockClients = new Mock<IHubClients>();
+            Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
+
+            mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
+
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
             IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object, userLogic);
             MatchController SUT = new MatchController(matchLogic);
@@ -298,6 +359,17 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             Assert.Null(table.First().ActiveMatchId);
             Assert.Single(matchLogs);
             Assert.IsType<BadRequestObjectResult>(resultAfterMatchEnd);
+
+            mockClientProxy.Verify(
+                client => client.SendCoreAsync(
+                    "RecieveGoalUpdate",
+                    It.Is<object[]>(o => o != null && o.Length == 4 &&
+                                    ((TeamModel)o[0]).Id == 1 &&
+                                    ((TeamModel)o[1]).Id == 2 &&
+                                    (int)o[2] == 10 &&
+                                    (int)o[3] == 0),
+                default),
+                Times.Once);
         }
 
         [Fact]
@@ -315,7 +387,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
                 new RegisterGoalRequest { TableId = mockTableId, Side = "red" };
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            Mock mockHubContext = new Mock<IHubContext<GoalHub>>();
+            Mock<IHubContext<GoalHub>> mockHubContext = new Mock<IHubContext<GoalHub>>();
+            Mock<IHubClients> mockClients = new Mock<IHubClients>();
+            Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
+
+            mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
+
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
             IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<GoalHub>)mockHubContext.Object, userLogic);
             MatchController SUT = new MatchController(matchLogic);
@@ -337,6 +415,17 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             Assert.True(user2.Elo2v2 > 1000);
             Assert.True(user3.Elo2v2 < 1000);
             Assert.True(user4.Elo2v2 < 1000);
+
+            mockClientProxy.Verify(
+                client => client.SendCoreAsync(
+                    "RecieveGoalUpdate",
+                    It.Is<object[]>(o => o != null && o.Length == 4 &&
+                                    ((TeamModel)o[0]).Id == 1 &&
+                                    ((TeamModel)o[1]).Id == 2 &&
+                                    (int)o[2] == 10 &&
+                                    (int)o[3] == 0),
+                default),
+                Times.Once);
         }
     }
 }
