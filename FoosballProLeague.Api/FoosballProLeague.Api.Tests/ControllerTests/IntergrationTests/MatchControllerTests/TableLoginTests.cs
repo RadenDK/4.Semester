@@ -1,14 +1,13 @@
-using Xunit;
-using FoosballProLeague.Api.Controllers;
 using FoosballProLeague.Api.BusinessLogic;
-using Microsoft.Extensions.Configuration;
-using FoosballProLeague.Api.Models.RequestModels;
-using FoosballProLeague.Api.Models.FoosballModels;
+using FoosballProLeague.Api.Controllers;
 using FoosballProLeague.Api.DatabaseAccess;
-using Microsoft.AspNetCore.Mvc;
 using FoosballProLeague.Api.Hubs;
+using FoosballProLeague.Api.Models.FoosballModels;
+using FoosballProLeague.Api.Models.RequestModels;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Moq;
+
 
 namespace FoosballProLeague.Api.Tests
 {
