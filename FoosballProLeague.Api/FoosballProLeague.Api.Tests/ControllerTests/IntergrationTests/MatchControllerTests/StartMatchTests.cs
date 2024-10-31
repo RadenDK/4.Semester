@@ -53,6 +53,12 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             IEnumerable<FoosballTableModel> table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
             IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
 
+            List<int?> userIdsRedTeam = new List<int?> { mockPlayer1Id, null };
+            List<int?> userIdsBlueTeam = new List<int?> { mockPlayer2Id, null };
+
+            TeamModel redTeam = matchLogic.GetOrRegisterTeam(userIdsRedTeam);
+            TeamModel blueTeam = matchLogic.GetOrRegisterTeam(userIdsBlueTeam);
+
             Assert.IsType<OkObjectResult>(result);
 
             Assert.True(matches.First() != null);
@@ -65,13 +71,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             Assert.True(table.First().ActiveMatchId == matches.First().Id);
 
             Assert.True(teams.Count() == 2);
-            Assert.True(teams.First().User1.Id == 1 && teams.First().User2 == null);
-            Assert.True(teams.Last().User1.Id == 2 && teams.Last().User2 == null);
+            Assert.True(redTeam.User1.Id == mockPlayer1Id && redTeam.User2 == null);
+            Assert.True(blueTeam.User1.Id == mockPlayer2Id && blueTeam.User2 == null);
 
             mockClientProxy.Verify(
                 client => client.SendCoreAsync(
                     "RecieveMatchStart",
-                    It.Is<object[]>(o => o != null && o.Length == 5 && 
+                    It.Is<object[]>(o => o != null && o.Length == 5 &&
                                     (bool)o[0] == true &&
                                     ((TeamModel)o[1]).Id == 1 &&
                                     ((TeamModel)o[2]).Id == 2 &&
@@ -123,10 +129,17 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             IEnumerable<FoosballTableModel> table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
             IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
 
+            List<int?> userIdsRedTeam = new List<int?> { mockPlayer1Id, null };
+            List<int?> userIdsBlueTeam = new List<int?> { mockPlayer2Id, mockPlayer3Id };
+
+            TeamModel redTeam = matchLogic.GetOrRegisterTeam(userIdsRedTeam);
+            TeamModel blueTeam = matchLogic.GetOrRegisterTeam(userIdsBlueTeam);
+
+
             Assert.True(matches.First() != null);
             Assert.True(matches.Count() == 1);
-            Assert.True(matches.First().RedTeamId == teams.First(t => t.User1.Id == mockPlayer1Id).Id);
-            Assert.True(matches.First().BlueTeamId == teams.First(t => t.User1.Id == mockPlayer2Id && t.User2.Id == mockPlayer3Id).Id);
+            Assert.True(mockPlayer1Id == redTeam.User1.Id && redTeam.User2 == null);
+            Assert.True(mockPlayer2Id == blueTeam.User1.Id && mockPlayer3Id == blueTeam.User2.Id);
             Assert.True(matches.First().TeamRedScore == 0 && matches.First().TeamBlueScore == 0);
             Assert.True(matches.First().StartTime.AddSeconds(5) >= DateTime.Now);
             Assert.True(matches.First().EndTime == null);
@@ -134,8 +147,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             Assert.True(table.First().ActiveMatchId == matches.First().Id);
 
             Assert.True(teams.Count() == 2);
-            Assert.True(teams.First(t => t.User1.Id == mockPlayer1Id).User2 == null);
-            Assert.True(teams.First(t => t.User1.Id == mockPlayer2Id && t.User2.Id == mockPlayer3Id) != null);
+            
 
             mockClientProxy.Verify(
                 client => client.SendCoreAsync(
@@ -215,24 +227,29 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             IEnumerable<MatchModel> matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
             IEnumerable<FoosballTableModel> table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
             IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
-            IEnumerable<UserModel> users = _dbHelper.ReadData<UserModel>("SELECT * FROM users");
+
+            List<int?> userIdsRedTeam = new List<int?> { mockPlayer1Id, null };
+            List<int?> userIdsBlueTeam = new List<int?> { mockPlayer2Id, null };
+
+            TeamModel redTeam = matchLogic.GetOrRegisterTeam(userIdsRedTeam);
+            TeamModel blueTeam = matchLogic.GetOrRegisterTeam(userIdsBlueTeam);
 
             MatchModel createdMatch = matches.FirstOrDefault();
             Assert.NotNull(createdMatch);
             Assert.Equal(createdMatch.Id, table.First().ActiveMatchId);
             Assert.Equal(2, teams.Count());
 
-            TeamModel redTeam = teams.FirstOrDefault(t => t.Id == createdMatch.RedTeamId);
+            TeamModel redTeamId = teams.FirstOrDefault(t => t.Id == createdMatch.RedTeamId);
             Assert.NotNull(redTeam);
             Assert.Equal(mockPlayer1Id, redTeam.User1.Id);
             Assert.Null(redTeam.User2);
 
-            TeamModel blueTeam = teams.FirstOrDefault(t => t.Id == createdMatch.BlueTeamId);
+            TeamModel blueTeamId = teams.FirstOrDefault(t => t.Id == createdMatch.BlueTeamId);
             Assert.NotNull(blueTeam);
-            Assert.Equal(mockPlayer1Id, blueTeam.User1.Id);
+            Assert.Equal(mockPlayer2Id, blueTeam.User1.Id);
             Assert.Null(blueTeam.User2);
 
-           
+
 
             mockClientProxy.Verify(
                 client => client.SendCoreAsync(
@@ -393,6 +410,12 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             IEnumerable<FoosballTableModel> table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
             IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
 
+            List<int?> userIdsRedTeam = new List<int?> { mockPlayer1Id, null };
+            List<int?> userIdsBlueTeam = new List<int?> { mockPlayer2Id, mockPlayer3Id };
+
+            TeamModel redTeam = matchLogic.GetOrRegisterTeam(userIdsRedTeam);
+            TeamModel blueTeam = matchLogic.GetOrRegisterTeam(userIdsBlueTeam);
+
             MatchModel createdMatch = matches.FirstOrDefault();
             Assert.NotNull(createdMatch);
             Assert.Equal(mockTableId, createdMatch.TableId);
@@ -402,11 +425,10 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             TeamModel existingTeam = teams.FirstOrDefault(t => t.Id == existingTeamId);
             Assert.NotNull(existingTeam);
 
-            TeamModel newTeam = teams.FirstOrDefault(t => t.User1.Id == 2 && t.User2.Id == 3);
-            Assert.NotNull(newTeam);
+            Assert.True(blueTeam.User1.Id == mockPlayer2Id && blueTeam.User2.Id == mockPlayer3Id);
 
             Assert.Equal(existingTeam.Id, createdMatch.RedTeamId);
-            Assert.Equal(newTeam.Id, createdMatch.BlueTeamId);
+            Assert.Equal(blueTeam.Id, createdMatch.BlueTeamId);
 
             mockClientProxy.Verify(
                 client => client.SendCoreAsync(
