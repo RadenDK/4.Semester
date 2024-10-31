@@ -43,7 +43,7 @@ namespace FoosballProLeague.Api.BusinessLogic
         }
 
         // Helper method to get or register a team by player IDs
-        private TeamModel GetOrRegisterTeam(List<int?> userIds)
+        public TeamModel GetOrRegisterTeam(List<int?> userIds)
         {
             int? teamId = _matchDatabaseAccessor.GetTeamIdByUsers(userIds);
             TeamModel team;
