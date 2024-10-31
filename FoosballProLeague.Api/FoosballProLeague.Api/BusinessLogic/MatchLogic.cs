@@ -43,13 +43,13 @@ namespace FoosballProLeague.Api.BusinessLogic
         }
 
         // Helper method to get or register a team by player IDs
-        private TeamModel GetOrRegisterTeam(List<int?> playerIds)
+        private TeamModel GetOrRegisterTeam(List<int?> userIds)
         {
-            int? teamId = _matchDatabaseAccessor.GetTeamIdByPlayers(playerIds);
+            int? teamId = _matchDatabaseAccessor.GetTeamIdByUsers(userIds);
             TeamModel team;
             if (teamId == null)
             {
-                int newTeamId = _matchDatabaseAccessor.RegisterTeam(playerIds);
+                int newTeamId = _matchDatabaseAccessor.RegisterTeam(userIds);
                 team = _matchDatabaseAccessor.GetTeamById(newTeamId);
             }
             else
@@ -100,8 +100,8 @@ namespace FoosballProLeague.Api.BusinessLogic
             MatchModel activeMatch = _matchDatabaseAccessor.GetMatchById(matchId);
             TeamModel currentTeam = GetTeamBySide(activeMatch, tableLoginRequest.Side);
 
-            List<int?> playerIds = new List<int?> { currentTeam.User1.Id, tableLoginRequest.UserId };
-            TeamModel newTeam = GetOrRegisterTeam(playerIds);
+            List<int?> userIds = new List<int?> { currentTeam.User1.Id, tableLoginRequest.UserId };
+            TeamModel newTeam = GetOrRegisterTeam(userIds);
             
             return _matchDatabaseAccessor.UpdateTeamId(matchId, tableLoginRequest.Side, newTeam.Id);
         }
@@ -199,9 +199,12 @@ namespace FoosballProLeague.Api.BusinessLogic
 
                 bool redTeamWon = match.TeamRedScore == 10;
                 bool is1v1 = redTeam.User2 == null && blueTeam.User2 == null;
-                
-                NotifyMatchStartOrEnd(registerGoalRequest.TableId, false).Wait();
-                _userLogic.UpdateTeamElo(redTeam, blueTeam, redTeamWon, is1v1);
+
+                if((is1v1 && (redTeam.User2 == null && blueTeam.User2 == null)) || (!is1v1 && (redTeam.User2 != null && blueTeam.User2 != null)))
+                {
+                    NotifyMatchStartOrEnd(registerGoalRequest.TableId, false).Wait();
+                    _userLogic.UpdateTeamElo(redTeam, blueTeam, redTeamWon, is1v1);
+                }
             }
 
             return true;

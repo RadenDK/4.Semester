@@ -13,7 +13,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
 
         // Team-related methods
         public int GetTeamIdByMatchId(int matchId, string teamSide);
-        public int? GetTeamIdByPlayers(List<int?> playerIds);
+        public int? GetTeamIdByUsers(List<int?> playerIds);
         public int RegisterTeam(List<int?> playerIds);
         public TeamModel GetTeamById(int teamId);
         public bool UpdateTeamId(int matchId, string teamSide, int teamId);

@@ -71,7 +71,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         }
 
 
-        public int? GetTeamIdByPlayers(List<int?> playerIds)
+        public int? GetTeamIdByUsers(List<int?> playerIds)
         {
             string query = @"
                     SELECT id 

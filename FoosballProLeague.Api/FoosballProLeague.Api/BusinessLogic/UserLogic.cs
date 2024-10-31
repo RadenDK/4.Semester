@@ -95,6 +95,13 @@ public class UserLogic : IUserLogic
     
     public void UpdateTeamElo(TeamModel redTeam, TeamModel blueTeam, bool redTeamWon, bool is1v1)
     {
+        // Check if the match is a valid 1v1 or 2v2
+        if ((is1v1 && (redTeam.User2 != null || blueTeam.User2 != null)) || (!is1v1 && (redTeam.User2 == null || blueTeam.User2 == null)))
+        {
+            // Invalid match configuration
+            return;
+        }
+        
         // Calculate average ELO for each team
         // this
         // int redTeamElo = is1v1 ? redTeam.User1.Elo1v1 : (redTeam.User1.Elo2v2 + redTeam.User2.Elo2v2) / 2;

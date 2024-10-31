@@ -1,18 +1,14 @@
 ﻿using FoosballProLeague.Api.BusinessLogic;
 using FoosballProLeague.Api.Controllers;
 using FoosballProLeague.Api.DatabaseAccess;
+using FoosballProLeague.Api.Hubs;
+using FoosballProLeague.Api.Models;
 using FoosballProLeague.Api.Models.FoosballModels;
 using FoosballProLeague.Api.Models.RequestModels;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FoosballProLeague.Api.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Moq;
-using FoosballProLeague.Api.Models;
+
 
 namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchControllerTests
 {
