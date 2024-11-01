@@ -35,14 +35,15 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserContr
             };
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
             IUserLogic userLogic = new UserLogic(userDatabaseAccessor);
-            UserController SUT = new UserController(userLogic);
+            UserController SUT = new UserController(userLogic, tokenLogic);
 
             // Act: Call the LoginUser method
             IActionResult result = SUT.LoginUser(loginModel);
 
             // Assert: Verify the results
-            Assert.IsType<OkResult>(result);
+            Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]
@@ -63,8 +64,9 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserContr
             };
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
             IUserLogic userLogic = new UserLogic(userDatabaseAccessor);
-            UserController SUT = new UserController(userLogic);
+            UserController SUT = new UserController(userLogic, tokenLogic);
 
             // Act: Call the LoginUser method
             IActionResult result = SUT.LoginUser(loginModel);
