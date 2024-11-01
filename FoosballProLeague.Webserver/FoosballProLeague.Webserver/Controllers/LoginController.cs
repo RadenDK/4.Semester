@@ -2,11 +2,18 @@
 using FoosballProLeague.Webserver.Models;
 using FoosballProLeague.Webserver.BusinessLogic;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FoosballProLeague.Webserver.Controllers;
 
+
+[Authorize]
 public class LoginController : Controller
 {
+    
     private readonly ILoginLogic _loginLogic;
     
     public LoginController(ILoginLogic loginLogic)
@@ -30,6 +37,16 @@ public class LoginController : Controller
         
         if (response.IsSuccessStatusCode)
         {
+            
+            string accessToken = await response.Content.ReadAsStringAsync();
+            Response.Cookies.Append("accessToken", accessToken, new CookieOptions 
+                { 
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict
+                    
+                     });
+            
             return RedirectToAction("HomePage", "HomePage");
         }
 

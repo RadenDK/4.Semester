@@ -18,11 +18,17 @@ public class LoginService : ILoginService
    }
    
    //Service call for login user by calling the HttpClientService
+   // Puts the login data in a object and serializes it
    public async Task<HttpResponseMessage> LoginUser(string email, string password)
    {
-       StringContent content = new StringContent(JsonConvert.SerializeObject(new{Email = email, Password = password} ), Encoding.UTF8, "application/json");
+       object loginData = new { Email = email, Password = password };
+       StringContent content = new StringContent(JsonConvert.SerializeObject(loginData), Encoding.UTF8, "application/json");
        
-       return await _httpClientService.PostAsync("/api/User/login", content);
+       // Set the authorization header with the accesstoken
+       string accessToken = "Bearer " + "accesstoken";
+       _httpClientService.SetAuthorizationHeader(accessToken);
+       
+       return await _httpClientService.PostAsync("User/login", content);
    }
 }
 
