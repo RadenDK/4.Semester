@@ -19,6 +19,17 @@ builder.Services.AddScoped<IMatchDatabaseAccessor, MatchDatabaseAccessor>();
 // Add SignalR service
 builder.Services.AddSignalR();
 
+//cors
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", builder =>
+    {
+        builder.AllowAnyMethod()
+               .AllowAnyHeader()
+               .WithOrigins("http://localhost:56417")
+               .AllowCredentials();
+    });
+});
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

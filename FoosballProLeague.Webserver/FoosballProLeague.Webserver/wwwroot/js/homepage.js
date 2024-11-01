@@ -24,7 +24,6 @@ connection.onclose(async () => {
 
 let matchTimer;
 let matchStartTime;
-let matchEndTime;
 
 connection.On("RecieveMatchStart", (isMatchStart, teamRed, teamBlue, redScore, blueScore) => {
     //start time on match
