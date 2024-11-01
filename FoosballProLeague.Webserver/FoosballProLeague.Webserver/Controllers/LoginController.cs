@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace FoosballProLeague.Webserver.Controllers;
 
 
-[Authorize]
+
 public class LoginController : Controller
 {
     
