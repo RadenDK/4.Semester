@@ -1,9 +1,11 @@
 ﻿using FoosballProLeague.Webserver.BusinessLogic;
 using FoosballProLeague.Webserver.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoosballProLeague.Webserver.Controllers
 {
+    [Authorize]
     public class HomePageController : Controller
     {
         private readonly IHomePageLogic _homePageLogic;

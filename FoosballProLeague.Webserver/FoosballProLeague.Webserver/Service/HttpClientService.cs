@@ -47,5 +47,10 @@ namespace FoosballProLeague.Webserver.Service
         {
             return await _httpClient.PutAsync(url, content);
         }
+        
+        public void SetAuthorizationHeader(string accessToken)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        }
     }
 }
