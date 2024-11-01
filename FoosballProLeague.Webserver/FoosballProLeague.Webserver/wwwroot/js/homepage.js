@@ -1,31 +1,28 @@
-﻿
-//connection to signalR hub
+﻿//define the api url
+const apiUrl = "https://localhost:6001";
+
+// Define the connection
 const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/matchhub")
+    .withUrl(`${apiUrl}/matchhub`, {
+        transport: signalR.HttpTransportType.WebSockets,
+        withCredentials: true
+    })
     .configureLogging(signalR.LogLevel.Information)
-    .build()
+    .build();
 
-var Start = async () => {
-    try {
-        await connection.start();
-        console.log("SignlaR Connected");
-    }
-    catch (error){
-        console.log(error);
-        setTimeout(Start, 5000);
-    }
-}
-
-Start();
-
-connection.onclose(async () => {
-    await Start();
-})
+// Start the connection
+connection.start().then(() => {
+    console.log("SignalR connection established.");
+}).catch(err => {
+    console.error("Error establishing SignalR connection: ", err);
+});
 
 let matchTimer;
 let matchStartTime;
 
-connection.On("RecieveMatchStart", (isMatchStart, teamRed, teamBlue, redScore, blueScore) => {
+connection.on("RecieveMatchStart", (isMatchStart, teamRed, teamBlue, redScore, blueScore) => {
+    console.log("RecieveMatchStart called with data:", { isMatchStart, teamRed, teamBlue, redScore, blueScore });
+
     //start time on match
     if (isMatchStart) {
         matchStartTime = new Date();
@@ -41,26 +38,49 @@ connection.On("RecieveMatchStart", (isMatchStart, teamRed, teamBlue, redScore, b
     }
 
     //update team red players
-    const teamRedContainer = document.querySelector("team-red");
+    const teamRedContainer = document.querySelector(".team-red");
     teamRedContainer.innerHTML = '<span class="team-red">Team Red</span>';
-    teamRed.forEach(user => {
+
+    if (teamRed && teamRed.user1) {
         const userElement = document.createElement("p");
-        userElement.textContent = `${user.FirstName} ${user.LastName}`;
+        userElement.textContent = `${teamRed.user1.firstName} ${teamRed.user1.lastName}`;
         teamRedContainer.appendChild(userElement);
-    });
+    }
+    if (teamRed && teamRed.user2) {
+        const userElement = document.createElement("p");
+        userElement.textContent = `${teamRed.user2.firstName} ${teamRed.user2.lastName}`;
+        teamRedContainer.appendChild(userElement);
+    }
+   
 
     //update team blue players
-    const teamBlueContainer = document.querySelector("team-blue");
+    const teamBlueContainer = document.querySelector(".team-blue");
     teamBlueContainer.innerHTML = '<span class="team-blue">Team Blue</span>';
-    teamBlue.forEach(user => {
+
+    if (teamBlue && teamBlue.user1) {
         const userElement = document.createElement("p");
-        userElement.textContent = `${user.FirstName} ${user.LastName}`;
+        userElement.textContent = `${teamBlue.user1.firstName} ${teamBlue.user1.lastName}`;
         teamBlueContainer.appendChild(userElement);
-    });
+    }
+    if (teamBlue && teamBlue.user2) {
+        const userElement = document.createElement("p");
+        userElement.textContent = `${teamBlue.user2.firstName} ${teamBlue.user2.lastName}`;
+        teamBlueContainer.appendChild(userElement);
+    }
 
     //update scores
-    document.querySelector(".match-score .score:nth-child(1)").textContent = redScore;
-    document.querySelector(".match-score .score:nth-child(3)").textContent = blueScore;
+    document.querySelector(".match-score .score:nth-child(1)");
+    document.querySelector(".match-score .score:nth-child(3)");
+    if (redScoreElement) {
+        redScoreElement.textContent = redScore;
+    } else {
+        console.error('Element for red score not found.');
+    }
+    if (blueScoreElement) {
+        blueScoreElement.textContent = blueScore;
+    } else {
+        console.error('Element for blue score not found.');
+    }
 })
 
 function updateMatchTime() {
@@ -75,29 +95,52 @@ function updateMatchTime() {
 connection.on("RecieveGoalUpdate", (teamRed, teamBlue, redScore, blueScore) => {
 
     //update team red players
-    const teamRedContainer = document.querySelector("team-red");
+    const teamRedContainer = document.querySelector(".team-red");
     teamRedContainer.innerHTML = '<span class="team-red">Team Red</span>';
-    teamRed.forEach(user => {
+
+    if (teamRed && teamRed.user1) {
         const userElement = document.createElement("p");
-        userElement.textContent = `${user.FirstName} ${user.LastName}`;
+        userElement.textContent = `${teamRed.user1.firstName} ${teamRed.user1.lastName}`;
         teamRedContainer.appendChild(userElement);
-    });
+    }
+    if (teamRed && teamRed.user2) {
+        const userElement = document.createElement("p");
+        userElement.textContent = `${teamRed.user2.firstName} ${teamRed.user2.lastName}`;
+        teamRedContainer.appendChild(userElement);
+    }
+
 
     //update team blue players
-    const teamBlueContainer = document.querySelector("team-blue");
+    const teamBlueContainer = document.querySelector(".team-blue");
     teamBlueContainer.innerHTML = '<span class="team-blue">Team Blue</span>';
-    teamBlue.forEach(user => {
+
+    if (teamBlue && teamBlue.user1) {
         const userElement = document.createElement("p");
-        userElement.textContent = `${user.FirstName} ${user.LastName}`;
+        userElement.textContent = `${teamBlue.user1.firstName} ${teamBlue.user1.lastName}`;
         teamBlueContainer.appendChild(userElement);
-    });
+    }
+    if (teamBlue && teamBlue.user2) {
+        const userElement = document.createElement("p");
+        userElement.textContent = `${teamBlue.user2.firstName} ${teamBlue.user2.lastName}`;
+        teamBlueContainer.appendChild(userElement);
+    }
 
     //update scores
-    document.querySelector(".match-score .score:nth-child(1)").textContent = redScore;
-    document.querySelector(".match-score .score:nth-child(3)").textContent = blueScore;
+    document.querySelector(".match-score .score:nth-child(1)");
+    document.querySelector(".match-score .score:nth-child(3)");
+    if (redScoreElement) {
+        redScoreElement.textContent = redScore;
+    } else {
+        console.error('Element for red score not found.');
+    }
+    if (blueScoreElement) {
+        blueScoreElement.textContent = blueScore;
+    } else {
+        console.error('Element for blue score not found.');
+    }
 })
 
-connection.on("RecieveEndMatch", (isMatchStart) => {
+connection.on("RecieveMatchEnd", (isMatchStart) => {
     //end match
     if (!isMatchStart) {
         if (matchTimer) {
