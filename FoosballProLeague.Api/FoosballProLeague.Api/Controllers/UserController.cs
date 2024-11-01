@@ -12,10 +12,12 @@ namespace FoosballProLeague.Api.Controllers
     public class UserController : Controller
     {
         private IUserLogic _userLogic;
-        
-        public UserController(IUserLogic userLogic)
+        private ITokenLogic _tokenLogic;
+
+        public UserController(IUserLogic userLogic, ITokenLogic tokenLogic)
         {
             _userLogic = userLogic;
+            _tokenLogic = tokenLogic;
         }
         
         // method to handle registration of a new user (create user)
@@ -75,7 +77,9 @@ namespace FoosballProLeague.Api.Controllers
                 bool loginSucces = _userLogic.LoginUser(userLoginModel.Email, userLoginModel.Password);
                 if(loginSucces)
                 {
-                    return Ok(); // Return Ok if the user was logged in successfully
+                    // Since the login was successful, generate a JWT for the user
+                    string jwt = _tokenLogic.GenerateJWT();
+                    return Ok(jwt); // Return Ok if the user was logged in successfully and the JWT was generated
                 }
                 else
                 {
