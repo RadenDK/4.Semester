@@ -13,7 +13,7 @@ namespace FoosballProLeague.Api.BusinessLogic
 
         public void InterruptMatch(int tableId);
 
-        public TeamModel GetOrRegisterTeam(List<int?> userIds);
+        public TeamModel GetOrRegisterTeam(List<int?> userIds, int? existingTeamId = null);
 
     }
 

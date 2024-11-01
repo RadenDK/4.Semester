@@ -127,7 +127,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
 
         // CREATE METHODS
 
-        public int CreateMatch(int tableId, int redTeamId, int blueTeamId)
+        public int CreateMatch(int tableId, int redTeamId, int blueTeamId, bool? validEloMatch = null)
         {
             string query = "INSERT INTO foosball_matches (table_id, red_team_id, blue_team_id) VALUES (@TableId, @RedTeamId, @BlueTeamId) RETURNING id";
 
@@ -201,23 +201,28 @@ namespace FoosballProLeague.Api.DatabaseAccess
             }
         }
 
-        public bool UpdateTeamId(int matchId, string teamSide, int teamId)
+        public bool UpdateUserIdOnTeamByTeamId(int? teamId, int userId)
         {
-            // Validate the teamSide input
-            if (teamSide != "red" && teamSide != "blue")
-            {
-                throw new ArgumentException("Invalid team side. Allowed values are 'red' or 'blue'.");
-            }
-
-            string query = $"UPDATE foosball_matches SET {teamSide}_team_id = @TeamId WHERE id = @MatchId";
+            string query = "UPDATE teams SET player2_id = @UserId WHERE id = @TeamId";
 
             using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
-                int rowsAffected = connection.Execute(query, new { MatchId = matchId, TeamId = teamId });
+                int rowsAffected = connection.Execute(query, new { UserId = userId, TeamId = teamId });
                 return rowsAffected > 0;
             }
+        }
 
+        public bool UpdateValidEloMatch(int matchId, bool validEloMatch)
+        {
+            string query = "UPDATE public.foosball_matches SET valid_elo_match = @ValidEloMatch WHERE id = @MatchId";
+
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            {
+                connection.Open();
+                int rowsAffected = connection.Execute(query, new { ValidEloMatch = validEloMatch, MatchId = matchId });
+                return rowsAffected > 0;
+            }
         }
     }
 }
