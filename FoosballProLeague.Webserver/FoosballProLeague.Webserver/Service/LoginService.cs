@@ -22,13 +22,9 @@ public class LoginService : ILoginService
    public async Task<HttpResponseMessage> LoginUser(string email, string password)
    {
        object loginData = new { Email = email, Password = password };
-       StringContent content = new StringContent(JsonConvert.SerializeObject(loginData), Encoding.UTF8, "application/json");
+       StringContent content = new StringContent(JsonConvert.SerializeObject(loginData), Encoding.UTF8, "application/json");  
        
-       // Set the authorization header with the accesstoken
-       string accessToken = "Bearer " + "accesstoken";
-       _httpClientService.SetAuthorizationHeader(accessToken);
-       
-       return await _httpClientService.PostAsync("User/login", content);
+       return await _httpClientService.PostAsync("api/user/login", content);
    }
 }
 
