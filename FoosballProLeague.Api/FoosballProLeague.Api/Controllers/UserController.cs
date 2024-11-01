@@ -90,6 +90,34 @@ namespace FoosballProLeague.Api.Controllers
                 return StatusCode(500, new { message = "An error occurred while logging in the user" });
             }
         }
+
+        // Method to validate user JWT
+        [HttpGet("token/validate")]
+        public IActionResult ValidateUserJWT()
+        {
+            try
+            {
+                if (!Request.Headers.ContainsKey("Authorization"))
+                {
+                    return Unauthorized("No JWT token found in the request");
+                }
+
+                string jwt = Request.Headers["Authorization"];
+
+                if (_tokenLogic.ValidateJWT(jwt))
+                {
+                    return Ok("JWT is valid");
+                }
+                else
+                {
+                    return Unauthorized("JWT token is not valid");
+                }
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { message = "An error occurred while validating the user" });
+            }
+        }
     }
     
     

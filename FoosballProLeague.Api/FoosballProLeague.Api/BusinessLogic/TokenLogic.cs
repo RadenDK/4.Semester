@@ -58,7 +58,33 @@ namespace FoosballProLeague.Api.BusinessLogic
 
         public bool ValidateJWT(string jwt)
         {
-            throw new NotImplementedException();
+            string signingKey = _configuration["Jwt:signingKey"];
+            if (string.IsNullOrEmpty(signingKey))
+            {
+                throw new InvalidOperationException("JWT signing key is not configured");
+            }
+
+            // Define token validation parameters
+            TokenValidationParameters tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+            };
+
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+
+            try
+            {
+                // Validate the token
+                tokenHandler.ValidateToken(jwt, tokenValidationParameters, out _);
+                return true; // Token is valid
+            }
+            catch (Exception)
+            {
+                return false; // Token is invalid
+            }
         }
     }
 }
