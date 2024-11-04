@@ -212,6 +212,12 @@ namespace FoosballProLeague.Api.Tests
             IEnumerable<FoosballTableModel> football_table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables where id = " + mockTableId);
             IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
 
+            List<int?> userIdsRedTeam = new List<int?> { 1, 3 };
+            List<int?> userIdsBlueTeam = new List<int?> { 2, null };
+
+            TeamModel redTeam = matchLogic.GetOrRegisterTeam(userIdsRedTeam);
+            TeamModel blueTeam = matchLogic.GetOrRegisterTeam(userIdsBlueTeam);
+
             Assert.IsType<OkObjectResult>(result); // Expect the login to succeed since there is room on the red team
 
             // There should be an active match
@@ -225,8 +231,10 @@ namespace FoosballProLeague.Api.Tests
             // Teams should not be empty since they are already registered
             Assert.NotEmpty(teams);
 
-            // There should be a third team created
-            Assert.Equal(3, teams.Count()); // Two teams were assigned at the test start, and the third should be created in the code
+            // There should be added an user to red team
+            Assert.Equal(1, redTeam.User1.Id);
+            Assert.Equal(3, redTeam.User2.Id);
+            Assert.Equal(2, blueTeam.User1.Id);
         }
 
         // Test: Login on table with an active match and full team
