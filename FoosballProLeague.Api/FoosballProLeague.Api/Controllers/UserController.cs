@@ -3,9 +3,6 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http.HttpResults;
 using FoosballProLeague.Api.BusinessLogic;
 using FoosballProLeague.Api.Models;
-using Microsoft.AspNetCore.SignalR;
-using FoosballProLeague.Api.Hubs; 
-
 
 namespace FoosballProLeague.Api.Controllers
 {
@@ -14,35 +11,30 @@ namespace FoosballProLeague.Api.Controllers
     public class UserController : Controller
     {
         private IUserLogic _userLogic;
-        private readonly IHubContext<LeaderboardHub> _hubContext; 
-        private readonly LeaderboardService _leaderboardService;
-
-        public UserController(IUserLogic userLogic, IHubContext<LeaderboardHub> hubContext, LeaderboardService leaderboardService)
+        
+        public UserController(IUserLogic userLogic)
         {
             _userLogic = userLogic;
-            _hubContext = hubContext;
-            _leaderboardService = leaderboardService;
         }
         
         // method to handle registration of a new user (create user)
         [HttpPost]
-        public async Task<IActionResult> CreateUser(UserRegistrationModel userRegistrationModel)
+        public IActionResult CreateUser(UserRegistrationModel userRegistrationModel)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-    
+            
             try
             {
                 if (_userLogic.GetUser(userRegistrationModel.Email) != null)
                 {
                     return BadRequest(new { message = "Email already exists" });
                 }
-        
+                
                 if(_userLogic.CreateUser(userRegistrationModel))
                 {
-                    await _leaderboardService.NotifyLeaderboardChange();
                     return Ok(); // Return Ok if the user was created successfully
                 }
                 else
@@ -69,13 +61,6 @@ namespace FoosballProLeague.Api.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
-        
-        [HttpGet("test-update")]
-        public async Task<IActionResult> TestUpdate()
-        {
-            await _leaderboardService.NotifyLeaderboardChange();
-            return Ok("Update sent");
         }
         
         

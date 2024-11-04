@@ -15,7 +15,6 @@ builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IDepartmentDatabaseAccessor, DepartmentDatabaseAccessor>();
 builder.Services.AddScoped<IMatchLogic, MatchLogic>();
 builder.Services.AddScoped<IMatchDatabaseAccessor, MatchDatabaseAccessor>();
-builder.Services.AddScoped<LeaderboardService>();
 
 // Add SignalR service
 builder.Services.AddSignalR();
@@ -27,7 +26,7 @@ builder.Services.AddCors(options =>
     {
         builder.AllowAnyMethod()
                .AllowAnyHeader()
-               .WithOrigins("https://localhost:56417", "http://localhost:5122")
+               .WithOrigins("https://localhost:56417")
                .AllowCredentials();
     });
 });
@@ -37,9 +36,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
 var app = builder.Build();
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -53,12 +50,6 @@ app.UseCors("CorsPolicy");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
-// Use CORS
-app.UseCors("AllowAll");
-
-// Map the SignalR hub
-app.MapHub<LeaderboardHub>("/leaderboardHub");
 
 app.MapControllers();
 
