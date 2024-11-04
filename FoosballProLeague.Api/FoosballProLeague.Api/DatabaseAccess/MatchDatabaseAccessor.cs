@@ -74,10 +74,11 @@ namespace FoosballProLeague.Api.DatabaseAccess
         public int? GetTeamIdByUsers(List<int?> playerIds)
         {
             string query = @"
-                    SELECT id 
-                    FROM teams 
-                    WHERE player1_id = @Player1Id 
-                        AND (player2_id = @Player2Id OR @Player2Id IS NULL)";
+        SELECT id
+        FROM teams
+        WHERE (player1_id = @Player1Id AND (player2_id = @Player2Id OR player2_id IS NULL))
+           OR (player1_id = @Player2Id AND (player2_id = @Player1Id OR player2_id IS NULL))";
+
 
             using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {

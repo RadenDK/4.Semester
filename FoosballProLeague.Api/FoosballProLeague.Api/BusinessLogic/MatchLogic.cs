@@ -47,6 +47,7 @@ namespace FoosballProLeague.Api.BusinessLogic
         {
             int? teamId = _matchDatabaseAccessor.GetTeamIdByUsers(userIds);
             TeamModel team;
+            
             if (teamId == null && existingTeamId == null)
             {
                 int newTeamId = _matchDatabaseAccessor.RegisterTeam(userIds);

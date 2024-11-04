@@ -429,9 +429,9 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 1000, 1000), (2, 1000, 1000), (3, 1000, 1000)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id, player2_id) VALUES (1, 1, 3), (2, 2, null)");
+            _dbHelper.InsertData("INSERT INTO teams (player1_id, player2_id) VALUES (1, 3), (2, null)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
-            _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, 1, 2, 9, 0)");
+            _dbHelper.InsertData("INSERT INTO foosball_matches (table_id, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, 2, 9, 0)");
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
             
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
@@ -463,7 +463,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             Assert.IsType<OkObjectResult>(startMatchResult);
             
             // Verify the database state
-            TeamModel redTeam = matchDatabaseAccessor.GetTeamById(1);
+            TeamModel redTeam = matchDatabaseAccessor.GetTeamById(3);
             TeamModel blueTeam = matchDatabaseAccessor.GetTeamById(2);
             
             // Check if user 3 is still part of the team or if only users 1 and 2 are persisted
