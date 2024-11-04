@@ -12,9 +12,16 @@ namespace FoosballProLeague.Webserver.BusinessLogic
             _homePageService = homePageService;
         }
 
-        public async Task<List<UserModel>> GetUsers()
+        public async Task<List<UserModel>> GetUsers(int pageNumber, int pageSize)
         {
-            return await _homePageService.GetUsers();
+            var users = await _homePageService.GetUsers();
+            return users.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+        }
+
+        public async Task<int> GetTotalUserCount()
+        {
+            var users = await _homePageService.GetUsers();
+            return users.Count;
         }
     }
 }

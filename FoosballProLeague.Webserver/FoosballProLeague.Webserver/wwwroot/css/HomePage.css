@@ -40,8 +40,10 @@ body {
 .main {
     display: flex;
     justify-content: space-between;
-    
     width: 100%;
+    padding: 20px;
+    height: calc(85vh - 5px);
+    margin-top: -50px;
 }
 
 /*styling of leaderboard*/
@@ -244,3 +246,83 @@ body {
         border: 3px solid #6c49eb;
         border-radius: 20px;
     }
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    margin: 0 5px;
+    padding: 8px 16px;
+    background-color: #6c49eb;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 25px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.pagination a:hover {
+    background-color: #4a36c4;
+    transform: scale(1.1);
+}
+
+.pagination a.disabled {
+    background-color: #ccc;
+    pointer-events: none;
+}
+
+.pagination span {
+    margin: 0 5px;
+    font-size: 18px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.7);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.zoom-in {
+    animation: zoomIn 0.7s ease-in-out;
+}
+
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.bounce-in {
+    animation: bounceIn 0.7s ease-in-out;
+}

@@ -4,6 +4,8 @@ namespace FoosballProLeague.Webserver.BusinessLogic
 {
     public interface IHomePageLogic
     {
-        Task<List<UserModel>> GetUsers();
+        Task<List<UserModel>> GetUsers(int pageNumber, int pageSize);
+        Task<int> GetTotalUserCount();
+
     }
 }
