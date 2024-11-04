@@ -1,6 +1,7 @@
 using FoosballProLeague.Api.BusinessLogic;
 using FoosballProLeague.Api.DatabaseAccess;
 using FoosballProLeague.Api.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,24 +13,30 @@ builder.Services.AddScoped<IUserLogic, UserLogic>();
 builder.Services.AddScoped<IUserDatabaseAccessor, UserDatabaseAccessor>();
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IDepartmentDatabaseAccessor, DepartmentDatabaseAccessor>();
-builder.Services.AddSignalR();
+builder.Services.AddScoped<IMatchLogic, MatchLogic>();
+builder.Services.AddScoped<IMatchDatabaseAccessor, MatchDatabaseAccessor>();
 builder.Services.AddScoped<LeaderboardService>();
+
+// Add SignalR service
+builder.Services.AddSignalR();
+
+//cors
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", builder =>
+    {
+        builder.AllowAnyMethod()
+               .AllowAnyHeader()
+               .WithOrigins("https://localhost:56417", "http://localhost:5122")
+               .AllowCredentials();
+    });
+});
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configure CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", builder =>
-    {
-        builder.WithOrigins("http://localhost:5122") // Your web server's URL
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials();
-    });
-});
 
 var app = builder.Build();
 
@@ -40,6 +47,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("CorsPolicy");
 
 app.UseHttpsRedirection();
 
@@ -52,5 +61,7 @@ app.UseCors("AllowAll");
 app.MapHub<LeaderboardHub>("/leaderboardHub");
 
 app.MapControllers();
+
+app.MapHub<MatchHub>("/matchhub");
 
 app.Run();

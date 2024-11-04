@@ -1,4 +1,8 @@
-﻿* {
+﻿
+
+html, body {
+    width: 100%;
+    height: 100vh;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -24,17 +28,19 @@ body {
     border-radius: 10px;
 }
 
-/*styling of container*/
 
+/*styling of container*/
 .container {
     width: 100%;
-    margin: 0 auto;
+    height: 100%;
+    margin: 0;
 }
 
 
 .main {
     display: flex;
     justify-content: space-between;
+    width: 100%;
     padding: 20px;
     height: calc(85vh - 5px);
     margin-top: -50px;
@@ -51,7 +57,7 @@ body {
     box-shadow: 0 0 15px 0 rgb(0, 0, 0, 0.5);
     padding: 40px;
     border-radius: 10px;
-    height: 100%;
+    height: 80vh;
     overflow-y: auto;
 }
 
@@ -176,22 +182,45 @@ body {
     font-weight: bold;
 }
 
-.match-score {
-    display: flex;
-    justify-content: space-between;
-    font-size: 20px;
+.match-team {
+    display: grid;
+    align-items: center;
+    justify-content: center;
 }
 
-    .match-score .team {
-        width: 80px;
+    .match-team .team-red {
         text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        color: red;
+    }
+
+    .match-team .team-blue {
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        color: blue;
+    }
+
+    .match-team .team p{
+        text-align: center;
+        font-size: 15px;
+    }
+
+    .match-score .dash {
+        font-size: 20px;
+        color: #fff;
+        font-weight: bold;
     }
 
     .match-score .score {
         font-size: 20px;
-        color: #6c49eb;
+        color: #fff;
         font-weight: bold;
     }
+
+
+/*styling of match history*/
 
 .match-history {
     background-color: #0b1b38;

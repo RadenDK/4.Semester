@@ -1,5 +1,6 @@
 using FoosballProLeague.Api.Models;
 using FoosballProLeague.Api.DatabaseAccess;
+using FoosballProLeague.Api.Models.FoosballModels;
 using bc = BCrypt.Net.BCrypt;
 
 namespace FoosballProLeague.Api.BusinessLogic;
@@ -85,5 +86,82 @@ public class UserLogic : IUserLogic
     public UserModel GetUser(string email)
     {
         return _userDatabaseAccessor.GetUser(email);
+    }
+
+    public UserModel GetUserById(int userId)
+    {
+        return _userDatabaseAccessor.GetUserById(userId);
+    }
+    
+    public void UpdateTeamElo(TeamModel redTeam, TeamModel blueTeam, bool redTeamWon, bool is1v1)
+    {
+        // Check if the match is a valid 1v1 or 2v2
+        if ((is1v1 && (redTeam.User2 != null || blueTeam.User2 != null)) || (!is1v1 && (redTeam.User2 == null || blueTeam.User2 == null)))
+        {
+            // Invalid match configuration
+            return;
+        }
+        
+        // Calculate average ELO for each team
+        // this
+        // int redTeamElo = is1v1 ? redTeam.User1.Elo1v1 : (redTeam.User1.Elo2v2 + redTeam.User2.Elo2v2) / 2;
+        // or this?
+        int redTeamElo;
+        if (is1v1)
+        {
+            redTeamElo = redTeam.User1.Elo1v1;
+        }
+        else
+        {
+            redTeamElo = (redTeam.User1.Elo2v2 + redTeam.User2.Elo2v2) / 2;
+        }
+        
+        // this
+        // int blueTeamElo = is1v1 ? blueTeam.User1.Elo1v1 : (blueTeam.User1.Elo2v2 + blueTeam.User2.Elo2v2) / 2;
+        // or this?
+        int blueTeamElo;
+        if (is1v1)
+        {
+            blueTeamElo = blueTeam.User1.Elo1v1;
+        }
+        else
+        {
+            blueTeamElo = (blueTeam.User1.Elo2v2 + blueTeam.User2.Elo2v2) / 2;
+        }
+        
+        // Update ELO for each player in the red team
+        foreach (UserModel user in new []{ redTeam.User1, redTeam.User2 }.Where(u => u != null)) // u => u != null avoids NullReferenceExceptions by only including elements that arent null. Can be removed if seen as unessecary
+        {
+            int newElo = CalculateNewElo(is1v1 ? user.Elo1v1 : user.Elo2v2, blueTeamElo, redTeamWon);
+            UpdateUserElo(user.Id, newElo, is1v1);
+        }
+        
+        // Update ELO for each player in the blue team
+        foreach (UserModel user in new []{ blueTeam.User1, blueTeam.User2 }.Where(u => u != null))
+        {
+            int newElo = CalculateNewElo(is1v1 ? user.Elo1v1 : user.Elo2v2, redTeamElo, !redTeamWon);
+            UpdateUserElo(user.Id, newElo, is1v1);
+        }
+    }
+    
+    private int CalculateNewElo(int userElo, int opponentElo, bool won)
+    {
+        const int kFactor = 32; // K-factor determines the maximum possible adjustment per game
+        
+        // Calculate expected score
+        double expectedScore = 1.0 / (1.0 + Math.Pow(10, (opponentElo - userElo) / 400.0));
+        
+        // Determine actual score
+        double actualScore = won ? 1.0 : 0.0;
+        
+        // Calculate new ELO
+        int newElo = (int)(userElo + kFactor * (actualScore - expectedScore));
+
+        return newElo;
+    }
+    
+    private bool UpdateUserElo(int userId, int elo, bool is1v1)
+    {
+        return _userDatabaseAccessor.UpdateUserElo(userId, elo, is1v1);
     }
 }

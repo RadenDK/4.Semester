@@ -8,5 +8,6 @@ public interface IUserDatabaseAccessor
 
     public UserModel GetUser(string email);
     public List<UserModel> GetUsers();
-   
+    public UserModel GetUserById(int userId);
+    public bool UpdateUserElo(int userId, int elo, bool is1v1);
 }
