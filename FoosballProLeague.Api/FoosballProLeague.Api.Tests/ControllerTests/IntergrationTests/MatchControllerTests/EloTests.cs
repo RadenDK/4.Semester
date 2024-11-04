@@ -423,5 +423,54 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             Assert.True(user3.Elo1v1 == 1000 && user3.Elo2v2 == 1000);
             Assert.True(user4.Elo1v1 == 1000 && user4.Elo2v2 == 1000);
         }
+
+        [Fact]
+        public void EloCalculation_EdgeCaseWhereTwoPlayersFromPrevious2v1GameTryToMakeNewTeam_ShouldReturnSucces()
+        {
+            // Arrange
+            _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 1000, 1000), (2, 1000, 1000), (3, 1000, 1000)");
+            _dbHelper.InsertData("INSERT INTO teams (id, player1_id, player2_id) VALUES (1, 1, 3), (2, 2, null)");
+            _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
+            _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, 1, 2, 9, 0)");
+            _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
+            
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
+            Mock<IHubContext<MatchHub>> mockHubContext = new Mock<IHubContext<MatchHub>>();
+            Mock<IHubClients> mockClients = new Mock<IHubClients>();
+            Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
+
+            mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
+
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<MatchHub>)mockHubContext.Object, userLogic);
+            MatchController SUT = new MatchController(matchLogic);
+            
+            // Act
+            // Interrupt the match
+            SUT.InterruptMatch(1);
+            
+            // Log in users 1 and 2
+            TableLoginRequest loginRequestUser1 = new TableLoginRequest { UserId = 1, TableId = 1, Side = "red" };
+            TableLoginRequest loginRequestUser2 = new TableLoginRequest { UserId = 2, TableId = 1, Side = "blue" };
+            SUT.LoginOnTable(loginRequestUser1);
+            SUT.LoginOnTable(loginRequestUser2);
+            
+            // Start a new match
+            IActionResult startMatchResult = SUT.StartMatch(1);
+            
+            // Assert
+            Assert.IsType<OkObjectResult>(startMatchResult);
+            
+            // Verify the database state
+            TeamModel redTeam = matchDatabaseAccessor.GetTeamById(1);
+            TeamModel blueTeam = matchDatabaseAccessor.GetTeamById(2);
+            
+            // Check if user 3 is still part of the team or if only users 1 and 2 are persisted
+            Assert.NotNull(redTeam.User1);
+            Assert.NotNull(blueTeam.User1);
+            Assert.Null(redTeam.User2);
+            Assert.Null(blueTeam.User2);
+        }
     }
 }

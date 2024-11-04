@@ -108,10 +108,11 @@ namespace FoosballProLeague.Api.BusinessLogic
             MatchModel activeMatch = _matchDatabaseAccessor.GetMatchById(matchId);
             TeamModel currentTeam = GetTeamBySide(activeMatch, tableLoginRequest.Side);
 
-            int? existingTeamId = currentTeam.Id;
+            int existingTeamId = currentTeam.Id;
             
-            List<int?> userIds = new List<int?> { currentTeam.User1.Id, tableLoginRequest.UserId };
-            TeamModel newTeam = GetOrRegisterTeam(userIds, existingTeamId);
+            //List<int?> userIds = new List<int?> { currentTeam.User1.Id, tableLoginRequest.UserId };
+            //TeamModel newTeam = _matchDatabaseAccessor.GetTeamById(existingTeamId);
+            //TeamModel newTeam = GetOrRegisterTeam(userIds, existingTeamId);
 
             if (_matchDatabaseAccessor.UpdateUserIdOnTeamByTeamId(existingTeamId, tableLoginRequest.UserId))
             {
@@ -195,7 +196,7 @@ namespace FoosballProLeague.Api.BusinessLogic
             }
 
             UpdateScoreAndCheckMatchCompletion(matchId.Value, registerGoalRequest);
-                
+            
             return true;
         }
 
