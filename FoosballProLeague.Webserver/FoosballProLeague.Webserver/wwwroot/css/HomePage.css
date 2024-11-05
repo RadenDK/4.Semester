@@ -5,7 +5,6 @@ html, body {
     height: 100vh;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 body {
@@ -30,26 +29,17 @@ body {
 
 
 /*styling of container*/
-.container {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-}
-
-
 .main {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     width: 100%;
+    gap: 20px;
     padding: 20px;
-    height: calc(85vh - 5px);
-    margin-top: -50px;
 }
 
 /*styling of leaderboard*/
-
 .leaderboard-section, .match-section {
-    width: 49%;
+   width: 100%;
 }
 
 .leaderboard {
@@ -57,7 +47,8 @@ body {
     box-shadow: 0 0 15px 0 rgb(0, 0, 0, 0.5);
     padding: 40px;
     border-radius: 10px;
-    height: 80vh;
+    height: 100%;
+    width: 100%;
     overflow-y: auto;
 }
 
@@ -163,6 +154,8 @@ body {
     padding: 40px;
     border-radius: 10px;
     margin-bottom: 30px;
+    height: 50vh;
+    width: 100%;
 }
 
     .ongoing-match h2 {
@@ -227,7 +220,8 @@ body {
     box-shadow: 0 0 15px 0 rgb(0, 0, 0, 0.5);
     padding: 40px;
     border-radius: 10px;
-    flex-grow: 1;
+    height: 50vh;
+    width: 100%;
     overflow-y: auto;
 }
 
