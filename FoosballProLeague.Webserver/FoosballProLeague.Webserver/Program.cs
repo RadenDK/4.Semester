@@ -26,7 +26,15 @@ builder.Services.AddScoped<ILoginLogic, LoginLogic>();
 builder.Services.AddHostedService<LeaderboardService>();
 
 
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy",
+        builder => builder
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()
+            .SetIsOriginAllowed((host) => true));
+});
 
 
 var app = builder.Build();

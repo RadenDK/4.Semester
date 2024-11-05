@@ -2,18 +2,22 @@ using FoosballProLeague.Api.Models;
 using FoosballProLeague.Api.DatabaseAccess;
 using FoosballProLeague.Api.Models.FoosballModels;
 using bc = BCrypt.Net.BCrypt;
+using Microsoft.AspNetCore.SignalR;
+using FoosballProLeague.Api.Hubs; 
 
 namespace FoosballProLeague.Api.BusinessLogic;
 
 public class UserLogic : IUserLogic
 {
-    IUserDatabaseAccessor _userDatabaseAccessor;
-    
-    public UserLogic(IUserDatabaseAccessor userDatabaseAccessor)
+    private readonly IUserDatabaseAccessor _userDatabaseAccessor;
+    private readonly IHubContext<HomepageHub> _hubContext;
+
+    public UserLogic(IUserDatabaseAccessor userDatabaseAccessor, IHubContext<HomepageHub> hubContext)
     {
         _userDatabaseAccessor = userDatabaseAccessor;
+        _hubContext = hubContext;
     }
-    
+
     // method to create user for registration
     public bool CreateUser(UserRegistrationModel userRegistrationModel)
     {
@@ -30,9 +34,22 @@ public class UserLogic : IUserLogic
                 Elo1v1 = 500,
                 Elo2v2 = 500
             };
-            return _userDatabaseAccessor.CreateUser(newUserWithHashedPassword);
+            bool userCreated = _userDatabaseAccessor.CreateUser(newUserWithHashedPassword);
+            if (userCreated)
+            {
+                // Notify clients about the leaderboard update
+                UpdateLeaderboard().Wait();
+            }
+            return userCreated;
         }
         return false;
+    }
+
+    private async Task UpdateLeaderboard()
+    {
+        var users = _userDatabaseAccessor.GetUsers();
+        var leaderboard = users.OrderByDescending(u => u.Elo1v1).ToList();
+        await _hubContext.Clients.All.SendAsync("ReceiveLeaderboardUpdate", leaderboard);
     }
     
     // checks if the account has values
