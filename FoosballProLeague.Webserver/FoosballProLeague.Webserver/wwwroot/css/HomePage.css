@@ -198,6 +198,7 @@ body {
     .match-team .team p{
         text-align: center;
         font-size: 15px;
+        font-weight: normal;
     }
 
     .match-score .dash {
