@@ -15,7 +15,7 @@ builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IDepartmentDatabaseAccessor, DepartmentDatabaseAccessor>();
 builder.Services.AddScoped<IMatchLogic, MatchLogic>();
 builder.Services.AddScoped<IMatchDatabaseAccessor, MatchDatabaseAccessor>();
-builder.Services.AddScoped<LeaderboardService>();
+
 
 // Add SignalR service
 builder.Services.AddSignalR();
@@ -27,7 +27,7 @@ builder.Services.AddCors(options =>
     {
         builder.AllowAnyMethod()
                .AllowAnyHeader()
-               .WithOrigins("https://localhost:56417", "http://localhost:5122")
+               .WithOrigins("https://localhost:7151", "http://localhost:5122")
                .AllowCredentials();
     });
 });
@@ -50,18 +50,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("CorsPolicy");
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-// Use CORS
-app.UseCors("AllowAll");
-
-// Map the SignalR hub
-app.MapHub<LeaderboardHub>("/leaderboardHub");
-
 app.MapControllers();
 
-app.MapHub<MatchHub>("/matchhub");
+// Map the SignalR hub
+app.MapHub<HomepageHub>("/homepageHub");
 
 app.Run();

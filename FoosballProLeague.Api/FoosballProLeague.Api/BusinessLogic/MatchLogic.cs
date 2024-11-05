@@ -15,15 +15,14 @@ namespace FoosballProLeague.Api.BusinessLogic
     {
         private IMatchDatabaseAccessor _matchDatabaseAccessor;
         private IUserLogic _userLogic;
-
-        private readonly IHubContext<MatchHub> _goalHubContext;
+        private readonly IHubContext<HomepageHub> _hubContext;
         private static readonly Dictionary<int, PendingMatchTeamsModel> _pendingMatchTeams = new Dictionary<int, PendingMatchTeamsModel>();
 
-        public MatchLogic(IMatchDatabaseAccessor matchDatabaseAccessor, IHubContext<MatchHub> goalHubContext, IUserLogic userLogic)
+        public MatchLogic(IMatchDatabaseAccessor matchDatabaseAccessor, IHubContext<HomepageHub> hubContext, IUserLogic userLogic)
         {
             _userLogic = userLogic;
             _matchDatabaseAccessor = matchDatabaseAccessor;
-            _goalHubContext = goalHubContext;
+            _hubContext = hubContext;
         }
 
         // Helper method to retrieve team by side
@@ -262,7 +261,7 @@ namespace FoosballProLeague.Api.BusinessLogic
             int redScore = match.TeamRedScore;
             int blueScore = match.TeamBlueScore;
 
-            await _goalHubContext.Clients.All.SendAsync("RecieveGoalUpdate", redTeam, blueTeam, redScore, blueScore);
+            await _hubContext.Clients.All.SendAsync("ReceiveGoalUpdate", redTeam, blueTeam, redScore, blueScore);
         }
 
         // Method to send data to SignalR MatchHub when a match is starting or ending
@@ -272,7 +271,7 @@ namespace FoosballProLeague.Api.BusinessLogic
 
             if (matchId == null)
             {
-                await _goalHubContext.Clients.All.SendAsync("RecieveMatchEnd", isMatchStart);
+                await _hubContext.Clients.All.SendAsync("ReceiveMatchEnd", isMatchStart);
             }
             else
             {
@@ -286,7 +285,7 @@ namespace FoosballProLeague.Api.BusinessLogic
                 int redScore = match.TeamRedScore;
                 int blueScore = match.TeamBlueScore;
 
-                await _goalHubContext.Clients.All.SendAsync("RecieveMatchStart", isMatchStart, redTeam, blueTeam, redScore, blueScore);
+                await _hubContext.Clients.All.SendAsync("ReceiveMatchStart", isMatchStart, redTeam, blueTeam, redScore, blueScore);
             }
         }
     }
