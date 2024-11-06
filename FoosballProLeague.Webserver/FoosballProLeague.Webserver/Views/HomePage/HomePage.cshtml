@@ -42,8 +42,9 @@
                         {
                             @for (int i = 0; i < sortedModel.Count; i++)
                             {
+                                var rank = ((pageNumber - 1) * pageSize) + i + 1; // Adjusted rank based on page number
                                 <tr>
-                                    <td>@(i + 1)</td>
+                                    <td>@rank</td>
                                     <td>@sortedModel[i].FirstName @sortedModel[i].LastName</td>
                                     <td>@(mode == "1v1" ? sortedModel[i].Elo1v1 : sortedModel[i].Elo2v2)</td>
                                 </tr>

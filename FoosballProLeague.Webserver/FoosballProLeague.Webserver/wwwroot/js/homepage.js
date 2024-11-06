@@ -57,14 +57,19 @@
 
         const pageSize = 10; // Number of items per page
 
+        // Sort the leaderboard data by elo1v1 in descending order 
+        this.leaderboardData.sort((a, b) => b.elo1v1 - a.elo1v1);
+
+        // Calculate start and end indices for the current page
         const startIndex = (pageNumber - 1) * pageSize;
         const endIndex = startIndex + pageSize;
         const paginatedLeaderboard = this.leaderboardData.slice(startIndex, endIndex);
 
         paginatedLeaderboard.forEach((player, index) => {
+            const rank = startIndex + index + 1; // Calculate global cumulative "rank"
             const row = `
             <tr>
-                <td>${startIndex + index + 1}</td>
+                <td>${rank}</td>
                 <td>${player.firstName} ${player.lastName}</td>
                 <td>${player.elo1v1}</td>
             </tr>
@@ -72,7 +77,7 @@
             leaderboardBody.innerHTML += row;
         });
 
-        // Update pagination controls if necessary
+        // Update pagination controls
         this.updatePaginationControls(this.leaderboardData.length, pageSize, pageNumber);
     }
 
