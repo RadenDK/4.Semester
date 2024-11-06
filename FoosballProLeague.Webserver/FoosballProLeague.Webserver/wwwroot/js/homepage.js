@@ -11,13 +11,16 @@
 
         this.matchTimer = null;
         this.matchStartTime = null;
+        this.currentPageNumber = 1; // Store the current page number
+        this.leaderboardData = []; // Store the leaderboard data
 
         this.initializeConnections();
     }
 
     async initializeConnections() {
         this.homepageConnection.on("ReceiveLeaderboardUpdate", (leaderboard) => {
-            this.updateLeaderboard(leaderboard);
+            this.leaderboardData = leaderboard; // Store the leaderboard data
+            this.updateLeaderboard(this.currentPageNumber); // Use the stored page number
         });
 
         this.homepageConnection.on("ReceiveMatchStart", (isMatchStart, teamRed, teamBlue, redScore, blueScore) => {
@@ -47,19 +50,57 @@
         }
     }
 
-    updateLeaderboard(leaderboard) {
+    updateLeaderboard(pageNumber = 1) {
+        this.currentPageNumber = pageNumber; // Update the stored page number
         const leaderboardBody = document.querySelector('#leaderboardBody');
         leaderboardBody.innerHTML = '';
 
-        leaderboard.forEach((player, index) => {
+        const pageSize = 10; // Number of items per page
+
+        const startIndex = (pageNumber - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const paginatedLeaderboard = this.leaderboardData.slice(startIndex, endIndex);
+
+        paginatedLeaderboard.forEach((player, index) => {
             const row = `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${player.firstName} ${player.lastName}</td>
-                    <td>${player.elo1v1}</td>
-                </tr>
-            `;
+            <tr>
+                <td>${startIndex + index + 1}</td>
+                <td>${player.firstName} ${player.lastName}</td>
+                <td>${player.elo1v1}</td>
+            </tr>
+        `;
             leaderboardBody.innerHTML += row;
+        });
+
+        // Update pagination controls if necessary
+        this.updatePaginationControls(this.leaderboardData.length, pageSize, pageNumber);
+    }
+
+    updatePaginationControls(totalItems, pageSize, pageNumber) {
+        const paginationContainer = document.querySelector('.pagination');
+        paginationContainer.innerHTML = '';
+
+        const totalPages = Math.ceil(totalItems / pageSize);
+
+        if (pageNumber > 1) {
+            paginationContainer.innerHTML += `<a href="#" class="previous-page">Previous</a>`;
+        }
+
+        paginationContainer.innerHTML += `<span>Page ${pageNumber} of ${totalPages}</span>`;
+
+        if (pageNumber < totalPages) {
+            paginationContainer.innerHTML += `<a href="#" class="next-page">Next</a>`;
+        }
+
+        // Add event listeners for pagination controls
+        document.querySelector('.previous-page')?.addEventListener('click', (event) => {
+            event.preventDefault();
+            this.updateLeaderboard(pageNumber - 1);
+        });
+
+        document.querySelector('.next-page')?.addEventListener('click', (event) => {
+            event.preventDefault();
+            this.updateLeaderboard(pageNumber + 1);
         });
     }
 
