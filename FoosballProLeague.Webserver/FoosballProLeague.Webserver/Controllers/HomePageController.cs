@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FoosballProLeague.Webserver.Controllers
 {
-    [Authorize]
+    [JwtAuthorize]
     public class HomePageController : Controller
     {
         private readonly IHomePageLogic _homePageLogic;
@@ -15,6 +15,7 @@ namespace FoosballProLeague.Webserver.Controllers
             _homePageLogic = homePageLogic;
         }
 
+        
         [HttpGet("HomePage")]
         public async Task<IActionResult> HomePage()
         {
