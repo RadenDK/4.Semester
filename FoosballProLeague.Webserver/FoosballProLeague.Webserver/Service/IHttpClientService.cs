@@ -8,5 +8,5 @@ public interface IHttpClientService
     
     Task<HttpResponseMessage> PutAsync(string url, StringContent content);
     
-   /* void SetAuthorizationHeader(string accessToken);*/
+   void SetAuthorizationHeader(string accessToken);
 }

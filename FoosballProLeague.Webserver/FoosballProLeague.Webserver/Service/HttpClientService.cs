@@ -43,12 +43,13 @@ namespace FoosballProLeague.Webserver.Service
             return await _httpClient.GetAsync(url);
         }
 
+
         public async Task<HttpResponseMessage> PutAsync(string url, StringContent content)
         {
             return await _httpClient.PutAsync(url, content);
         }
-        
-       public void SetAuthorizationHeader(string token)
+
+        public void SetAuthorizationHeader(string token)
         {
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
