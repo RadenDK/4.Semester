@@ -2,7 +2,7 @@
     constructor(apiUrl) {
         this.apiUrl = apiUrl;
         this.homepageConnection = new signalR.HubConnectionBuilder()
-            .withUrl(`${this.apiUrl}/homepageHub`, {
+            .withUrl(`${this.apiUrl}homepageHub`, {
                 transport: signalR.HttpTransportType.WebSockets,
                 withCredentials: true
             })
@@ -193,5 +193,19 @@
     }
 }
 
-// Initialize the class with the API URL
-const foosballProLeague = new FoosballProLeague("http://localhost:5001");
+
+// Fetch the API URL from the backend endpoint and initialize the connections
+fetch('/config/url')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(config => {
+        console.log("Config: ", config);
+        const apiUrl = config.apiUrl; // Use the API URL from the backend endpoint
+        const foosballProLeague = new FoosballProLeague(apiUrl); // Create an instance of the class
+    })
+    .catch(error => console.error('Error fetching configuration:', error));
+
