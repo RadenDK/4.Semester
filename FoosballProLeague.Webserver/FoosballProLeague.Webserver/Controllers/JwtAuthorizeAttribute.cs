@@ -1,22 +1,31 @@
 ﻿using FoosballProLeague.Webserver.BusinessLogic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System;
+using System.Threading.Tasks;
 
 namespace FoosballProLeague.Webserver.Controllers
 {
-    public class JwtAuthorizeAttribute : Attribute, IAuthorizationFilter
+    public class JwtAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
     {
-        public void OnAuthorization(AuthorizationFilterContext context)
+        public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
             string jwt = context.HttpContext.Request.Cookies["accessToken"];
-            if (string.IsNullOrEmpty(jwt))
+            ITokenLogic tokenLogic = context.HttpContext.RequestServices.GetService<ITokenLogic>();
+
+            if (string.IsNullOrEmpty(jwt) || tokenLogic == null)
             {
                 RedirectToLogin(context);
                 return;
             }
 
-            ITokenLogic tokenLogic = context.HttpContext.RequestServices.GetService<ITokenLogic>();
-            if (tokenLogic == null || !ValidateToken(tokenLogic, jwt))
+            string newJwt = await ValidateAndGetNewJwt(tokenLogic, jwt);
+
+            if (!string.IsNullOrEmpty(newJwt))
+            {
+                context.HttpContext.Response.Cookies.Append("accessToken", newJwt);
+            }
+            else
             {
                 RedirectToLogin(context);
             }
@@ -27,9 +36,9 @@ namespace FoosballProLeague.Webserver.Controllers
             context.Result = new RedirectToActionResult("Login", "Login", new { ReturnUrl = context.HttpContext.Request.Path });
         }
 
-        private bool ValidateToken(ITokenLogic tokenLogic, string jwt)
+        private async Task<string> ValidateAndGetNewJwt(ITokenLogic tokenLogic, string jwt)
         {
-            return tokenLogic.ValidateJwt(jwt).GetAwaiter().GetResult();
+            return await tokenLogic.ValidateAndGetNewJwt(jwt);
         }
     }
 }

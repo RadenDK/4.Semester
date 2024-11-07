@@ -12,18 +12,13 @@ namespace FoosballProLeague.Webserver.BusinessLogic
             _tokenService = tokenService;
         }
 
-        public async Task<bool> ValidateJwt(string jwt)
+        public async Task<string> ValidateAndGetNewJwt(string jwt)
         {
-            bool success = false;
-
             HttpResponseMessage response = await _tokenService.ValidateJwt(jwt);
 
-            if (response.IsSuccessStatusCode)
-            {
-                success = true;
-            }
+            string newAccessToken = await response.Content.ReadAsStringAsync();
 
-            return success;
+            return newAccessToken;
         }
     }
 }

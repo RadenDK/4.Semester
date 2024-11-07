@@ -2,6 +2,6 @@
 {
     public interface ITokenLogic
     {
-        Task<bool> ValidateJwt(string jwt);
+        Task<string> ValidateAndGetNewJwt(string jwt);
     }
 }
