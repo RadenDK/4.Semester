@@ -13,9 +13,9 @@ namespace FoosballProLeague.Webserver.Controllers;
 
 public class LoginController : Controller
 {
-    
+
     private readonly ILoginLogic _loginLogic;
-    
+
     public LoginController(ILoginLogic loginLogic)
     {
         _loginLogic = loginLogic;
@@ -27,26 +27,26 @@ public class LoginController : Controller
     {
         return View();
     }
-    
-    
+
+
     // Login method
     [HttpPost("Login")]
     public async Task<IActionResult> LoginUser(LoginUserModel user)
     {
         HttpResponseMessage response = await _loginLogic.LoginUser(user.Email, user.Password);
-        
+
         if (response.IsSuccessStatusCode)
         {
-            
+
             string accessToken = await response.Content.ReadAsStringAsync();
-            Response.Cookies.Append("accessToken", accessToken, new CookieOptions 
-                { 
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict
-                    
-                     });
-            
+            Response.Cookies.Append("accessToken", accessToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+
+            });
+
             return RedirectToAction("HomePage", "HomePage");
         }
 

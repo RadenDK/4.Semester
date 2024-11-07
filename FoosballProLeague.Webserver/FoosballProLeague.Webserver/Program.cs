@@ -24,25 +24,17 @@ builder.Services.AddScoped<IHomePageService, HomePageService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<ILoginLogic, LoginLogic>();
 
-// Configure JWT authentication
-var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:SigningKey"]);
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services.AddScoped<ITokenLogic, TokenLogic>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+// Configure Authentication
+builder.Services.AddAuthentication("CookieAuth")
+    .AddCookie("CookieAuth", options =>
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
-        ValidateAudience = false
-    };
-});
+        options.Cookie.Name = "accessToken"; // Same name as in your login method
+        options.LoginPath = "/Login"; // Redirect to login if not authenticated
+    });
+
 
 var app = builder.Build();
 
