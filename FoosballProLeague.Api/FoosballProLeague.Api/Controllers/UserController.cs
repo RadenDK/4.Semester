@@ -106,7 +106,9 @@ namespace FoosballProLeague.Api.Controllers
 
                 if (_tokenLogic.ValidateJWT(authorizationHeader))
                 {
-                    return Ok("JWT is valid");
+                    string newJwt = _tokenLogic.GenerateJWT();
+
+                    return Ok(newJwt);
                 }
                 else
                 {
