@@ -102,9 +102,9 @@ namespace FoosballProLeague.Api.Controllers
                     return Unauthorized("No JWT token found in the request");
                 }
 
-                string jwt = Request.Headers["Authorization"];
+                string authorizationHeader = Request.Headers["Authorization"];
 
-                if (_tokenLogic.ValidateJWT(jwt))
+                if (_tokenLogic.ValidateJWT(authorizationHeader))
                 {
                     return Ok("JWT is valid");
                 }

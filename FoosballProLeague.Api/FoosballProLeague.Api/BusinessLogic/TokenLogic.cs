@@ -43,7 +43,7 @@ namespace FoosballProLeague.Api.BusinessLogic
             SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = expireTime, 
+                Expires = expireTime,
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(endcodedSigningKey), SecurityAlgorithms.HmacSha256Signature)
             };
@@ -56,9 +56,12 @@ namespace FoosballProLeague.Api.BusinessLogic
             return serializedToken;
         }
 
-        public bool ValidateJWT(string jwt)
+        public bool ValidateJWT(string authorizationHeader)
         {
+            string jwt = ExtractToken(authorizationHeader);
+
             string signingKey = _configuration["Jwt:signingKey"];
+
             if (string.IsNullOrEmpty(signingKey))
             {
                 throw new InvalidOperationException("JWT signing key is not configured");
@@ -85,6 +88,23 @@ namespace FoosballProLeague.Api.BusinessLogic
             {
                 return false; // Token is invalid
             }
+        }
+
+        private string ExtractToken(string authorizationHeader)
+        {
+            if (authorizationHeader.StartsWith("Bearer "))
+            {
+                // Remove the "Bearer" from the authorizationHeader
+                authorizationHeader = authorizationHeader.Substring(7).Trim();
+            }
+
+            // Remove surrounding quotes if present
+            if (authorizationHeader.StartsWith("\"") && authorizationHeader.EndsWith("\""))
+            {
+                authorizationHeader = authorizationHeader.Substring(1, authorizationHeader.Length - 2);
+            }
+
+            return authorizationHeader;
         }
     }
 }
