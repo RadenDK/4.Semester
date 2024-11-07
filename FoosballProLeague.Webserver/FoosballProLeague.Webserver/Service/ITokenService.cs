@@ -2,5 +2,6 @@
 
 public interface ITokenService
 {
-    
+    Task<HttpResponseMessage> ValidateJwt(string jwt);
+
 }
