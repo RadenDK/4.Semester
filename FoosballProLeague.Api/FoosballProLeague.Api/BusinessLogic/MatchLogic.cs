@@ -40,7 +40,7 @@ namespace FoosballProLeague.Api.BusinessLogic
         {
             int? teamId = _matchDatabaseAccessor.GetTeamIdByUsers(userIds);
             TeamModel team;
-            
+
             if (teamId == null && existingTeamId == null)
             {
                 int newTeamId = _matchDatabaseAccessor.RegisterTeam(userIds);
@@ -103,7 +103,7 @@ namespace FoosballProLeague.Api.BusinessLogic
             TeamModel currentTeam = GetTeamBySide(activeMatch, tableLoginRequest.Side);
 
             int existingTeamId = currentTeam.Id;
-            
+
             //List<int?> userIds = new List<int?> { currentTeam.User1.Id, tableLoginRequest.UserId };
             //TeamModel newTeam = _matchDatabaseAccessor.GetTeamById(existingTeamId);
             //TeamModel newTeam = GetOrRegisterTeam(userIds, existingTeamId);
@@ -140,7 +140,7 @@ namespace FoosballProLeague.Api.BusinessLogic
             TeamModel blueTeam = GetOrRegisterTeam(_pendingMatchTeams[tableId].Teams["blue"]);
 
             bool validEloMatch = IsValidEloMatch(redTeam, blueTeam);
-            
+
             int matchId = _matchDatabaseAccessor.CreateMatch(tableId, redTeam.Id, blueTeam.Id, validEloMatch);
             bool activeMatchWasSet = _matchDatabaseAccessor.SetTableActiveMatch(tableId, matchId);
 
@@ -162,7 +162,7 @@ namespace FoosballProLeague.Api.BusinessLogic
         {
             bool is1v1 = redTeam.User2 == null && blueTeam.User2 == null;
             bool is2v2 = redTeam.User2 != null && blueTeam.User2 != null;
-            
+
             return is1v1 || is2v2;
         }
 
@@ -189,7 +189,7 @@ namespace FoosballProLeague.Api.BusinessLogic
             }
 
             UpdateScoreAndCheckMatchCompletion(matchId.Value, registerGoalRequest);
-            
+
             return true;
         }
 
@@ -219,7 +219,7 @@ namespace FoosballProLeague.Api.BusinessLogic
                 bool is1v1 = redTeam.User2 == null && blueTeam.User2 == null;
                 bool validEloMatch = match.ValidEloMatch;
 
-                if((is1v1 && (redTeam.User2 == null && blueTeam.User2 == null)) || (!is1v1 && (redTeam.User2 != null && blueTeam.User2 != null)) && validEloMatch)
+                if ((is1v1 && (redTeam.User2 == null && blueTeam.User2 == null)) || (!is1v1 && (redTeam.User2 != null && blueTeam.User2 != null)) && validEloMatch)
                 {
                     _userLogic.UpdateTeamElo(redTeam, blueTeam, redTeamWon, is1v1);
                 }
@@ -238,7 +238,6 @@ namespace FoosballProLeague.Api.BusinessLogic
             }
         }
 
-            }
-        }
     }
 }
+

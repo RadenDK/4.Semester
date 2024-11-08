@@ -51,7 +51,7 @@ public class UserDatabaseAccessor : DatabaseAccessor, IUserDatabaseAccessor
 
         string query = "SELECT id AS Id, first_name AS FirstName, last_name AS LastName, email AS Email, password AS Password, elo_1v1 AS Elo1v1, elo_2v2 AS Elo2v2 FROM Users WHERE id = @userId";
         
-        using (IDbConnection connection = new NpgsqlConnection(_connectionString))
+        using (IDbConnection connection = GetConnection())
         {
             connection.Open();
             user = connection.QuerySingleOrDefault<UserModel>(query, new { userId = userId });
@@ -85,7 +85,7 @@ public class UserDatabaseAccessor : DatabaseAccessor, IUserDatabaseAccessor
             query = "UPDATE users SET elo_2v2 = @elo WHERE id = @UserId";
         }
 
-        using (IDbConnection connection = new NpgsqlConnection(_connectionString))
+        using (IDbConnection connection = GetConnection())
         {
             connection.Open();
             int affectedRows = connection.Execute(query, new { UserId = userId, elo });

@@ -1,8 +1,10 @@
 using Dapper;
+using FoosballProLeague.Api.Models;
 using FoosballProLeague.Api.Models.FoosballModels;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 using System.Text.RegularExpressions;
+
 
 namespace FoosballProLeague.Api.DatabaseAccess
 {
@@ -199,7 +201,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         public bool UpdateUserIdOnTeamByTeamId(int? teamId, int userId)
         {
             string query = "UPDATE teams SET player2_id = @UserId WHERE id = @TeamId";
-            
+
             using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();

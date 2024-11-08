@@ -1,7 +1,6 @@
 using FoosballProLeague.Api.BusinessLogic;
 using FoosballProLeague.Api.Controllers;
 using FoosballProLeague.Api.DatabaseAccess;
-using FoosballProLeague.Api.Hubs;
 using FoosballProLeague.Api.Models.FoosballModels;
 using FoosballProLeague.Api.Models.RequestModels;
 using Microsoft.AspNetCore.Mvc;
@@ -29,9 +28,8 @@ namespace FoosballProLeague.Api.Tests
             TableLoginRequest mockTableLoginRequest = new TableLoginRequest { UserId = 1, TableId = mockTableId, Side = "red" };
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            Mock mockHubContext = new Mock<IHubContext<MatchHub>>();
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<MatchHub>)mockHubContext.Object, userLogic);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
@@ -66,9 +64,8 @@ namespace FoosballProLeague.Api.Tests
             TableLoginRequest mockTableLoginRequest4 = new TableLoginRequest { UserId = 4, TableId = mockTableId, Side = "blue" };
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            Mock mockHubContext = new Mock<IHubContext<MatchHub>>();
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<MatchHub>)mockHubContext.Object, userLogic);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
@@ -108,9 +105,8 @@ namespace FoosballProLeague.Api.Tests
             TableLoginRequest mockTableLoginRequest3 = new TableLoginRequest { UserId = 3, TableId = mockTableId, Side = "red" };
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            Mock mockHubContext = new Mock<IHubContext<MatchHub>>();
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<MatchHub>)mockHubContext.Object, userLogic);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
@@ -152,9 +148,8 @@ namespace FoosballProLeague.Api.Tests
 
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            Mock mockHubContext = new Mock<IHubContext<MatchHub>>();
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<MatchHub>)mockHubContext.Object, userLogic);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
@@ -198,9 +193,8 @@ namespace FoosballProLeague.Api.Tests
             TableLoginRequest mockTableLoginRequest = new TableLoginRequest { UserId = 3, TableId = mockTableId, Side = "red" }; // Attempt to join the red side
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            Mock mockHubContext = new Mock<IHubContext<MatchHub>>();
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<MatchHub>)mockHubContext.Object, userLogic);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
@@ -252,9 +246,8 @@ namespace FoosballProLeague.Api.Tests
             TableLoginRequest mockTableLoginRequest = new TableLoginRequest { UserId = 5, TableId = mockTableId, Side = "red" }; // Attempt to join the red side
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            Mock mockHubContext = new Mock<IHubContext<MatchHub>>();
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<MatchHub>)mockHubContext.Object, userLogic);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
@@ -294,9 +287,8 @@ namespace FoosballProLeague.Api.Tests
             TableLoginRequest mockTableLoginRequest = new TableLoginRequest { UserId = 3, TableId = mockTableId, Side = "red" }; // Attempt to join the red side
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            Mock mockHubContext = new Mock<IHubContext<MatchHub>>();
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<MatchHub>)mockHubContext.Object, userLogic);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
