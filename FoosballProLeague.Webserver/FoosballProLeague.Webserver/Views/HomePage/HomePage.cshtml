@@ -1,4 +1,4 @@
-﻿@model List<FoosballProLeague.Webserver.Models.UserModel>
+@model List<FoosballProLeague.Webserver.Models.UserModel>
 
 @{
     Layout = "_LayoutHomePage";
@@ -14,11 +14,12 @@
     <title>FoosballProLeague</title>
     <link rel="stylesheet" href="~/css/HomePage.css">
     <link rel="stylesheet" href="~/css/layoutHomepage.css">
+
 </head>
 <body>
     <div class="container">
-        <main class="main">
-            <section class="leaderboard-section">
+        <div class="main">
+            <div class="leaderboard-section">
                 <div class="leaderboard">
                     <div class="leaderboard-header">
                         <h2>Leaderboard</h2>
@@ -54,31 +55,34 @@
                         </tbody>
                     </table>
                 </div>
-            </section>
+            </div>
 
-            <section class="match-section">
-                <section class="ongoing-match-section">
+            <div class="match-section">
+                <div class="ongoing-match-section">
                     <div class="ongoing-match">
                         <h2>Ongoing match</h2>
                         <div class="match-info">
-                            <div class="match-time">02:05</div>
+                            <div class="match-time"></div>
+                            <div class="match-team">
+                                <span class="team-red">Team Red</span>
+                            </div>
                             <div class="match-score">
                                 <span class="team">Carl</span> <span class="score">4 - 0</span> <span class="team">Olivier</span>
                             </div>
                         </div>
                     </div>
-                </section>
+                </div>
 
-                <section class="match-history-section">
+                <div class="match-history-section">
                     <div class="match-history">
                         <h2>Match history</h2>
                         <div class="history-item">
                             <span class="match">Carl vs Olivier</span> <span class="score">10 - 4</span> <span class="points">10 pt</span>
                         </div>
                     </div>
-                </section>
-            </section>
-        </main>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using FoosballProLeague.Api.Models.FoosballModels;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
@@ -66,13 +66,13 @@ namespace FoosballProLeague.Api.DatabaseAccess
         }
 
 
-        public int? GetTeamIdByPlayers(List<int?> playerIds)
+        public int? GetTeamIdByUsers(List<int?> playerIds)
         {
             string query = @"
-                    SELECT id 
-                    FROM teams 
-                    WHERE player1_id = @Player1Id 
-                        AND (player2_id = @Player2Id OR @Player2Id IS NULL)";
+        SELECT id
+        FROM teams
+        WHERE (player1_id = @Player1Id AND (player2_id = @Player2Id OR player2_id IS NULL))
+           OR (player1_id = @Player2Id AND (player2_id = @Player1Id OR player2_id IS NULL))";
 
             using (NpgsqlConnection connection = GetConnection())
             {
@@ -85,19 +85,44 @@ namespace FoosballProLeague.Api.DatabaseAccess
 
         public TeamModel GetTeamById(int teamId)
         {
-            string query = "SELECT * FROM teams WHERE id = @TeamId";
+            string query = @"
+        SELECT 
+            teams.id,
+            user1.id, user1.first_name, user1.last_name, user1.elo_1v1, user1.elo_2v2,
+            user2.id, user2.first_name, user2.last_name, user2.elo_1v1, user2.elo_2v2
+        FROM
+            teams
+        LEFT JOIN
+            users user1 ON teams.player1_id = user1.id
+        LEFT JOIN
+            users user2 ON teams.player2_id = user2.id
+        WHERE
+            teams.id = @TeamId";
 
             using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-                TeamModel team = connection.QuerySingleOrDefault<TeamModel>(query, new { TeamId = teamId });
+
+                TeamModel team = connection.Query<TeamModel, UserModel, UserModel, TeamModel>(
+                    query,
+                    (teamResult, user1, user2) =>
+                    {
+                        teamResult.User1 = user1;
+                        teamResult.User2 = user2;
+                        return teamResult;
+                    },
+                    new { TeamId = teamId },
+                    splitOn: "id,id"  // Dapper needs this to split at user1.id and user2.id
+                ).FirstOrDefault();
+
                 return team;
             }
         }
 
+
         // CREATE METHODS
 
-        public int CreateMatch(int tableId, int redTeamId, int blueTeamId)
+        public int CreateMatch(int tableId, int redTeamId, int blueTeamId, bool? validEloMatch = null)
         {
             string query = "INSERT INTO foosball_matches (table_id, red_team_id, blue_team_id) VALUES (@TableId, @RedTeamId, @BlueTeamId) RETURNING id";
 
@@ -171,23 +196,28 @@ namespace FoosballProLeague.Api.DatabaseAccess
             }
         }
 
-        public bool UpdateTeamId(int matchId, string teamSide, int teamId)
+        public bool UpdateUserIdOnTeamByTeamId(int? teamId, int userId)
         {
-            // Validate the teamSide input
-            if (teamSide != "red" && teamSide != "blue")
+            string query = "UPDATE teams SET player2_id = @UserId WHERE id = @TeamId";
+            
+            using (NpgsqlConnection connection = GetConnection())
             {
-                throw new ArgumentException("Invalid team side. Allowed values are 'red' or 'blue'.");
+                connection.Open();
+                int rowsAffected = connection.Execute(query, new { UserId = userId, TeamId = teamId });
+                return rowsAffected > 0;
             }
+        }
 
-            string query = $"UPDATE foosball_matches SET {teamSide}_team_id = @TeamId WHERE id = @MatchId";
+        public bool UpdateValidEloMatch(int matchId, bool validEloMatch)
+        {
+            string query = "UPDATE public.foosball_matches SET valid_elo_match = @ValidEloMatch WHERE id = @MatchId";
 
             using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-                int rowsAffected = connection.Execute(query, new { MatchId = matchId, TeamId = teamId });
+                int rowsAffected = connection.Execute(query, new { ValidEloMatch = validEloMatch, MatchId = matchId });
                 return rowsAffected > 0;
             }
-
         }
     }
 }
