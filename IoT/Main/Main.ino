@@ -41,7 +41,7 @@ void setup() {
 
     // Initialize the sensor handler
     Serial.println("Initializing sensor and LED...");
-    sensorHandler::initializeSensor();
+    sensorHandler::initializeSensors();
 }
 
 void loop() {
@@ -53,7 +53,7 @@ void loop() {
 
         // Only call sensorHandler if we are connected to Wi-Fi
         if (WifiConnector::isWiFiConnected()) {
-            sensorHandler::monitorSensor();  // Monitor sensor and trigger actions only when Wi-Fi is connected
+            sensorHandler::monitorSensors();  // Monitor sensor and trigger actions only when Wi-Fi is connected
         }
 
         // Check for config button press

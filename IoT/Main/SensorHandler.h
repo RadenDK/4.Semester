@@ -4,8 +4,8 @@
 #define SENSOR_HANDLER_H
 
 namespace sensorHandler {
-  void initializeSensor();
-  void monitorSensor();
+    void initializeSensors();
+    void monitorSensors();
 }
 
 #endif // SENSOR_HANDLER_H

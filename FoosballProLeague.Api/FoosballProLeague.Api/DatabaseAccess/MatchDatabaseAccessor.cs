@@ -1,124 +1,175 @@
-﻿using Dapper;
+using Dapper;
+using FoosballProLeague.Api.Models;
 using FoosballProLeague.Api.Models.FoosballModels;
 using Microsoft.Extensions.Configuration;
-using Microsoft.OpenApi.Models;
-using System;
-using System.Data.SqlClient;
 using Npgsql;
+using System.Text.RegularExpressions;
 
 
 namespace FoosballProLeague.Api.DatabaseAccess
 {
-    public class MatchDatabaseAccessor : IMatchDatabaseAccessor
+    public class MatchDatabaseAccessor : DatabaseAccessor, IMatchDatabaseAccessor
     {
-        private readonly string _connectionString;
 
-        public MatchDatabaseAccessor(IConfiguration configuration)
+        public MatchDatabaseAccessor(IConfiguration configuration) : base(configuration)
         {
-            _connectionString = configuration.GetConnectionString("DatabaseConnection");
         }
 
-        public int? GetActiveMatchByTableId(int tableId)
+        // GET METHODS
+
+        public int? GetActiveMatchIdByTableId(int tableId)
         {
             string query = "SELECT active_match_id FROM foosball_tables WHERE id = @TableId";
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-
-                // Use Dapper to execute the query and return the result
                 int? activeMatchId = connection.QuerySingleOrDefault<int?>(query, new { TableId = tableId });
-
                 return activeMatchId;
             }
         }
 
         public int GetTeamIdByMatchId(int matchId, string teamSide)
         {
-            string query = "SELECT " + teamSide + "_team_id FROM foosall_matches WHERE match_id = @MatchId";
+            // Validate the teamSide input
+            if (teamSide != "red" && teamSide != "blue")
+            {
+                throw new ArgumentException("Invalid team side. Allowed values are 'red' or 'blue'.");
+            }
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            // Construct the query using the validated teamSide
+            string query = $"SELECT {teamSide}_team_id FROM foosball_matches WHERE id = @MatchId";
+
+            using (NpgsqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                int teamId = connection.QuerySingleOrDefault<int>(query, new { MatchId = matchId });
+                return teamId;
+            }
+        }
+
+
+        public MatchModel GetMatchById(int matchId)
+        {
+            string query = "SELECT * FROM foosball_matches WHERE id = @MatchId";
+
+            using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
 
-                // Use Dapper to execute the query and return the result
-                int teamId = connection.QuerySingleOrDefault<int>(query, new { MatchId = matchId });
+                // Retrieve the raw result set as a dynamic object
+                var resultSet = connection.Query(query, new { MatchId = matchId });
 
+
+                // Map the result to MatchModel
+                MatchModel match = connection.QuerySingleOrDefault<MatchModel>(query, new { MatchId = matchId });
+                return match;
+            }
+        }
+
+
+        public int? GetTeamIdByUsers(List<int?> playerIds)
+        {
+            string query = @"
+        SELECT id
+        FROM teams
+        WHERE (player1_id = @Player1Id AND (player2_id = @Player2Id OR player2_id IS NULL))
+           OR (player1_id = @Player2Id AND (player2_id = @Player1Id OR player2_id IS NULL))";
+
+            using (NpgsqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                int? teamId = connection.QuerySingleOrDefault<int?>(query, new { Player1Id = playerIds[0], Player2Id = playerIds[1] });
+                return teamId;
+            }
+        }
+
+
+        public TeamModel GetTeamById(int teamId)
+        {
+            string query = @"
+        SELECT 
+            teams.id,
+            user1.id, user1.first_name, user1.last_name, user1.elo_1v1, user1.elo_2v2,
+            user2.id, user2.first_name, user2.last_name, user2.elo_1v1, user2.elo_2v2
+        FROM
+            teams
+        LEFT JOIN
+            users user1 ON teams.player1_id = user1.id
+        LEFT JOIN
+            users user2 ON teams.player2_id = user2.id
+        WHERE
+            teams.id = @TeamId";
+
+            using (NpgsqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                TeamModel team = connection.Query<TeamModel, UserModel, UserModel, TeamModel>(
+                    query,
+                    (teamResult, user1, user2) =>
+                    {
+                        teamResult.User1 = user1;
+                        teamResult.User2 = user2;
+                        return teamResult;
+                    },
+                    new { TeamId = teamId },
+                    splitOn: "id,id"  // Dapper needs this to split at user1.id and user2.id
+                ).FirstOrDefault();
+
+                return team;
+            }
+        }
+
+
+        // CREATE METHODS
+
+        public int CreateMatch(int tableId, int redTeamId, int blueTeamId, bool? validEloMatch = null)
+        {
+            string query = "INSERT INTO foosball_matches (table_id, red_team_id, blue_team_id) VALUES (@TableId, @RedTeamId, @BlueTeamId) RETURNING id";
+
+            using (NpgsqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                int matchId = connection.QuerySingle<int>(query, new { TableId = tableId, RedTeamId = redTeamId, BlueTeamId = blueTeamId });
+                return matchId;
+            }
+        }
+
+        public int RegisterTeam(List<int?> playerIds)
+        {
+            string query = "INSERT INTO teams (player1_id, player2_id) VALUES (@Player1Id, @Player2Id) RETURNING id";
+
+            using (NpgsqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                int teamId = connection.QuerySingle<int>(query, new { Player1Id = playerIds[0], Player2Id = playerIds[1] });
                 return teamId;
             }
         }
 
         public bool LogGoal(MatchLogModel matchLog)
         {
-            string query = "INSERT INTO match_log (match_id, team_id, side, log_time) VALUES (@MatchId, @TeamId, @Side, @LogTime)";
+            string query = "INSERT INTO match_logs (match_id, team_id, side, log_time) VALUES (@MatchId, @TeamId, @Side, @LogTime)";
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-
-                // Use Dapper to execute the query and return the result
                 int rowsAffected = connection.Execute(query, matchLog);
-
                 return rowsAffected > 0;
             }
         }
 
-        public int CreateMatch(int tableId, int redTeamId, int blueTeamId)
-        {
-            string query = "INSERT INTO foosball_matches (table_id, red_team_id, blue_team_id) OUTPUT INSERTED.match_id VALUES (@TableId, @RedTeamId, @BlueTeamId)";
-
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
-            {
-                connection.Open();
-
-                // Use Dapper to execute the query and return the result
-                int matchId = connection.QuerySingle<int>(query, new { TableId = tableId, RedTeamId = redTeamId, BlueTeamId = blueTeamId });
-
-                return matchId;
-            }
-        }
-
-        public int? GetTeamIdByPlayers(List<int> playerIds)
-        {
-            string query = "SELECT team_id FROM teams WHERE player1_id IN @Players AND player2_id IN @PlayerIds";
-
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
-            {
-                connection.Open();
-
-                // Use Dapper to execute the query and return the result
-                int? teamId = connection.QuerySingleOrDefault<int?>(query, new { PlayerIds = playerIds });
-
-                return teamId;
-            }
-        }
-
-        public int RegisterTeam(List<int> playerIds)
-        {
-            string query = "INSERT INTO teams (player1_id, player2_id) OUTPUT INSERTED.team_id VALUES (@Player1Id, @Player2Id)";
-
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
-            {
-                connection.Open();
-
-                // Use Dapper to execute the query and return the result
-                int teamId = connection.QuerySingle<int>(query, new { Player1Id = playerIds[0], Player2Id = playerIds[1] });
-
-                return teamId;
-            }
-        }
+        // UPDATE METHODS
 
         public bool UpdateMatchScore(int matchId, int teamRedScore, int teamBlueScore)
         {
-            string query = "UPDATE foosball_matches SET team_red_score = @TeamRedScore, team_blue_score = @TeamBlueScore WHERE match_id = @MatchId";
+            string query = "UPDATE foosball_matches SET team_red_score = @TeamRedScore, team_blue_score = @TeamBlueScore WHERE id = @MatchId";
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-
-                // Use Dapper to execute the query and return the result
                 int rowsAffected = connection.Execute(query, new { MatchId = matchId, TeamRedScore = teamRedScore, TeamBlueScore = teamBlueScore });
-
                 return rowsAffected > 0;
             }
         }
@@ -127,43 +178,46 @@ namespace FoosballProLeague.Api.DatabaseAccess
         {
             string query = "UPDATE foosball_tables SET active_match_id = @MatchId WHERE id = @TableId";
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-
-                // Use Dapper to execute the query and return the result
                 int rowsAffected = connection.Execute(query, new { TableId = tableId, MatchId = matchId });
-
                 return rowsAffected > 0;
-            }
-        }
-
-        public MatchModel GetMatchById(int matchId)
-        {
-            string query = "SELECT * FROM foosball_matches WHERE match_id = @MatchId";
-
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
-            {
-                connection.Open();
-
-                // Use Dapper to execute the query and return the result
-                MatchModel match = connection.QuerySingleOrDefault<MatchModel>(query, new { MatchId = matchId });
-
-                return match;
             }
         }
 
         public bool EndMatch(int matchId)
         {
-            string query = "UPDATE foosball_matches SET end_time = @EndTime WHERE match_id = @MatchId";
+            string query = "UPDATE foosball_matches SET end_time = @EndTime WHERE id = @MatchId";
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-
-                // Use Dapper to execute the query and return the result
                 int rowsAffected = connection.Execute(query, new { MatchId = matchId, EndTime = DateTime.Now });
+                return rowsAffected > 0;
+            }
+        }
 
+        public bool UpdateUserIdOnTeamByTeamId(int? teamId, int userId)
+        {
+            string query = "UPDATE teams SET player2_id = @UserId WHERE id = @TeamId";
+
+            using (NpgsqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                int rowsAffected = connection.Execute(query, new { UserId = userId, TeamId = teamId });
+                return rowsAffected > 0;
+            }
+        }
+
+        public bool UpdateValidEloMatch(int matchId, bool validEloMatch)
+        {
+            string query = "UPDATE public.foosball_matches SET valid_elo_match = @ValidEloMatch WHERE id = @MatchId";
+
+            using (NpgsqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                int rowsAffected = connection.Execute(query, new { ValidEloMatch = validEloMatch, MatchId = matchId });
                 return rowsAffected > 0;
             }
         }

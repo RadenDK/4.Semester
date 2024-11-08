@@ -25,7 +25,7 @@ namespace FoosballProLeague.Api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest("Something went wrong during retrieval");
             }
         }
     }

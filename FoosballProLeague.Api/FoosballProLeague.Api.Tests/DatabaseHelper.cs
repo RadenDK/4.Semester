@@ -19,7 +19,7 @@ namespace FoosballProLeague.Api.Tests
         {
             _configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile("appsettings.test.json", optional: false, reloadOnChange: true)
                 .Build();
 
             TestDatabaseConnection = _configuration.GetConnectionString("DatabaseConnection");
