@@ -1,6 +1,6 @@
+using AspNetCoreRateLimit;
 using FoosballProLeague.Api.BusinessLogic;
 using FoosballProLeague.Api.DatabaseAccess;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +16,12 @@ builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IDepartmentDatabaseAccessor, DepartmentDatabaseAccessor>();
 
 builder.Services.AddScoped<ITokenLogic, TokenLogic>();
+
+// request rate liminting middleware
+builder.Services.AddMemoryCache();
+builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
+builder.Services.AddInMemoryRateLimiting();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -34,6 +40,9 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Use rate limiting middleware
+app.UseIpRateLimiting();
 
 app.MapControllers();
 
