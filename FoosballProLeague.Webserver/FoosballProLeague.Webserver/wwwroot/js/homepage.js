@@ -10,17 +10,21 @@
             .build();
 
         this.matchTimer = null;
-        this.matchStartTime = null;
-        this.currentPageNumber = 1; // Store the current page number
-        this.leaderboardData = []; // Store the leaderboard data
+        this.matchStartTime = new Date(sessionStorage.getItem('matchStartTime')) || null; // Retrieve the match start time from session storage
+        this.currentPageNumber = 1;
+        this.leaderboardData = [];
+        this.pageSize = 10; // Define pageSize as a constant
+        this.currentMatch = JSON.parse(sessionStorage.getItem('currentMatch')) || null; // Retrieve the current match state from session storage
 
         this.initializeConnections();
+        this.updateMatchInfoFromStorage(); // Update match info from session storage on page load
+        this.updateMatchTimeFromStorage(); // Update match time from session storage on page load
     }
 
     async initializeConnections() {
         this.homepageConnection.on("ReceiveLeaderboardUpdate", (leaderboard) => {
-            this.leaderboardData = leaderboard; // Store the leaderboard data
-            this.updateLeaderboard(this.currentPageNumber); // Use the stored page number
+            this.leaderboardData = leaderboard;
+            this.updateLeaderboard(this.currentPageNumber);
         });
 
         this.homepageConnection.on("ReceiveMatchStart", (isMatchStart, teamRed, teamBlue, redScore, blueScore) => {
@@ -51,22 +55,18 @@
     }
 
     updateLeaderboard(pageNumber = 1) {
-        this.currentPageNumber = pageNumber; // Update the stored page number
+        this.currentPageNumber = pageNumber;
         const leaderboardBody = document.querySelector('#leaderboardBody');
         leaderboardBody.innerHTML = '';
 
-        const pageSize = 10; // Number of items per page
-
-        // Sort the leaderboard data by elo1v1 in descending order 
         this.leaderboardData.sort((a, b) => b.elo1v1 - a.elo1v1);
 
-        // Calculate start and end indices for the current page
-        const startIndex = (pageNumber - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
+        const startIndex = (pageNumber - 1) * this.pageSize;
+        const endIndex = startIndex + this.pageSize;
         const paginatedLeaderboard = this.leaderboardData.slice(startIndex, endIndex);
 
         paginatedLeaderboard.forEach((player, index) => {
-            const rank = startIndex + index + 1; // Calculate global cumulative "rank"
+            const rank = startIndex + index + 1;
             const row = `
             <tr>
                 <td>${rank}</td>
@@ -77,8 +77,17 @@
             leaderboardBody.innerHTML += row;
         });
 
-        // Update pagination controls
-        this.updatePaginationControls(this.leaderboardData.length, pageSize, pageNumber);
+        this.updatePaginationControls(this.leaderboardData.length, this.pageSize, pageNumber);
+
+        // Re-render the current match info if available
+        if (this.currentMatch) {
+            this.updateMatchInfo(
+                this.currentMatch.teamRed,
+                this.currentMatch.teamBlue,
+                this.currentMatch.redScore,
+                this.currentMatch.blueScore
+            );
+        }
     }
 
     updatePaginationControls(totalItems, pageSize, pageNumber) {
@@ -97,16 +106,22 @@
             paginationContainer.innerHTML += `<a href="#" class="next-page">Next</a>`;
         }
 
-        // Add event listeners for pagination controls
-        document.querySelector('.previous-page')?.addEventListener('click', (event) => {
-            event.preventDefault();
-            this.updateLeaderboard(pageNumber - 1);
-        });
+        // Remove existing event listeners before attaching new ones
+        document.querySelector('.previous-page')?.removeEventListener('click', this.handlePreviousPageClick);
+        document.querySelector('.next-page')?.removeEventListener('click', this.handleNextPageClick);
 
-        document.querySelector('.next-page')?.addEventListener('click', (event) => {
-            event.preventDefault();
-            this.updateLeaderboard(pageNumber + 1);
-        });
+        document.querySelector('.previous-page')?.addEventListener('click', this.handlePreviousPageClick.bind(this));
+        document.querySelector('.next-page')?.addEventListener('click', this.handleNextPageClick.bind(this));
+    }
+
+    handlePreviousPageClick(event) {
+        event.preventDefault();
+        this.updateLeaderboard(this.currentPageNumber - 1);
+    }
+
+    handleNextPageClick(event) {
+        event.preventDefault();
+        this.updateLeaderboard(this.currentPageNumber + 1);
     }
 
     handleMatchStart(isMatchStart, teamRed, teamBlue, redScore, blueScore) {
@@ -114,6 +129,7 @@
 
         if (isMatchStart) {
             this.matchStartTime = new Date();
+            sessionStorage.setItem('matchStartTime', this.matchStartTime.toISOString()); // Save the match start time to session storage
             if (this.matchTimer) {
                 clearInterval(this.matchTimer);
             }
@@ -124,37 +140,14 @@
             }
         }
 
+        this.currentMatch = { teamRed, teamBlue, redScore, blueScore }; // Store the current match state
+        sessionStorage.setItem('currentMatch', JSON.stringify(this.currentMatch)); // Save the current match state to session storage
         this.updateMatchInfo(teamRed, teamBlue, redScore, blueScore);
     }
 
     updateMatchInfo(teamRed, teamBlue, redScore, blueScore) {
-        const teamRedContainer = document.querySelector(".team-red");
-        teamRedContainer.innerHTML = '<span class="team-red">Team Red</span>';
-
-        if (teamRed && teamRed.user1) {
-            const userElement = document.createElement("p");
-            userElement.textContent = `${teamRed.user1.firstName} ${teamRed.user1.lastName}`;
-            teamRedContainer.appendChild(userElement);
-        }
-        if (teamRed && teamRed.user2) {
-            const userElement = document.createElement("p");
-            userElement.textContent = `${teamRed.user2.firstName} ${teamRed.user2.lastName}`;
-            teamRedContainer.appendChild(userElement);
-        }
-
-        const teamBlueContainer = document.querySelector(".team-blue");
-        teamBlueContainer.innerHTML = '<span class="team-blue">Team Blue</span>';
-
-        if (teamBlue && teamBlue.user1) {
-            const userElement = document.createElement("p");
-            userElement.textContent = `${teamBlue.user1.firstName} ${teamBlue.user1.lastName}`;
-            teamBlueContainer.appendChild(userElement);
-        }
-        if (teamBlue && teamBlue.user2) {
-            const userElement = document.createElement("p");
-            userElement.textContent = `${teamBlue.user2.firstName} ${teamBlue.user2.lastName}`;
-            teamBlueContainer.appendChild(userElement);
-        }
+        this.updateTeamInfo(".team-red", teamRed);
+        this.updateTeamInfo(".team-blue", teamBlue);
 
         const redScoreElement = document.querySelector(".match-score .score:nth-child(1)");
         const blueScoreElement = document.querySelector(".match-score .score:nth-child(3)");
@@ -167,6 +160,22 @@
             blueScoreElement.textContent = blueScore;
         } else {
             console.error('Element for blue score not found.');
+        }
+    }
+
+    updateTeamInfo(selector, team) {
+        const teamContainer = document.querySelector(selector);
+        teamContainer.innerHTML = `<span class="${selector.slice(1)}">${selector.slice(1).replace('-', ' ')}</span>`;
+
+        if (team && team.user1) {
+            const userElement = document.createElement("p");
+            userElement.textContent = `${team.user1.firstName} ${team.user1.lastName}`;
+            teamContainer.appendChild(userElement);
+        }
+        if (team && team.user2) {
+            const userElement = document.createElement("p");
+            userElement.textContent = `${team.user2.firstName} ${team.user2.lastName}`;
+            teamContainer.appendChild(userElement);
         }
     }
 
@@ -185,14 +194,34 @@
             }
             document.querySelector(".match-time").textContent = "";
 
-            document.querySelector(".team-red").innerHTML = '<span class="team-red">Team Red</span>';
-            document.querySelector(".team-blue").innerHTML = '<span class="team-blue">Team Blue</span>';
+            this.updateTeamInfo(".team-red", null);
+            this.updateTeamInfo(".team-blue", null);
             document.querySelector(".match-score .score:nth-child(1)").textContent = "0";
             document.querySelector(".match-score .score:nth-child(3)").textContent = "0";
+
+            this.currentMatch = null; // Clear the current match state
+            sessionStorage.removeItem('currentMatch'); // Remove the current match state from session storage
+            sessionStorage.removeItem('matchStartTime'); // Remove the match start time from session storage
+        }
+    }
+
+    updateMatchInfoFromStorage() {
+        if (this.currentMatch) {
+            this.updateMatchInfo(
+                this.currentMatch.teamRed,
+                this.currentMatch.teamBlue,
+                this.currentMatch.redScore,
+                this.currentMatch.blueScore
+            );
+        }
+    }
+
+    updateMatchTimeFromStorage() {
+        if (this.matchStartTime) {
+            this.matchTimer = setInterval(() => this.updateMatchTime(), 1000);
         }
     }
 }
-
 
 // Fetch the API URL from the backend endpoint and initialize the connections
 fetch('/config/url')
@@ -204,8 +233,7 @@ fetch('/config/url')
     })
     .then(config => {
         console.log("Config: ", config);
-        const apiUrl = config.apiUrl; // Use the API URL from the backend endpoint
-        const foosballProLeague = new FoosballProLeague(apiUrl); // Create an instance of the class
+        const apiUrl = config.apiUrl;
+        const foosballProLeague = new FoosballProLeague(apiUrl);
     })
     .catch(error => console.error('Error fetching configuration:', error));
-
