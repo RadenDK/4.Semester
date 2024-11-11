@@ -20,7 +20,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
         public GetUsersTest()
         {
             // Initialize UserLogic and UserController
-            var mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
             _userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
             _userController = new UserController(_userLogic);
         }
@@ -36,15 +36,15 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
             _dbHelper.InsertData(insertQuery);
 
             // Act: Call the GetUsers method
-            var result = _userController.GetUsers() as OkObjectResult;
-            var users = result?.Value as List<UserModel>;
+            OkObjectResult result = _userController.GetUsers() as OkObjectResult;
+            List<UserModel> users = result?.Value as List<UserModel>;
 
             // Assert: Verify the results
             Assert.NotNull(users);
             Assert.Equal(2, users.Count);
 
-            var user1 = users.Find(u => u.Email == "john.doe@example.com");
-            var user2 = users.Find(u => u.Email == "jane.smith@example.com");
+            UserModel user1 = users.Find(u => u.Email == "john.doe@example.com");
+            UserModel user2 = users.Find(u => u.Email == "jane.smith@example.com");
 
             Assert.NotNull(user1);
             Assert.Equal("John", user1.FirstName);
@@ -66,8 +66,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
             _dbHelper.ClearDatabase();
 
             // Act: Call the GetUsers method
-            var result = _userController.GetUsers() as OkObjectResult;
-            var users = result?.Value as List<UserModel>;
+            OkObjectResult result = _userController.GetUsers() as OkObjectResult;
+            List<UserModel> users = result?.Value as List<UserModel>;
 
             // Assert: Verify the results
             Assert.NotNull(users);

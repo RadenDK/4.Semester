@@ -61,8 +61,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
                 connection.Open();
 
                 // Retrieve the raw result set as a dynamic object
-                var resultSet = connection.Query(query, new { MatchId = matchId });
-
+                IEnumerable<dynamic> resultSet = connection.Query(query, new { MatchId = matchId });
 
                 // Map the result to MatchModel
                 MatchModel match = connection.QuerySingleOrDefault<MatchModel>(query, new { MatchId = matchId });

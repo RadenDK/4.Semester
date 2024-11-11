@@ -53,8 +53,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
             };
     
             // Act
-            var result = await _userController.CreateUser(newUser) as OkResult;
-    
+            OkResult result = await _userController.CreateUser(newUser) as OkResult;    
             // Assert
             Assert.NotNull(result);
             Assert.Equal(200, result.StatusCode);
@@ -86,8 +85,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
             _userController.ModelState.AddModelError("Email", "Email is required");
     
             // Act
-            var result = await _userController.CreateUser(newUser) as BadRequestObjectResult;            
-    
+            BadRequestObjectResult result = await _userController.CreateUser(newUser) as BadRequestObjectResult;    
             // Assert
             Assert.NotNull(result);
             Assert.Equal(400, result.StatusCode);
@@ -122,8 +120,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
             };
             
             // Act
-            var result = await _userController.CreateUser(newUser) as BadRequestObjectResult;
-            
+            BadRequestObjectResult result = await _userController.CreateUser(newUser) as BadRequestObjectResult;            
             // Assert
             Assert.NotNull(result);
             Assert.Equal(400, result.StatusCode);
