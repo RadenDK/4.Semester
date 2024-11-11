@@ -20,7 +20,7 @@ public class CreateUserTest
         _userController = new UserController(_mockUserLogic.Object);
     }
     [Fact]
-    public void CreateUser_ReturnsOkResult_WithValidData()
+    public async void CreateUser_ReturnsOkResult_WithValidData()
     {
         // Arrange
         UserRegistrationModel validUser = new UserRegistrationModel
@@ -34,10 +34,11 @@ public class CreateUserTest
         _mockUserLogic.Setup(logic => logic.CreateUser(validUser)).Returns(true);
 
         // Act
-        OkResult result = _userController.CreateUser(validUser) as OkResult;
+        IActionResult result = await _userController.CreateUser(validUser);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Equal(200, result.StatusCode);
+        OkResult okResult = result as OkResult;
+        Assert.NotNull(okResult);
+        Assert.Equal(200, okResult.StatusCode);
     }
 }

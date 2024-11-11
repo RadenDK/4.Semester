@@ -14,8 +14,8 @@ public class UserLogic : IUserLogic
 
     public UserLogic(IUserDatabaseAccessor userDatabaseAccessor, IHubContext<HomepageHub> hubContext)
     {
-        _userDatabaseAccessor = userDatabaseAccessor;
-        _hubContext = hubContext;
+        _userDatabaseAccessor = userDatabaseAccessor ?? throw new ArgumentNullException(nameof(userDatabaseAccessor));
+        _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
     }
 
     // method to create user for registration
@@ -38,11 +38,27 @@ public class UserLogic : IUserLogic
             if (userCreated)
             {
                 // Notify clients about the leaderboard update
-                UpdateLeaderboard().Wait();
+                try
+                {
+                    if (_hubContext != null)
+                    {
+                        UpdateLeaderboard().Wait();
+                    }
+                    else
+                    {
+                        throw new NullReferenceException("HubContext is not initialized.");
+                    }
+                }
+                catch (AggregateException ex)
+                {
+                    // Handle the exception
+                    throw ex.Flatten().InnerException;
+                }
             }
             return userCreated;
         }
         return false;
+    
     }
 
     private async Task UpdateLeaderboard()

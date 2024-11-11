@@ -7,6 +7,9 @@ using bc = BCrypt.Net.BCrypt;
 using Microsoft.AspNetCore.Mvc;
 
 using System.Collections.Generic;
+using FoosballProLeague.Api.Hubs;
+using Microsoft.AspNetCore.SignalR;
+using Moq;
 
 
 namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserControllerTests
@@ -35,7 +38,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserContr
             };
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
-            IUserLogic userLogic = new UserLogic(userDatabaseAccessor);
+            var mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
             UserController SUT = new UserController(userLogic);
 
             // Act: Call the LoginUser method
@@ -63,7 +67,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserContr
             };
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
-            IUserLogic userLogic = new UserLogic(userDatabaseAccessor);
+            var mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
             UserController SUT = new UserController(userLogic);
 
             // Act: Call the LoginUser method

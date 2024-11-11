@@ -6,6 +6,8 @@ using Xunit;
 using System.Collections.Generic;
 using FoosballProLeague.Api.DatabaseAccess;
 using Moq;
+using Microsoft.AspNetCore.SignalR;
+using FoosballProLeague.Api.Hubs;
 
 namespace FoosballProLeague.Api.Tests.ControllerTests.UnitTests
 {
@@ -17,8 +19,16 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.UnitTests
 
         public GetUsersTest()
         {
+            // Mock IHubContext and IHubClients
+            var mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            var mockClients = new Mock<IHubClients>();
+            var mockClientProxy = new Mock<IClientProxy>();
+
+            mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
+
             // Initialize UserLogic and UserController
-            _userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
+            _userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
             _userController = new UserController(_userLogic);
         }
 
