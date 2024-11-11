@@ -11,6 +11,5 @@ public interface IUserDatabaseAccessor
     public List<UserModel> GetUsers();
     public UserModel GetUserById(int userId);
     public bool UpdateUserElo(int userId, int elo, bool is1v1);
-    public List<TeamModel> GetTeamsByUserId(int userId);
-    public List<MatchHistoryModel> GetMatchIdByTeamId(int teamId);
+    public List<MatchHistoryModel> GetMatchHistoryByUserId(int userId);
 }

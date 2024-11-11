@@ -95,63 +95,56 @@ public class UserDatabaseAccessor : DatabaseAccessor, IUserDatabaseAccessor
 
         return rowsAffected;
     }
-    
-    public List<TeamModel> GetTeamsByUserId(int userId)
+
+    public List<MatchHistoryModel> GetMatchHistoryByUserId(int userId)
     {
         string query = @"
-        SELECT
-            t.id,
-            t.player1_id AS UserId, u1.id, u1.first_name, u1.last_name,
-            u1.elo_1v1, u1.elo_2v2,
-            t.player2_id AS UserId, u2.id, u2.first_name, u2.last_name,
-            u2.elo_1v1, u2.elo_2v2
-        FROM
-            teams t
-        JOIN users u1 ON t.player1_id = u1.id
-        LEFT JOIN users u2 ON t.player2_id = u2.id
-        WHERE
-            t.player1_id = @userId OR t.player2_id = @userId";
+SELECT
+    fm.id AS MatchId,
+    fm.team_red_score AS TeamRedScore,
+    fm.team_blue_score AS TeamBlueScore,
+    TO_CHAR(fm.end_time, 'YYYY-MM-DD HH24:MI:SS') AS EndTime,
+
+    -- Red Team Details
+    red_team.id AS RedTeamId,
+    red_team.player1_id AS RedPlayer1Id,
+    red_team.player2_id AS RedPlayer2Id,
+    u1.first_name AS RedPlayer1FirstName,
+    u1.last_name AS RedPlayer1LastName,
+    u1.elo_1v1 AS RedPlayer1Elo1v1,
+    u1.elo_2v2 AS RedPlayer1Elo2v2,
+    u2.first_name AS RedPlayer2FirstName,
+    u2.last_name AS RedPlayer2LastName,
+    u2.elo_1v1 AS RedPlayer2Elo1v1,
+    u2.elo_2v2 AS RedPlayer2Elo2v2,
+
+    -- Blue Team Details
+    blue_team.id AS BlueTeamId,
+    blue_team.player1_id AS BluePlayer1Id,
+    blue_team.player2_id AS BluePlayer2Id,
+    u3.first_name AS BluePlayer1FirstName,
+    u3.last_name AS BluePlayer1LastName,
+    u3.elo_1v1 AS BluePlayer1Elo1v1,
+    u3.elo_2v2 AS BluePlayer1Elo2v2,
+    u4.first_name AS BluePlayer2FirstName,
+    u4.last_name AS BluePlayer2LastName,
+    u4.elo_1v1 AS BluePlayer2Elo1v1,
+    u4.elo_2v2 AS BluePlayer2Elo2v2
+FROM
+    foosball_matches fm
+        JOIN teams AS red_team ON fm.red_team_id = red_team.id
+        LEFT JOIN users u1 ON red_team.player1_id = u1.id
+        LEFT JOIN users u2 ON red_team.player2_id = u2.id
+        JOIN teams AS blue_team ON fm.blue_team_id = blue_team.id
+        LEFT JOIN users u3 ON blue_team.player1_id = u3.id
+        LEFT JOIN users u4 ON blue_team.player2_id = u4.id
+WHERE
+    red_team.player1_id = @userId OR red_team.player2_id = @userId
+    OR blue_team.player1_id = @userId OR blue_team.player2_id = @userId";
 
         using (IDbConnection connection = GetConnection())
         {
-            return connection.Query<TeamModel, UserModel, UserModel, TeamModel>(
-                query,
-                (team, user1, user2) =>
-                {
-                    team.User1 = user1;
-                    team.User2 = user2 ?? new UserModel();
-                    return team;
-                },
-                new { UserId = userId },
-                splitOn: "UserId,UserId"
-            ).ToList();
-        }
-    }
-    
-    public List<MatchHistoryModel> GetMatchIdByTeamId(int teamId)
-    {
-        string query = @"
-        SELECT
-            fm.id,
-            fm.team_red_score AS TeamRedScore,
-            fm.team_blue_score AS TeamBlueScore,
-            TO_CHAR(fm.end_time, 'YYYY-MM-DD HH24:MI:SS') AS EndTime,
-            red_team.id AS RedTeamId,
-            red_team.player1_id,
-            red_team.player2_id,
-            blue_team.id AS BlueTeamId,
-            blue_team.player1_id,
-            blue_team.player2_id
-        FROM
-            foosball_matches fm
-            JOIN teams AS red_team ON fm.red_team_id = red_team.id
-            JOIN teams AS blue_team ON fm.blue_team_id = blue_team.id
-        WHERE
-            fm.red_team_id = @teamId OR fm.blue_team_id = @teamId";
-
-        using (IDbConnection connection = GetConnection())
-        {
-            IEnumerable<MatchHistoryModel> matches = connection.Query<MatchHistoryModel, TeamModel, TeamModel, MatchHistoryModel>(
+            var matches = connection.Query<MatchHistoryModel, TeamModel, TeamModel, MatchHistoryModel>(
                 query,
                 (match, redTeam, blueTeam) =>
                 {
@@ -159,10 +152,10 @@ public class UserDatabaseAccessor : DatabaseAccessor, IUserDatabaseAccessor
                     match.BlueTeam = blueTeam;
                     return match;
                 },
-                new { TeamId = teamId },
+                new { userId },
                 splitOn: "RedTeamId,BlueTeamId"
             );
-            
+
             return matches.ToList();
         }
     }
