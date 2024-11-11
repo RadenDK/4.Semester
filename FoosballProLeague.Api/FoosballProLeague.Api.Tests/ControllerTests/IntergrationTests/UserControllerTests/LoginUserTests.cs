@@ -38,7 +38,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserContr
             };
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
-            var mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
             IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
             UserController SUT = new UserController(userLogic);
 
@@ -67,7 +67,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserContr
             };
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
-            var mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
             IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
             UserController SUT = new UserController(userLogic);
 

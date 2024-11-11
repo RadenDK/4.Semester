@@ -20,9 +20,9 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.UnitTests
         public GetUsersTest()
         {
             // Mock IHubContext and IHubClients
-            var mockHubContext = new Mock<IHubContext<HomepageHub>>();
-            var mockClients = new Mock<IHubClients>();
-            var mockClientProxy = new Mock<IClientProxy>();
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubClients> mockClients = new Mock<IHubClients>();
+            Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
 
             mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
             mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
@@ -36,13 +36,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.UnitTests
         public void GetUsers_ReturnsBadRequest_WhenExceptionThrown()
         {
             // Arrange: Create a mock of IUserLogic that throws an exception
-            var mockUserLogic = new Mock<IUserLogic>();
+            Mock<IUserLogic> mockUserLogic = new Mock<IUserLogic>();
             mockUserLogic.Setup(logic => logic.GetUsers()).Throws(new Exception("Test exception"));
 
-            var controller = new UserController(mockUserLogic.Object);
+            UserController controller = new UserController(mockUserLogic.Object);
 
             // Act: Call the GetUsers method
-            var result = controller.GetUsers() as BadRequestObjectResult;
+            BadRequestObjectResult result = controller.GetUsers() as BadRequestObjectResult;
 
             // Assert: Verify the results
             Assert.NotNull(result);

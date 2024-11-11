@@ -11,5 +11,6 @@ public interface IUserLogic
     public List<UserModel> GetUsers();
     public UserModel GetUser(string email);
     public UserModel GetUserById(int userId);
+    Task UpdateLeaderboard();
     public void UpdateTeamElo(TeamModel redTeam, TeamModel blueTeam, bool redTeamWon, bool is1v1);
 }
