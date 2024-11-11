@@ -1,4 +1,5 @@
-﻿using FoosballProLeague.Api.Models.FoosballModels;
+﻿using FoosballProLeague.Api.Models;
+using FoosballProLeague.Api.Models.FoosballModels;
 using FoosballProLeague.Api.Models.RequestModels;
 
 namespace FoosballProLeague.Api.BusinessLogic

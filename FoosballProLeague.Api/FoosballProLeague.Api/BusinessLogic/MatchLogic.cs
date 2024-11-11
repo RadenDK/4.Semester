@@ -189,7 +189,7 @@ namespace FoosballProLeague.Api.BusinessLogic
             }
 
             UpdateScoreAndCheckMatchCompletion(matchId.Value, registerGoalRequest);
-
+            
             return true;
         }
 
@@ -237,7 +237,6 @@ namespace FoosballProLeague.Api.BusinessLogic
                 _matchDatabaseAccessor.EndMatch(matchId.Value);
             }
         }
-
     }
 }
 

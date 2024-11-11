@@ -1,10 +1,10 @@
+using System.Data;
 using Dapper;
-using FoosballProLeague.Api.Models;
 using FoosballProLeague.Api.Models.FoosballModels;
+using FoosballProLeague.Api.Models;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
 using System.Text.RegularExpressions;
-
 
 namespace FoosballProLeague.Api.DatabaseAccess
 {

@@ -1,4 +1,5 @@
-﻿using FoosballProLeague.Api.Models.FoosballModels;
+﻿using FoosballProLeague.Api.Models;
+using FoosballProLeague.Api.Models.FoosballModels;
 
 namespace FoosballProLeague.Api.DatabaseAccess
 {
