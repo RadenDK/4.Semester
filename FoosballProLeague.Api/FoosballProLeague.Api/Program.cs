@@ -27,7 +27,7 @@ builder.Services.AddCors(options =>
     {
         builder.AllowAnyMethod()
                .AllowAnyHeader()
-               .WithOrigins("https://localhost:7151", "http://localhost:5122")
+               .SetIsOriginAllowed(origin => true) // Allows all origins
                .AllowCredentials();
     });
 });
