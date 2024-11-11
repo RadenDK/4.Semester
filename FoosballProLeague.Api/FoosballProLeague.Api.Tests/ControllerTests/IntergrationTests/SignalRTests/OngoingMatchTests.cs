@@ -27,6 +27,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.SignalRT
             _dbHelper.InsertData($"INSERT INTO users (id) VALUES ({mockPlayer1Id}), ({mockPlayer2Id})");
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
+
             Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
             Mock<IHubClients> mockClients = new Mock<IHubClients>();
             Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
@@ -34,7 +35,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.SignalRT
             mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
             mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), (IHubContext<HomepageHub>)mockHubContext.Object);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
             IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, (IHubContext<HomepageHub>)mockHubContext.Object, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
@@ -48,28 +49,16 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.SignalRT
             IActionResult result = SUT.StartMatch(mockTableId);
 
             // Assert
-
-            //can maybe delete
-            IEnumerable<MatchModel> matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
-            IEnumerable<FoosballTableModel> table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
-            IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
-
-            List<int?> userIdsRedTeam = new List<int?> { mockPlayer1Id, null };
-            List<int?> userIdsBlueTeam = new List<int?> { mockPlayer2Id, null };
-
-            TeamModel redTeam = matchLogic.GetOrRegisterTeam(userIdsRedTeam);
-            TeamModel blueTeam = matchLogic.GetOrRegisterTeam(userIdsBlueTeam);
-
             mockClientProxy.Verify(
                 client => client.SendCoreAsync(
-                    "RecieveMatchStart",
+                    "ReceiveMatchStart",
                     It.Is<object[]>(o => o != null && o.Length == 5 &&
                                     (bool)o[0] == true &&
                                     ((TeamModel)o[1]).Id == 1 &&
                                     ((TeamModel)o[2]).Id == 2 &&
                                     (int)o[3] == 0 &&
                                     (int)o[4] == 0),
-                default),
+                It.IsAny<CancellationToken>()),
                 Times.Once);
         }
 
@@ -124,7 +113,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.SignalRT
 
             mockClientProxy.Verify(
                 client => client.SendCoreAsync(
-                    "RecieveMatchStart",
+                    "ReceiveMatchStart",
                     It.Is<object[]>(o => o != null && o.Length == 5 &&
                                     (bool)o[0] == true &&
                                     ((TeamModel)o[1]).Id == 1 &&
@@ -167,13 +156,9 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.SignalRT
             IActionResult result = SUT.RegisterGoal(mockRegisterGoalRequest);
 
             // Assert
-            IEnumerable<MatchModel> matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
-            IEnumerable<FoosballTableModel> table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
-            IEnumerable<MatchLogModel> matchLogs = _dbHelper.ReadData<MatchLogModel>("SELECT * FROM match_logs");
-
             mockClientProxy.Verify(
                 client => client.SendCoreAsync(
-                    "RecieveGoalUpdate",
+                    "ReceiveGoalUpdate",
                     It.Is<object[]>(o => o != null && o.Length == 4 &&
                                     ((TeamModel)o[0]).Id == 1 &&
                                     ((TeamModel)o[1]).Id == 2 &&
@@ -220,7 +205,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.SignalRT
 
             mockClientProxy.Verify(
                 client => client.SendCoreAsync(
-                    "RecieveGoalUpdate",
+                    "ReceiveGoalUpdate",
                     It.Is<object[]>(o => o != null && o.Length == 4 &&
                                     ((TeamModel)o[0]).Id == 1 &&
                                     ((TeamModel)o[1]).Id == 2 &&
@@ -269,7 +254,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.SignalRT
 
             mockClientProxy.Verify(
                 client => client.SendCoreAsync(
-                    "RecieveGoalUpdate",
+                    "ReceiveGoalUpdate",
                     It.Is<object[]>(o => o != null && o.Length == 4 &&
                                     ((TeamModel)o[0]).Id == 1 &&
                                     ((TeamModel)o[1]).Id == 2 &&
@@ -316,7 +301,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.SignalRT
 
             mockClientProxy.Verify(
                 client => client.SendCoreAsync(
-                    "RecieveMatchEnd",
+                    "ReceiveMatchEnd",
                     It.Is<object[]>(o => o != null && o.Length == 1 &&
                                     (bool)o[0] == false),
                 default),
