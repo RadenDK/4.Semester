@@ -164,4 +164,37 @@ public class UserLogic : IUserLogic
     {
         return _userDatabaseAccessor.UpdateUserElo(userId, elo, is1v1);
     }
+
+    public List<MatchHistoryModel> GetMatchHistoryByUserId(int userId)
+    {
+        List<TeamModel> teams = _userDatabaseAccessor.GetTeamsByUserId(userId);
+        List<MatchHistoryModel> matchHistory = new List<MatchHistoryModel>();
+
+        foreach (TeamModel team in teams)
+        {
+            List<MatchHistoryModel> matches = GetMatchByTeamId(team.Id);
+
+            foreach (MatchHistoryModel match in matches)
+            {
+                if (match.BlueTeam.Id == team.Id)
+                {
+                    match.BlueTeam = team;
+                }
+
+                if (match.RedTeam.Id == team.Id)
+                {
+                    match.BlueTeam = team;
+                }
+            }
+
+            matchHistory.AddRange(matches);
+        }
+        
+        return matchHistory.Distinct().ToList();
+    }
+    
+    private List<MatchHistoryModel> GetMatchByTeamId(int teamId)
+    {
+        return _userDatabaseAccessor.GetMatchIdByTeamId(teamId);
+    }
 }

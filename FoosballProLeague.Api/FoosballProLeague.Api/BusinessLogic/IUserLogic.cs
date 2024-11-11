@@ -12,4 +12,5 @@ public interface IUserLogic
     public UserModel GetUser(string email);
     public UserModel GetUserById(int userId);
     public void UpdateTeamElo(TeamModel redTeam, TeamModel blueTeam, bool redTeamWon, bool is1v1);
+    public List<MatchHistoryModel> GetMatchHistoryByUserId(int userId);
 }

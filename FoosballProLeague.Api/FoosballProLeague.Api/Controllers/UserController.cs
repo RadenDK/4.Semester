@@ -85,6 +85,26 @@ namespace FoosballProLeague.Api.Controllers
                 return StatusCode(500, new { message = "An error occurred while logging in the user" });
             }
         }
+
+        [HttpGet("user/userId/match-history")]
+        public IActionResult GetMatchHistoryByUserId(int userId)
+        {
+            try
+            {
+                IEnumerable<MatchHistoryModel> matchHistory = _userLogic.GetMatchHistoryByUserId(userId);
+                if (matchHistory == null || !matchHistory.Any())
+                {
+                    return NotFound("No match history found for the provided user id");
+                }
+
+                return Ok(matchHistory);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
     }
     
     
