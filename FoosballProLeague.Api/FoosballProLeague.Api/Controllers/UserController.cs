@@ -91,7 +91,7 @@ namespace FoosballProLeague.Api.Controllers
             }
         }
 
-        // Method to validate user JWT
+        // Method to validate user JWT and generate a new JWT on every request
         [HttpGet("token/validate")]
         public IActionResult ValidateUserJWT()
         {

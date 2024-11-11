@@ -13,7 +13,7 @@ public class TokenService : ITokenService
         _httpClientService = httpClientService;
     }
 
-    public async Task<HttpResponseMessage> ValidateJwt(string jwt)
+    public async Task<HttpResponseMessage> ValidateJwtAndGetNewJwt(string jwt)
     {
         _httpClientService.SetAuthorizationHeader(jwt);
         return await _httpClientService.GetAsync("api/user/token/validate");

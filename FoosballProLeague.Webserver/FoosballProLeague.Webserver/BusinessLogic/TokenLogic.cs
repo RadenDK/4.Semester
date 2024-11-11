@@ -14,7 +14,7 @@ namespace FoosballProLeague.Webserver.BusinessLogic
 
         public async Task<string> ValidateAndGetNewJwt(string jwt)
         {
-            HttpResponseMessage response = await _tokenService.ValidateJwt(jwt);
+            HttpResponseMessage response = await _tokenService.ValidateJwtAndGetNewJwt(jwt);
 
             string newAccessToken = await response.Content.ReadAsStringAsync();
 
