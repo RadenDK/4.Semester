@@ -4,6 +4,8 @@ using FoosballProLeague.Webserver.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,11 +38,18 @@ builder.Services.AddAuthentication("CookieAuth")
         options.LoginPath = "/Login"; // Redirect to login if not authenticated
     });
 
-// Add rate limiting services
-builder.Services.AddMemoryCache();
-builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
-builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
-builder.Services.AddInMemoryRateLimiting();
+// Add Rate limiting services
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("RatePolicy", confic =>
+    
+    {
+        confic.Window = TimeSpan.FromMinutes(1);
+        confic.PermitLimit = 100;
+        confic.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        confic.QueueLimit = 1;
+    });
+});
 
 var app = builder.Build();
 
@@ -58,10 +67,12 @@ app.UseStaticFiles();
 app.UseRouting();
 
 // Add rate limiting middleware
-app.UseIpRateLimiting();
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers().RequireRateLimiting("RatePolicy");
 
 app.MapControllerRoute(
     name: "default",

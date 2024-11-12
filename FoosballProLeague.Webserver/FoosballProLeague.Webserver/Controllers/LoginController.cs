@@ -58,6 +58,10 @@ public class LoginController : Controller
 
     public async Task<IActionResult> Logout()
     {
+        //Remove the access token from the client
+        Response.Cookies.Delete("accessToken");
+        
+        //Redirect to the login page
         return RedirectToAction("Login", "Login");
     }
 }
