@@ -66,7 +66,6 @@ namespace FoosballProLeague.Api.Controllers
         
         // Method to handle user login
         [HttpPost("login")]
-        
         public IActionResult LoginUser(UserLoginModel userLoginModel)
         {
             try
@@ -74,7 +73,8 @@ namespace FoosballProLeague.Api.Controllers
                 bool loginSucces = _userLogic.LoginUser(userLoginModel.Email, userLoginModel.Password);
                 if(loginSucces)
                 {
-                    return Ok(); // Return Ok if the user was logged in successfully
+                    UserModel user = _userLogic.GetUser(userLoginModel.Email);
+                    return Ok(user); // Return Ok if the user was logged in successfully
                 }
                 else
                 {

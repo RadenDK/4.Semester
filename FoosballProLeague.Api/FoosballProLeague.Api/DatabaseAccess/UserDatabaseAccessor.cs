@@ -36,7 +36,7 @@ public class UserDatabaseAccessor : DatabaseAccessor, IUserDatabaseAccessor
     {
         UserModel user = null;
 
-        string query = "SELECT email, password FROM Users WHERE email = @Email";
+        string query = "SELECT id, first_name, last_name, email, elo_1v1, elo_2v2, password FROM Users WHERE email = @Email";
 
         using (IDbConnection connection = GetConnection())
         {
