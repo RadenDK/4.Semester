@@ -1,3 +1,4 @@
+using AspNetCoreRateLimit;
 using FoosballProLeague.Webserver.BusinessLogic;
 using FoosballProLeague.Webserver.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -35,6 +36,11 @@ builder.Services.AddAuthentication("CookieAuth")
         options.LoginPath = "/Login"; // Redirect to login if not authenticated
     });
 
+// Add rate limiting services
+builder.Services.AddMemoryCache();
+builder.Services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+builder.Services.AddInMemoryRateLimiting();
 
 var app = builder.Build();
 
@@ -50,6 +56,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// Add rate limiting middleware
+app.UseIpRateLimiting();
 
 app.UseAuthentication();
 app.UseAuthorization();
