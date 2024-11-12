@@ -1,6 +1,8 @@
+using System.Threading.RateLimiting;
 using AspNetCoreRateLimit;
 using FoosballProLeague.Api.BusinessLogic;
 using FoosballProLeague.Api.DatabaseAccess;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,20 @@ builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IDepartmentDatabaseAccessor, DepartmentDatabaseAccessor>();
 
 builder.Services.AddScoped<ITokenLogic, TokenLogic>();
+
+// Add Rate limiting services
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("RatePolicy", confic =>
+    
+    {
+        confic.Window = TimeSpan.FromMinutes(1);
+        confic.PermitLimit = 100;
+        confic.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        confic.QueueLimit = 1;
+    });
+});
+
 
 // request rate liminting middleware
 builder.Services.AddMemoryCache();
@@ -42,7 +58,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Use rate limiting middleware
-app.UseIpRateLimiting();
+app.UseRateLimiter();
+app.MapControllers().RequireRateLimiting("RatePolicy");
 
 app.MapControllers();
 
