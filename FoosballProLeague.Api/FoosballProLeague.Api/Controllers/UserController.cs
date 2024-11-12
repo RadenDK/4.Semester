@@ -86,12 +86,12 @@ namespace FoosballProLeague.Api.Controllers
             }
         }
 
-        [HttpGet("user/userId/match-history")]
+        [HttpGet("{userId}/match-history")]
         public IActionResult GetMatchHistoryByUserId(int userId)
         {
             try
             {
-                IEnumerable<MatchHistoryModel> matchHistory = _userLogic.GetMatchHistoryByUserId(userId);
+                List<MatchHistoryModel> matchHistory = _userLogic.GetMatchHistoryByUserId(userId);
                 if (matchHistory == null || !matchHistory.Any())
                 {
                     return NotFound("No match history found for the provided user id");
