@@ -1,17 +1,21 @@
 ﻿using FoosballProLeague.Webserver.BusinessLogic;
 using FoosballProLeague.Webserver.Models;
+using FoosballProLeague.Webserver.Service;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http.Json;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FoosballProLeague.Webserver.Controllers
 {
     public class HomePageController : Controller
     {
         private readonly IHomePageLogic _homePageLogic;
+        private readonly LeaderboardService _leaderboardService;
 
-        public HomePageController(IHomePageLogic homePageLogic)
+        public HomePageController(IHomePageLogic homePageLogic, LeaderboardService leaderboardService)
         {
             _homePageLogic = homePageLogic;
+            _leaderboardService = leaderboardService;
         }
 
         [HttpGet("HomePage")]
@@ -37,8 +41,8 @@ namespace FoosballProLeague.Webserver.Controllers
         {
             try
             {
-                List<UserModel> users = await _homePageLogic.GetUsers(pageNumber, pageSize);
-                int totalUserCount = await _homePageLogic.GetTotalUserCount();
+                List<UserModel> users = await _leaderboardService.GetSortedLeaderboard(mode);
+                int totalUserCount = users.Count;
                 ViewBag.Mode = mode;
                 ViewBag.PageNumber = pageNumber;
                 ViewBag.PageSize = pageSize;

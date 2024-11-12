@@ -42,7 +42,7 @@ public class UserLogic : IUserLogic
                 {
                     if (_hubContext != null)
                     {
-                        UpdateLeaderboard().Wait();
+                        UpdateLeaderboard("1v1").Wait();
                     }
                     else
                     {
@@ -61,10 +61,9 @@ public class UserLogic : IUserLogic
     
     }
 
-    public async Task UpdateLeaderboard()
+    public async Task UpdateLeaderboard(string mode)
     {
-        List<UserModel> users = _userDatabaseAccessor.GetUsers();
-        List<UserModel> leaderboard = users.OrderByDescending(u => u.Elo1v1).ToList();
+        List<UserModel> leaderboard = GetSortedLeaderboard(mode);
         await _hubContext.Clients.All.SendAsync("ReceiveLeaderboardUpdate", leaderboard);
     }
     
@@ -196,5 +195,22 @@ public class UserLogic : IUserLogic
     private bool UpdateUserElo(int userId, int elo, bool is1v1)
     {
         return _userDatabaseAccessor.UpdateUserElo(userId, elo, is1v1);
+    }
+    
+    public List<UserModel> GetSortedLeaderboard(string mode)
+    {
+        List<UserModel> users = _userDatabaseAccessor.GetUsers();
+        if (mode == "1v1")
+        {
+            return users.OrderByDescending(u => u.Elo1v1).ToList();
+        }
+        else if (mode == "2v2")
+        {
+            return users.OrderByDescending(u => u.Elo2v2).ToList();
+        }
+        else
+        {
+            throw new ArgumentException("Invalid mode specified");
+        }
     }
 }

@@ -10,15 +10,15 @@
             .build();
 
         this.matchTimer = null;
-        this.matchStartTime = new Date(sessionStorage.getItem('matchStartTime')) || null; // Retrieve the match start time from session storage
+        this.matchStartTime = new Date(sessionStorage.getItem('matchStartTime')) || null;
         this.currentPageNumber = 1;
-        this.leaderboardData = [];
-        this.pageSize = 10; // Define pageSize as a constant
-        this.currentMatch = JSON.parse(sessionStorage.getItem('currentMatch')) || null; // Retrieve the current match state from session storage
+        this.pageSize = 10;
+        this.currentMatch = JSON.parse(sessionStorage.getItem('currentMatch')) || null;
+        this.currentMode = '1v1'; // Default mode
 
         this.initializeConnections();
-        this.updateMatchInfoFromStorage(); // Update match info from session storage on page load
-        this.updateMatchTimeFromStorage(); // Update match time from session storage on page load
+        this.updateMatchInfoFromStorage();
+        this.updateMatchTimeFromStorage();
     }
 
     async initializeConnections() {
@@ -54,12 +54,32 @@
         }
     }
 
+    async fetchLeaderboard(mode, pageNumber = 1) {
+        this.currentMode = mode; // Set the current mode
+
+        // Update active button styling
+        document.querySelectorAll('.elo-button').forEach(button => {
+            button.classList.remove('active');
+        });
+        document.querySelector(`.elo-button[data-mode="${mode}"]`).classList.add('active');
+
+        try {
+            const response = await fetch(`${this.apiUrl}api/User/leaderboard?mode=${mode}&pageNumber=${pageNumber}&pageSize=${this.pageSize}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const leaderboard = await response.json();
+            this.leaderboardData = leaderboard;
+            this.updateLeaderboard(pageNumber);
+        } catch (error) {
+            console.error('Error fetching leaderboard:', error);
+        }
+    }
+
     updateLeaderboard(pageNumber = 1) {
         this.currentPageNumber = pageNumber;
         const leaderboardBody = document.querySelector('#leaderboardBody');
         leaderboardBody.innerHTML = '';
-
-        this.leaderboardData.sort((a, b) => b.elo1v1 - a.elo1v1);
 
         const startIndex = (pageNumber - 1) * this.pageSize;
         const endIndex = startIndex + this.pageSize;
@@ -67,19 +87,19 @@
 
         paginatedLeaderboard.forEach((player, index) => {
             const rank = startIndex + index + 1;
+            const elo = this.currentMode === '1v1' ? player.elo1v1 : player.elo2v2;
             const row = `
             <tr>
                 <td>${rank}</td>
                 <td>${player.firstName} ${player.lastName}</td>
-                <td>${player.elo1v1}</td>
+                <td>${elo}</td>
             </tr>
-        `;
+            `;
             leaderboardBody.innerHTML += row;
         });
 
         this.updatePaginationControls(this.leaderboardData.length, this.pageSize, pageNumber);
 
-        // Re-render the current match info if available
         if (this.currentMatch) {
             this.updateMatchInfo(
                 this.currentMatch.teamRed,
@@ -106,7 +126,6 @@
             paginationContainer.innerHTML += `<a href="#" class="next-page">Next</a>`;
         }
 
-        // Remove existing event listeners before attaching new ones
         document.querySelector('.previous-page')?.removeEventListener('click', this.handlePreviousPageClick);
         document.querySelector('.next-page')?.removeEventListener('click', this.handleNextPageClick);
 
@@ -116,12 +135,12 @@
 
     handlePreviousPageClick(event) {
         event.preventDefault();
-        this.updateLeaderboard(this.currentPageNumber - 1);
+        this.fetchLeaderboard(this.currentMode, this.currentPageNumber - 1);
     }
 
     handleNextPageClick(event) {
         event.preventDefault();
-        this.updateLeaderboard(this.currentPageNumber + 1);
+        this.fetchLeaderboard(this.currentMode, this.currentPageNumber + 1);
     }
 
     handleMatchStart(isMatchStart, teamRed, teamBlue, redScore, blueScore) {
@@ -129,7 +148,7 @@
 
         if (isMatchStart) {
             this.matchStartTime = new Date();
-            sessionStorage.setItem('matchStartTime', this.matchStartTime.toISOString()); // Save the match start time to session storage
+            sessionStorage.setItem('matchStartTime', this.matchStartTime.toISOString());
             if (this.matchTimer) {
                 clearInterval(this.matchTimer);
             }
@@ -140,8 +159,8 @@
             }
         }
 
-        this.currentMatch = { teamRed, teamBlue, redScore, blueScore }; // Store the current match state
-        sessionStorage.setItem('currentMatch', JSON.stringify(this.currentMatch)); // Save the current match state to session storage
+        this.currentMatch = { teamRed, teamBlue, redScore, blueScore };
+        sessionStorage.setItem('currentMatch', JSON.stringify(this.currentMatch));
         this.updateMatchInfo(teamRed, teamBlue, redScore, blueScore);
     }
 
@@ -160,6 +179,11 @@
             blueScoreElement.textContent = blueScore;
         } else {
             console.error('Element for blue score not found.');
+        }
+
+        // Check if either team has scored 10 goals
+        if (redScore >= 10 || blueScore >= 10) {
+            this.handleMatchEnd(false);
         }
     }
 
@@ -180,6 +204,11 @@
     }
 
     updateMatchTime() {
+        if (!this.matchStartTime) {
+            document.querySelector(".match-time").textContent = "";
+            return;
+        }
+
         const now = new Date();
         const elapsedTime = Math.floor((now - this.matchStartTime) / 1000);
         const minutes = Math.floor(elapsedTime / 60);
@@ -191,6 +220,7 @@
         if (!isMatchStart) {
             if (this.matchTimer) {
                 clearInterval(this.matchTimer);
+                this.matchTimer = null;
             }
             document.querySelector(".match-time").textContent = "";
 
@@ -199,9 +229,9 @@
             document.querySelector(".match-score .score:nth-child(1)").textContent = "0";
             document.querySelector(".match-score .score:nth-child(3)").textContent = "0";
 
-            this.currentMatch = null; // Clear the current match state
-            sessionStorage.removeItem('currentMatch'); // Remove the current match state from session storage
-            sessionStorage.removeItem('matchStartTime'); // Remove the match start time from session storage
+            this.currentMatch = null;
+            sessionStorage.removeItem('currentMatch');
+            sessionStorage.removeItem('matchStartTime');
         }
     }
 
@@ -217,8 +247,10 @@
     }
 
     updateMatchTimeFromStorage() {
-        if (this.matchStartTime) {
+        if (this.currentMatch && this.matchStartTime && !isNaN(this.matchStartTime.getTime())) {
             this.matchTimer = setInterval(() => this.updateMatchTime(), 1000);
+        } else {
+            document.querySelector(".match-time").textContent = "";
         }
     }
 }
@@ -235,5 +267,6 @@ fetch('/config/url')
         console.log("Config: ", config);
         const apiUrl = config.apiUrl;
         const foosballProLeague = new FoosballProLeague(apiUrl);
+        foosballProLeague.fetchLeaderboard('1v1'); // Fetch initial leaderboard
     })
     .catch(error => console.error('Error fetching configuration:', error));

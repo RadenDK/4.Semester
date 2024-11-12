@@ -86,6 +86,20 @@ namespace FoosballProLeague.Api.Controllers
                 return StatusCode(500, new { message = "An error occurred while logging in the user" });
             }
         }
+        
+        [HttpGet("leaderboard")]
+        public IActionResult GetSortedLeaderboard([FromQuery] string mode)
+        {
+            try
+            {
+                List<UserModel> leaderboard = _userLogic.GetSortedLeaderboard(mode);
+                return Ok(leaderboard);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
     
     

@@ -42,7 +42,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.SignalRT
             // Act: Call the method to be tested
 
             // Call the UpdateLeaderboard method to trigger the leaderboard update
-            await userLogic.UpdateLeaderboard();
+            await userLogic.UpdateLeaderboard("1v1");
 
             // Assert: Verify the expected outcomes
 

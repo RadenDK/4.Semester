@@ -1,3 +1,4 @@
+using FoosballProLeague.Api.BusinessLogic;
 using FoosballProLeague.Api.Models;
 using FoosballProLeague.Api.Models.FoosballModels;
 using Microsoft.AspNetCore.SignalR;
@@ -6,10 +7,17 @@ namespace FoosballProLeague.Api.Hubs;
 
     public class HomepageHub : Hub
     {
-        // Methods from LeaderboardHub
-        public async Task UpdateLeaderboard(List<UserModel> leaderboard)
+        private readonly IUserLogic _userLogic;
+
+        
+        public HomepageHub(IUserLogic userLogic)
         {
-            await Clients.All.SendAsync("ReceiveLeaderboardUpdate", leaderboard);
+            _userLogic = userLogic;
+        }
+        // Methods from LeaderboardHub
+        public async Task UpdateLeaderboard(string mode)
+        {
+            await _userLogic.UpdateLeaderboard(mode);
         }
 
         // Methods from MatchHub

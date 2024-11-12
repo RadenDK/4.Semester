@@ -23,7 +23,8 @@ builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<ILoginLogic, LoginLogic>();
 
 // Leaderboard services
-builder.Services.AddHostedService<LeaderboardService>();
+builder.Services.AddSingleton<LeaderboardService>();
+
 
 
 builder.Services.AddCors(options =>
