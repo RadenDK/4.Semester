@@ -9,16 +9,16 @@ namespace FoosballProLeague.Api.DatabaseAccess;
 
 public class UserDatabaseAccessor : DatabaseAccessor, IUserDatabaseAccessor
 {
-    
+
     public UserDatabaseAccessor(IConfiguration configuration) : base(configuration)
     {
     }
-    
+
     // method to create user for registration
     public bool CreateUser(UserRegistrationModel newUserWithHashedPassword)
     {
         bool userInserted = false;
-        
+
         string query = @"INSERT INTO users (first_name, last_name, email, password, department_Id, company_Id, elo_1v1, elo_2v2)
                         VALUES (@FirstName, @LastName, @Email, @Password, @DepartmentId, @CompanyId, @Elo1v1, @Elo2v2)";
 
@@ -51,7 +51,7 @@ public class UserDatabaseAccessor : DatabaseAccessor, IUserDatabaseAccessor
         UserModel user = null;
 
         string query = "SELECT id AS Id, first_name AS FirstName, last_name AS LastName, email AS Email, password AS Password, elo_1v1 AS Elo1v1, elo_2v2 AS Elo2v2 FROM Users WHERE id = @userId";
-        
+
         using (IDbConnection connection = GetConnection())
         {
             connection.Open();
@@ -100,36 +100,40 @@ public class UserDatabaseAccessor : DatabaseAccessor, IUserDatabaseAccessor
     {
         string query = @"
 SELECT
-    fm.id AS MatchId,
-    fm.team_red_score AS TeamRedScore,
-    fm.team_blue_score AS TeamBlueScore,
+    fm.id,
+    fm.team_red_score AS RedTeamScore,
+    fm.team_blue_score AS BlueTeamScore,
     TO_CHAR(fm.end_time, 'YYYY-MM-DD HH24:MI:SS') AS EndTime,
 
     -- Red Team Details
-    red_team.id AS RedTeamId,
-    red_team.player1_id AS RedPlayer1Id,
-    red_team.player2_id AS RedPlayer2Id,
-    u1.first_name AS RedPlayer1FirstName,
-    u1.last_name AS RedPlayer1LastName,
-    u1.elo_1v1 AS RedPlayer1Elo1v1,
-    u1.elo_2v2 AS RedPlayer1Elo2v2,
-    u2.first_name AS RedPlayer2FirstName,
-    u2.last_name AS RedPlayer2LastName,
-    u2.elo_1v1 AS RedPlayer2Elo1v1,
-    u2.elo_2v2 AS RedPlayer2Elo2v2,
+    red_team.id AS Id,
+    red_team.player1_id AS RedUser1Id,
+    red_team.player2_id AS RedUser2Id,
+    u1.id AS RedUser1Id,
+    u1.first_name,
+    u1.last_name,
+    u1.elo_1v1,
+    u1.elo_2v2,
+    u2.id AS RedUser2Id,
+    u2.first_name,
+    u2.last_name,
+    u2.elo_1v1,
+    u2.elo_2v2,
 
     -- Blue Team Details
-    blue_team.id AS BlueTeamId,
-    blue_team.player1_id AS BluePlayer1Id,
-    blue_team.player2_id AS BluePlayer2Id,
-    u3.first_name AS BluePlayer1FirstName,
-    u3.last_name AS BluePlayer1LastName,
-    u3.elo_1v1 AS BluePlayer1Elo1v1,
-    u3.elo_2v2 AS BluePlayer1Elo2v2,
-    u4.first_name AS BluePlayer2FirstName,
-    u4.last_name AS BluePlayer2LastName,
-    u4.elo_1v1 AS BluePlayer2Elo1v1,
-    u4.elo_2v2 AS BluePlayer2Elo2v2
+    blue_team.id AS Id,
+    blue_team.player1_id AS BlueUser1Id,
+    blue_team.player2_id AS BlueUser2Id,
+    u3.id AS BlueUser1Id,
+    u3.first_name,
+    u3.last_name,
+    u3.elo_1v1,
+    u3.elo_2v2,
+    u4.id AS BlueUser2Id,
+    u4.first_name,
+    u4.last_name,
+    u4.elo_1v1,
+    u4.elo_2v2
 FROM
     foosball_matches fm
         JOIN teams AS red_team ON fm.red_team_id = red_team.id
@@ -144,16 +148,22 @@ WHERE
 
         using (IDbConnection connection = GetConnection())
         {
-            var matches = connection.Query<MatchHistoryModel, TeamModel, TeamModel, MatchHistoryModel>(
+            IEnumerable<MatchHistoryModel> matches = connection.Query<MatchHistoryModel, TeamModel, UserModel, UserModel, TeamModel, UserModel, UserModel, MatchHistoryModel>(
                 query,
-                (match, redTeam, blueTeam) =>
+                (match, redTeam, redUser1, redUser2, blueTeam, blueUser1, blueUser2) =>
                 {
                     match.RedTeam = redTeam;
                     match.BlueTeam = blueTeam;
+
+                    match.RedTeam.User1 = redUser1;
+                    match.RedTeam.User2 = redUser2;
+                    match.BlueTeam.User1 = blueUser1;
+                    match.BlueTeam.User2 = blueUser2;
+
                     return match;
                 },
-                new { userId },
-                splitOn: "RedTeamId,BlueTeamId"
+                new { UserId = userId },
+                splitOn: "Id,RedUser1Id,RedUser2Id,Id,BlueUser1Id,BlueUser2Id"
             );
 
             return matches.ToList();
