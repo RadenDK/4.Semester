@@ -128,12 +128,12 @@ namespace FoosballProLeague.Api.DatabaseAccess
 
         public int CreateMatch(int tableId, int redTeamId, int blueTeamId, bool? validEloMatch = null)
         {
-            string query = "INSERT INTO foosball_matches (table_id, red_team_id, blue_team_id) VALUES (@TableId, @RedTeamId, @BlueTeamId) RETURNING id";
+            string query = "INSERT INTO foosball_matches (table_id, red_team_id, blue_team_id, valid_elo_match) VALUES (@TableId, @RedTeamId, @BlueTeamId, @ValidEloMatch) RETURNING id";
 
             using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
-                int matchId = connection.QuerySingle<int>(query, new { TableId = tableId, RedTeamId = redTeamId, BlueTeamId = blueTeamId });
+                int matchId = connection.QuerySingle<int>(query, new { TableId = tableId, RedTeamId = redTeamId, BlueTeamId = blueTeamId, ValidEloMatch = validEloMatch });
                 return matchId;
             }
         }
