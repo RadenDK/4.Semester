@@ -2,7 +2,7 @@
     constructor(apiUrl) {
         this.apiUrl = apiUrl;
         this.homepageConnection = new signalR.HubConnectionBuilder()
-            .withUrl(`${this.apiUrl}homepageHub`, {
+            .withUrl(`${this.apiUrl}homepagehub`, {
                 transport: signalR.HttpTransportType.WebSockets,
                 withCredentials: true
             })
@@ -14,7 +14,7 @@
         this.currentPageNumber = 1;
         this.pageSize = 10;
         this.currentMatch = JSON.parse(sessionStorage.getItem('currentMatch')) || null;
-        this.currentMode = '1v1'; // Default mode
+        this.currentMode = '1v1'; // default mode
 
         this.initializeConnections();
         this.updateMatchInfoFromStorage();
@@ -47,29 +47,21 @@
     async startConnection(connection) {
         try {
             await connection.start();
-            console.log("SignalR Connected.");
+            console.log("SignalR connected.");
         } catch (err) {
             console.error("Error establishing SignalR connection: ", err);
             setTimeout(() => this.startConnection(connection), 5000);
         }
     }
 
-    async fetchLeaderboard(mode, pageNumber = 1) {
-        this.currentMode = mode; // Set the current mode
-
-        // Update active button styling
-        document.querySelectorAll('.elo-button').forEach(button => {
-            button.classList.remove('active');
-        });
-        document.querySelector(`.elo-button[data-mode="${mode}"]`).classList.add('active');
-
+    async fetchLeaderboard(mode, pageNumber) {
         try {
-            const response = await fetch(`${this.apiUrl}api/User/leaderboard?mode=${mode}&pageNumber=${pageNumber}&pageSize=${this.pageSize}`);
+            const response = await fetch(`/HomePage/GetUsers?mode=${mode}&pageNumber=${pageNumber}&pageSize=${this.pageSize}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const leaderboard = await response.json();
-            this.leaderboardData = leaderboard;
+            const users = await response.json();
+            this.leaderboardData = users;
             this.updateLeaderboard(pageNumber);
         } catch (error) {
             console.error('Error fetching leaderboard:', error);
@@ -267,6 +259,6 @@ fetch('/config/url')
         console.log("Config: ", config);
         const apiUrl = config.apiUrl;
         const foosballProLeague = new FoosballProLeague(apiUrl);
-        foosballProLeague.fetchLeaderboard('1v1'); // Fetch initial leaderboard
+        foosballProLeague.fetchLeaderboard('1v1'); // fetch initial leaderboard
     })
     .catch(error => console.error('Error fetching configuration:', error));
