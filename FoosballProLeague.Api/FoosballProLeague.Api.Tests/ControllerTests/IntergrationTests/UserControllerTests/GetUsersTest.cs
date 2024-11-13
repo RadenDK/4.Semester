@@ -26,7 +26,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
         }
 
         [Fact]
-        public void GetUsers_ReturnsAllUsers()
+        public void GetLeaderboards_ReturnsAllUsers()
         {
             // Arrange: Insert test data into the database
             string insertQuery = @"
@@ -36,15 +36,22 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
             _dbHelper.InsertData(insertQuery);
 
             // Act: Call the GetUsers method
-            OkObjectResult result = _userController.GetUsers() as OkObjectResult;
-            List<UserModel> users = result?.Value as List<UserModel>;
+            OkObjectResult result = _userController.GetLeaderboards() as OkObjectResult;
+            Dictionary<string, List<UserModel>> leaderboards = result?.Value as Dictionary<string, List<UserModel>>;
 
             // Assert: Verify the results
-            Assert.NotNull(users);
-            Assert.Equal(2, users.Count);
+            Assert.NotNull(leaderboards);
+            Assert.Equal(2, leaderboards.Count);
 
-            UserModel user1 = users.Find(u => u.Email == "john.doe@example.com");
-            UserModel user2 = users.Find(u => u.Email == "jane.smith@example.com");
+            List<UserModel> users1v1 = leaderboards["1v1"];
+            List<UserModel> users2v2 = leaderboards["2v2"];
+
+            Assert.Equal(2, users1v1.Count);
+            Assert.Equal(2, users2v2.Count);
+
+            UserModel user1 = users1v1.Find(u => u.Email == "john.doe@example.com");
+            UserModel user2 = users1v1.Find(u => u.Email == "jane.smith@example.com");
+
 
             Assert.NotNull(user1);
             Assert.Equal("John", user1.FirstName);
@@ -60,18 +67,19 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
         }
 
         [Fact]
-        public void GetUsers_ReturnsEmptyList_WhenNoUsersExist()
+        public void GetLeaderboards_ReturnsEmptyList_WhenNoUsersExist()
         {
             // Arrange: Ensure the database is empty
             _dbHelper.ClearDatabase();
 
             // Act: Call the GetUsers method
-            OkObjectResult result = _userController.GetUsers() as OkObjectResult;
-            List<UserModel> users = result?.Value as List<UserModel>;
+            OkObjectResult result = _userController.GetLeaderboards() as OkObjectResult;
+            Dictionary<string, List<UserModel>> leaderboards = result?.Value as Dictionary<string, List<UserModel>>;
 
             // Assert: Verify the results
-            Assert.NotNull(users);
-            Assert.Empty(users);
+            Assert.NotNull(leaderboards);
+            Assert.Empty(leaderboards["1v1"]);
+            Assert.Empty(leaderboards["2v2"]);
         }
     }
 }
