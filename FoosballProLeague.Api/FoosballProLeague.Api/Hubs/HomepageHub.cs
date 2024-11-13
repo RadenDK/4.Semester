@@ -7,18 +7,11 @@ namespace FoosballProLeague.Api.Hubs;
 
     public class HomepageHub : Hub
     {
-        private readonly IUserLogic _userLogic;
-
-        
-        public HomepageHub(IUserLogic userLogic)
-        {
-            _userLogic = userLogic;
-        }
         // Methods from LeaderboardHub
-        public async Task UpdateLeaderboard(string mode)
+        public async Task UpdateLeaderboard(List<UserModel> leaderboard)
         {
-            await _userLogic.UpdateLeaderboard(mode);
-        }
+        await Clients.All.SendAsync("ReceiveLeaderboardUpdate", leaderboard);
+    }
 
         // Methods from MatchHub
         public async Task NotifyMatchEnd(bool isMatchStart)
