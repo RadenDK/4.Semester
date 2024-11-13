@@ -165,8 +165,8 @@ namespace FoosballProLeague.Api.BusinessLogic
 
         private bool IsValidEloMatch(TeamModel redTeam, TeamModel blueTeam)
         {
-            bool is1v1 = redTeam.User2 == null && blueTeam.User2 == null;
-            bool is2v2 = redTeam.User2 != null && blueTeam.User2 != null;
+            bool is1v1 = redTeam.User2.Id == null && blueTeam.User2.Id == null;
+            bool is2v2 = redTeam.User2.Id != null && blueTeam.User2.Id != null;
             
             return is1v1 || is2v2;
         }
