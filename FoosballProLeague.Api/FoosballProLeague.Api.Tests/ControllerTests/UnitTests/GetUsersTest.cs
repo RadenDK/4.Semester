@@ -33,16 +33,16 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.UnitTests
         }
 
         [Fact]
-        public void GetUsers_ReturnsBadRequest_WhenExceptionThrown()
+        public void GetLeaderboards_ReturnsBadRequest_WhenExceptionThrown()
         {
             // Arrange: Create a mock of IUserLogic that throws an exception
             Mock<IUserLogic> mockUserLogic = new Mock<IUserLogic>();
-            mockUserLogic.Setup(logic => logic.GetUsers()).Throws(new Exception("Test exception"));
+            mockUserLogic.Setup(logic => logic.GetLeaderboards()).Throws(new Exception("Test exception"));
 
             UserController controller = new UserController(mockUserLogic.Object);
 
             // Act: Call the GetUsers method
-            BadRequestObjectResult result = controller.GetUsers() as BadRequestObjectResult;
+            BadRequestObjectResult result = controller.GetLeaderboards() as BadRequestObjectResult;
 
             // Assert: Verify the results
             Assert.NotNull(result);
