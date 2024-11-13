@@ -66,7 +66,35 @@ public class UserLogic : IUserLogic
         List<UserModel> leaderboard = GetSortedLeaderboard(mode);
         await _hubContext.Clients.All.SendAsync("ReceiveLeaderboardUpdate", leaderboard);
     }
-    
+
+    public List<UserModel> GetSortedLeaderboard(string mode)
+    {
+        List<UserModel> users = _userDatabaseAccessor.GetUsers();
+        if (mode == "1v1")
+        {
+            return users.OrderByDescending(u => u.Elo1v1).ToList();
+        }
+        else if (mode == "2v2")
+        {
+            return users.OrderByDescending(u => u.Elo2v2).ToList();
+        }
+        else
+        {
+            throw new ArgumentException("Invalid mode specified");
+        }
+    }
+
+    // New method to get both 1v1 and 2v2 leaderboards
+    public Dictionary<string, List<UserModel>> GetLeaderboards()
+    {
+        Dictionary<string, List<UserModel>> leaderboards = new Dictionary<string, List<UserModel>>
+        {
+            { "1v1", GetSortedLeaderboard("1v1") },
+            { "2v2", GetSortedLeaderboard("2v2") }
+        };
+        return leaderboards;
+    }
+
     // checks if the account has values
     private bool AccountHasValues(UserRegistrationModel newUser)
     {
@@ -174,6 +202,24 @@ public class UserLogic : IUserLogic
             int newElo = CalculateNewElo(is1v1 ? user.Elo1v1 : user.Elo2v2, redTeamElo, !redTeamWon);
             UpdateUserElo(user.Id, newElo, is1v1);
         }
+
+        // Notify clients about the leaderboard update
+        try
+        {
+            if (_hubContext != null)
+            {
+                UpdateLeaderboard(is1v1 ? "1v1" : "2v2").Wait();
+            }
+            else
+            {
+                throw new NullReferenceException("HubContext is not initialized.");
+            }
+        }
+        catch (AggregateException ex)
+        {
+            // Handle the exception
+            throw ex.Flatten().InnerException;
+        }
     }
     
     private int CalculateNewElo(int userElo, int opponentElo, bool won)
@@ -195,22 +241,5 @@ public class UserLogic : IUserLogic
     private bool UpdateUserElo(int userId, int elo, bool is1v1)
     {
         return _userDatabaseAccessor.UpdateUserElo(userId, elo, is1v1);
-    }
-    
-    public List<UserModel> GetSortedLeaderboard(string mode)
-    {
-        List<UserModel> users = _userDatabaseAccessor.GetUsers();
-        if (mode == "1v1")
-        {
-            return users.OrderByDescending(u => u.Elo1v1).ToList();
-        }
-        else if (mode == "2v2")
-        {
-            return users.OrderByDescending(u => u.Elo2v2).ToList();
-        }
-        else
-        {
-            throw new ArgumentException("Invalid mode specified");
-        }
     }
 }

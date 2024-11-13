@@ -13,6 +13,7 @@ public interface IUserLogic
     public UserModel GetUserById(int userId);
     Task UpdateLeaderboard(string mode);
     public void UpdateTeamElo(TeamModel redTeam, TeamModel blueTeam, bool redTeamWon, bool is1v1);
-    List<UserModel> GetSortedLeaderboard(string mode); 
+    List<UserModel> GetSortedLeaderboard(string mode);
+    public Dictionary<string, List<UserModel>> GetLeaderboards();
 
 }
