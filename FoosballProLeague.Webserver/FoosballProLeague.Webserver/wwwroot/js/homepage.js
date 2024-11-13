@@ -55,51 +55,48 @@
     }
 
     async fetchLeaderboard(mode, pageNumber) {
+        if (!pageNumber) {
+            pageNumber = this.currentPageNumber; // Use currentPageNumber if pageNumber is not provided
+        }
+        const url = `/api/User?mode=${mode}&pageNumber=${pageNumber}&pageSize=${this.pageSize}`;
+
         try {
-            const response = await fetch(`/HomePage/GetUsers?mode=${mode}&pageNumber=${pageNumber}&pageSize=${this.pageSize}`);
+            const response = await fetch(url);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const users = await response.json();
-            this.leaderboardData = users;
+
+            const data = await response.json(); 
+            this.leaderboardData = data.users;
             this.updateLeaderboard(pageNumber);
+            this.updatePaginationControls(data.totalUserCount, this.pageSize, pageNumber); 
         } catch (error) {
             console.error('Error fetching leaderboard:', error);
         }
     }
+
 
     updateLeaderboard(pageNumber = 1) {
         this.currentPageNumber = pageNumber;
         const leaderboardBody = document.querySelector('#leaderboardBody');
         leaderboardBody.innerHTML = '';
 
-        const startIndex = (pageNumber - 1) * this.pageSize;
-        const endIndex = startIndex + this.pageSize;
-        const paginatedLeaderboard = this.leaderboardData.slice(startIndex, endIndex);
+        const paginatedLeaderboard = this.leaderboardData;
 
         paginatedLeaderboard.forEach((player, index) => {
-            const rank = startIndex + index + 1;
+            const rank = (pageNumber - 1) * this.pageSize + index + 1;
             const elo = this.currentMode === '1v1' ? player.elo1v1 : player.elo2v2;
             const row = `
-            <tr>
-                <td>${rank}</td>
-                <td>${player.firstName} ${player.lastName}</td>
-                <td>${elo}</td>
-            </tr>
-            `;
+        <tr>
+            <td>${rank}</td>
+            <td>${player.firstName} ${player.lastName}</td>
+            <td>${elo}</td>
+        </tr>
+        `;
             leaderboardBody.innerHTML += row;
         });
 
         this.updatePaginationControls(this.leaderboardData.length, this.pageSize, pageNumber);
-
-        if (this.currentMatch) {
-            this.updateMatchInfo(
-                this.currentMatch.teamRed,
-                this.currentMatch.teamBlue,
-                this.currentMatch.redScore,
-                this.currentMatch.blueScore
-            );
-        }
     }
 
     updatePaginationControls(totalItems, pageSize, pageNumber) {
@@ -118,21 +115,29 @@
             paginationContainer.innerHTML += `<a href="#" class="next-page">Next</a>`;
         }
 
-        document.querySelector('.previous-page')?.removeEventListener('click', this.handlePreviousPageClick);
-        document.querySelector('.next-page')?.removeEventListener('click', this.handleNextPageClick);
+        // Re-attach event listeners
+        const previousPageButton = document.querySelector('.previous-page');
+        const nextPageButton = document.querySelector('.next-page');
 
-        document.querySelector('.previous-page')?.addEventListener('click', this.handlePreviousPageClick.bind(this));
-        document.querySelector('.next-page')?.addEventListener('click', this.handleNextPageClick.bind(this));
+        if (previousPageButton) {
+            previousPageButton.addEventListener('click', this.handlePreviousPageClick.bind(this));
+        }
+
+        if (nextPageButton) {
+            nextPageButton.addEventListener('click', this.handleNextPageClick.bind(this));
+        }
     }
 
     handlePreviousPageClick(event) {
         event.preventDefault();
-        this.fetchLeaderboard(this.currentMode, this.currentPageNumber - 1);
+        this.currentPageNumber -= 1; // Update currentPageNumber
+        this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
     }
 
     handleNextPageClick(event) {
         event.preventDefault();
-        this.fetchLeaderboard(this.currentMode, this.currentPageNumber + 1);
+        this.currentPageNumber += 1; // Update currentPageNumber
+        this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
     }
 
     handleMatchStart(isMatchStart, teamRed, teamBlue, redScore, blueScore) {
