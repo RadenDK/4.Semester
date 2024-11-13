@@ -10,12 +10,10 @@ namespace FoosballProLeague.Webserver.Controllers
     public class HomePageController : Controller
     {
         private readonly IHomePageLogic _homePageLogic;
-        private readonly LeaderboardService _leaderboardService;
 
-        public HomePageController(IHomePageLogic homePageLogic, LeaderboardService leaderboardService)
+        public HomePageController(IHomePageLogic homePageLogic)
         {
             _homePageLogic = homePageLogic;
-            _leaderboardService = leaderboardService;
         }
 
         [HttpGet("HomePage")]
@@ -41,8 +39,8 @@ namespace FoosballProLeague.Webserver.Controllers
         {
             try
             {
-                List<UserModel> users = await _leaderboardService.GetSortedLeaderboard(mode);
-                int totalUserCount = users.Count;
+                List<UserModel> users = await _homePageLogic.GetLeaderboards(mode, pageNumber, pageSize);
+                int totalUserCount = await _homePageLogic.GetTotalUserCount(mode);
                 ViewBag.Mode = mode;
                 ViewBag.PageNumber = pageNumber;
                 ViewBag.PageSize = pageSize;
