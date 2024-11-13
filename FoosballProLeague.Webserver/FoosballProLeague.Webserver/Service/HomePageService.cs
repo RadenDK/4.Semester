@@ -13,13 +13,13 @@ namespace FoosballProLeague.Webserver.Service
         }
 
 
-        public async Task<List<UserModel>> GetUsers()
+        public async Task<Dictionary<string, List<UserModel>>> GetLeaderboards()
         {
             HttpResponseMessage response = await _httpClientService.GetAsync("/api/User");
             if (response.IsSuccessStatusCode)
             {
                 string responseBody = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<UserModel>>(responseBody);
+                return JsonSerializer.Deserialize<Dictionary<string, List<UserModel>>>(responseBody);
             }
             else
             {
