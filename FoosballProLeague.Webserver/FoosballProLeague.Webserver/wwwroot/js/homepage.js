@@ -19,6 +19,35 @@
         this.initializeConnections();
         this.updateMatchInfoFromStorage();
         this.updateMatchTimeFromStorage();
+        this.initializeEventListeners();
+    }
+    initializeEventListeners() {
+        document.querySelector('.elo-button[data-mode="2v2"]').addEventListener('click', (event) => {
+            event.preventDefault();
+            this.currentMode = '2v2';
+            this.currentPageNumber = 1; // Reset to first page
+            const url = `/HomePage/2v2?pageNumber=${this.currentPageNumber}`;
+            window.history.pushState({ path: url }, '', url); // Update the URL
+            this.updateActiveButton();
+            this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
+        });
+
+        document.querySelector('.elo-button[data-mode="1v1"]').addEventListener('click', (event) => {
+            event.preventDefault();
+            this.currentMode = '1v1';
+            this.currentPageNumber = 1; // Reset to first page
+            const url = `/HomePage/1v1?pageNumber=${this.currentPageNumber}`;
+            window.history.pushState({ path: url }, '', url); // Update the URL
+            this.updateActiveButton();
+            this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
+        });
+    }
+
+    updateActiveButton() {
+        document.querySelectorAll('.elo-button').forEach(button => {
+            button.classList.remove('active');
+        });
+        document.querySelector(`.elo-button[data-mode="${this.currentMode}"]`).classList.add('active');
     }
 
     async initializeConnections() {
@@ -58,7 +87,7 @@
         if (!pageNumber) {
             pageNumber = this.currentPageNumber; // Use currentPageNumber if pageNumber is not provided
         }
-        const url = `/api/User?mode=${mode}&pageNumber=${pageNumber}&pageSize=${this.pageSize}`;
+        const url = `/api/User?mode=${mode}&pageNumber=${pageNumber}`;
 
         try {
             const response = await fetch(url);
@@ -66,10 +95,10 @@
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            const data = await response.json(); 
+            const data = await response.json();
             this.leaderboardData = data.users;
             this.updateLeaderboard(pageNumber);
-            this.updatePaginationControls(data.totalUserCount, this.pageSize, pageNumber); 
+            this.updatePaginationControls(data.totalUserCount, this.pageSize, pageNumber);
         } catch (error) {
             console.error('Error fetching leaderboard:', error);
         }
@@ -131,15 +160,18 @@
     handlePreviousPageClick(event) {
         event.preventDefault();
         this.currentPageNumber -= 1; // Update currentPageNumber
+        const url = `/HomePage/${this.currentMode}?pageNumber=${this.currentPageNumber}`;
+        window.history.pushState({ path: url }, '', url); // Update the URL
         this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
     }
 
     handleNextPageClick(event) {
         event.preventDefault();
         this.currentPageNumber += 1; // Update currentPageNumber
+        const url = `/HomePage/${this.currentMode}?pageNumber=${this.currentPageNumber}`;
+        window.history.pushState({ path: url }, '', url); // Update the URL
         this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
     }
-
     handleMatchStart(isMatchStart, teamRed, teamBlue, redScore, blueScore) {
         console.log("ReceiveMatchStart called with data:", { isMatchStart, teamRed, teamBlue, redScore, blueScore });
 
