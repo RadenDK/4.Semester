@@ -22,9 +22,6 @@ builder.Services.AddScoped<IHomePageService, HomePageService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<ILoginLogic, LoginLogic>();
 
-// Leaderboard services
-builder.Services.AddSingleton<LeaderboardService>();
-
 
 
 builder.Services.AddCors(options =>
