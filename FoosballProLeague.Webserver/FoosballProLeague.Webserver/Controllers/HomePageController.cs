@@ -53,5 +53,20 @@ namespace FoosballProLeague.Webserver.Controllers
                 return View("HomePage", new List<UserModel>());
             }
         }
+        
+        [HttpGet("api/User")]
+        public async Task<IActionResult> GetUsersJson(string mode, int pageNumber = 1, int pageSize = 10)
+        {
+            try
+            {
+                List<UserModel> users = await _homePageLogic.GetLeaderboards(mode, pageNumber, pageSize);
+                int totalUserCount = await _homePageLogic.GetTotalUserCount(mode);
+                return Json(new { users, totalUserCount });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
     }
 }
