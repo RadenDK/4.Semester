@@ -1,5 +1,8 @@
+using System.Threading.RateLimiting;
+using AspNetCoreRateLimit;
 using FoosballProLeague.Api.BusinessLogic;
 using FoosballProLeague.Api.DatabaseAccess;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,12 +10,32 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddScoped<ICompanyLogic, CompanyLogic>();
 builder.Services.AddScoped<ICompanyDatabaseAccessor, CompanyDatabaseAccessor>();
+
 builder.Services.AddScoped<IUserLogic, UserLogic>();
 builder.Services.AddScoped<IUserDatabaseAccessor, UserDatabaseAccessor>();
+
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IDepartmentDatabaseAccessor, DepartmentDatabaseAccessor>();
 builder.Services.AddScoped<IMatchLogic, MatchLogic>();
 builder.Services.AddScoped<IMatchDatabaseAccessor, MatchDatabaseAccessor>();
+
+builder.Services.AddScoped<ITokenLogic, TokenLogic>();
+
+// Add Rate limiting services
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("RatePolicy", confic =>
+    
+    {
+        confic.Window = TimeSpan.FromMinutes(1);
+        confic.PermitLimit = 100;
+        confic.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        confic.QueueLimit = 1;
+    });
+});
+
+
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -31,7 +54,12 @@ app.UseCors("CorsPolicy");
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
+// Use rate limiting middleware
+app.UseRateLimiter();
+app.MapControllers().RequireRateLimiting("RatePolicy");
 
 app.MapControllers();
 

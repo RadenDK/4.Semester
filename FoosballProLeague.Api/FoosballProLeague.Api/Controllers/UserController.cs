@@ -8,13 +8,16 @@ namespace FoosballProLeague.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ApiKeyAuthorize]
     public class UserController : Controller
     {
         private IUserLogic _userLogic;
-        
-        public UserController(IUserLogic userLogic)
+        private ITokenLogic _tokenLogic;
+
+        public UserController(IUserLogic userLogic, ITokenLogic tokenLogic)
         {
             _userLogic = userLogic;
+            _tokenLogic = tokenLogic;
         }
         
         // method to handle registration of a new user (create user)
@@ -74,7 +77,9 @@ namespace FoosballProLeague.Api.Controllers
                 bool loginSucces = _userLogic.LoginUser(userLoginModel.Email, userLoginModel.Password);
                 if(loginSucces)
                 {
-                    return Ok(); // Return Ok if the user was logged in successfully
+                    // Since the login was successful, generate a JWT for the user
+                    string jwt = _tokenLogic.GenerateJWT();
+                    return Ok(jwt); // Return Ok if the user was logged in successfully and the JWT was generated
                 }
                 else
                 {
@@ -83,6 +88,36 @@ namespace FoosballProLeague.Api.Controllers
             } catch (Exception e)
             {
                 return StatusCode(500, new { message = "An error occurred while logging in the user" });
+            }
+        }
+
+        // Method to validate user JWT and generate a new JWT on every request
+        [HttpGet("token/validate")]
+        public IActionResult ValidateUserJWT()
+        {
+            try
+            {
+                if (!Request.Headers.ContainsKey("Authorization"))
+                {
+                    return Unauthorized("No JWT token found in the request");
+                }
+
+                string authorizationHeader = Request.Headers["Authorization"];
+
+                if (_tokenLogic.ValidateJWT(authorizationHeader))
+                {
+                    string newJwt = _tokenLogic.GenerateJWT();
+
+                    return Ok(newJwt);
+                }
+                else
+                {
+                    return Unauthorized("JWT token is not valid");
+                }
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { message = "An error occurred while validating the user" });
             }
         }
     }

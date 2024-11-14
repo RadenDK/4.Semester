@@ -28,13 +28,15 @@ public class LoginTest
         Mock<IUserLogic> _mockUserLogic = new Mock<IUserLogic>(); ;
         _mockUserLogic.Setup(logic => logic.LoginUser(validEmail, validPassword)).Returns(true);
 
-        UserController SUT = new UserController(_mockUserLogic.Object);
+        Mock<ITokenLogic> _mockTokenLogic = new Mock<ITokenLogic>();
+
+        UserController SUT = new UserController(_mockUserLogic.Object, _mockTokenLogic.Object);
 
         // Act
         IActionResult result = SUT.LoginUser(mockUser);
 
         // Assert
-        Assert.IsType<OkResult>(result);
+        Assert.IsType<OkObjectResult>(result);
     }
 
     /* Unit test utilising Moq library to test if it correctly returns bad result with invalid password but valid email */
@@ -54,7 +56,9 @@ public class LoginTest
         Mock<IUserLogic> _mockUserLogic = new Mock<IUserLogic>(); ;
         _mockUserLogic.Setup(logic => logic.LoginUser(validEmail, invalidPassword)).Returns(false);
 
-        UserController SUT = new UserController(_mockUserLogic.Object);
+        Mock<ITokenLogic> _mockTokenLogic = new Mock<ITokenLogic>();
+
+        UserController SUT = new UserController(_mockUserLogic.Object, _mockTokenLogic.Object);
 
         // Act
         IActionResult result = SUT.LoginUser(mockUser);
@@ -80,7 +84,9 @@ public class LoginTest
         Mock<IUserLogic> _mockUserLogic = new Mock<IUserLogic>(); ;
         _mockUserLogic.Setup(logic => logic.LoginUser(invalidEmail, validPassword)).Returns(false);
 
-        UserController SUT = new UserController(_mockUserLogic.Object);
+        Mock<ITokenLogic> _mockTokenLogic = new Mock<ITokenLogic>();
+
+        UserController SUT = new UserController(_mockUserLogic.Object, _mockTokenLogic.Object);
 
         // Act
         IActionResult result = SUT.LoginUser(mockUser);
