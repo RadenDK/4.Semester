@@ -58,7 +58,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.SignalRT
                                     ((TeamModel)o[2]).Id == 2 &&
                                     (int)o[3] == 0 &&
                                     (int)o[4] == 0),
-                It.IsAny<CancellationToken>()),
+                default),
                 Times.Once);
         }
 
