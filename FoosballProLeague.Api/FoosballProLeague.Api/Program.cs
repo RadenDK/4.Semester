@@ -1,5 +1,7 @@
 using FoosballProLeague.Api.BusinessLogic;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.DatabaseAccess;
+using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,12 +9,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddScoped<ICompanyLogic, CompanyLogic>();
 builder.Services.AddScoped<ICompanyDatabaseAccessor, CompanyDatabaseAccessor>();
+
 builder.Services.AddScoped<IUserLogic, UserLogic>();
 builder.Services.AddScoped<IUserDatabaseAccessor, UserDatabaseAccessor>();
+
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IDepartmentDatabaseAccessor, DepartmentDatabaseAccessor>();
+
 builder.Services.AddScoped<IMatchLogic, MatchLogic>();
 builder.Services.AddScoped<IMatchDatabaseAccessor, MatchDatabaseAccessor>();
+
+builder.Services.AddScoped<ITeamDatabaseAccessor, TeamDatabaseAccessor>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
