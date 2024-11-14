@@ -1,11 +1,8 @@
 using FoosballProLeague.Api.Controllers;
 using FoosballProLeague.Api.Models;
-using FoosballProLeague.Api.BusinessLogic;
 using Microsoft.AspNetCore.Mvc;
-using Xunit;
 using Moq;
-using BCrypt.Net;
-using Microsoft.AspNetCore.Identity.Data;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
 
 namespace FoosballProLeague.Api.Tests.ControllerTests.UnitTests;
 
@@ -34,7 +31,7 @@ public class LoginTest
         IActionResult result = SUT.LoginUser(mockUser);
 
         // Assert
-        Assert.IsType<OkResult>(result);
+        Assert.IsType<OkObjectResult>(result);
     }
 
     /* Unit test utilising Moq library to test if it correctly returns bad result with invalid password but valid email */
