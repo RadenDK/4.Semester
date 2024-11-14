@@ -1,7 +1,10 @@
 ﻿using FoosballProLeague.Api.BusinessLogic;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.Controllers;
 using FoosballProLeague.Api.DatabaseAccess;
+using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 using FoosballProLeague.Api.Models;
+using FoosballProLeague.Api.Models.DbModels;
 using FoosballProLeague.Api.Models.FoosballModels;
 using FoosballProLeague.Api.Models.RequestModels;
 using Microsoft.AspNetCore.Mvc;
@@ -25,10 +28,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             _dbHelper.InsertData($"INSERT INTO foosball_tables (id) VALUES ({mockTableId})");
             _dbHelper.InsertData($"INSERT INTO users (id) VALUES ({mockPlayer1Id}), ({mockPlayer2Id})");
 
-            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
 
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
+
             MatchController SUT = new MatchController(matchLogic);
 
             TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { UserId = mockPlayer1Id, TableId = mockTableId, Side = "red" };
@@ -42,32 +48,32 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
 
             // Assert
 
-            IEnumerable<MatchModel> matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
-            IEnumerable<FoosballTableModel> table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
-            IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
-
-            List<int?> userIdsRedTeam = new List<int?> { mockPlayer1Id, null };
-            List<int?> userIdsBlueTeam = new List<int?> { mockPlayer2Id, null };
-
-            TeamModel redTeam = matchLogic.GetOrRegisterTeam(userIdsRedTeam);
-            TeamModel blueTeam = matchLogic.GetOrRegisterTeam(userIdsBlueTeam);
-
             Assert.IsType<OkObjectResult>(result);
 
-            Assert.True(matches.First() != null);
-            Assert.True(matches.Count() == 1);
-            Assert.True(matches.First().RedTeamId == 1 && matches.First().BlueTeamId == 2);
-            Assert.True(matches.First().TeamRedScore == 0 && matches.First().TeamBlueScore == 0);
-            Assert.True(matches.First().StartTime.AddSeconds(5) >= DateTime.Now);
-            Assert.True(matches.First().EndTime == null);
+            IEnumerable<MatchDbModel> dbMatches = _dbHelper.ReadData<MatchDbModel>("SELECT * FROM foosball_matches");
 
-            Assert.True(table.First().ActiveMatchId == matches.First().Id);
+            Assert.True(dbMatches.Count() == 1);
 
-            Assert.True(teams.Count() == 2);
-            Assert.True(redTeam.User1.Id == mockPlayer1Id && redTeam.User2 == null);
-            Assert.True(blueTeam.User1.Id == mockPlayer2Id && blueTeam.User2 == null);
+            MatchDbModel dbMatch = dbMatches.First();
 
+            Assert.True(dbMatch.RedTeamId == 1 && dbMatch.BlueTeamId == 2);
+            Assert.True(dbMatch.TeamRedScore == 0 && dbMatch.TeamBlueScore == 0);
+            Assert.True(dbMatch.StartTime.AddSeconds(5) >= DateTime.Now);
+            Assert.True(dbMatch.EndTime == null);
 
+            FoosballTableModel table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables WHERE id = " + dbMatch.TableId).First();
+
+            Assert.True(table.ActiveMatchId == dbMatch.Id);
+
+            IEnumerable<TeamDbModel> dbTeams = _dbHelper.ReadData<TeamDbModel>("SELECT * FROM teams");
+
+            Assert.True(dbTeams.Count() == 2);
+
+            TeamDbModel dbRedTeam = dbTeams.Where(t => t.Id == dbMatch.RedTeamId).First();
+            TeamDbModel dbBlueTeam = dbTeams.Where(t => t.Id == dbMatch.BlueTeamId).First();
+
+            Assert.True(dbRedTeam.Player1Id == mockPlayer1Id && dbRedTeam.Player2Id == null);
+            Assert.True(dbBlueTeam.Player1Id == mockPlayer2Id && dbBlueTeam.Player2Id == null);
         }
 
         [Fact]
@@ -82,11 +88,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             _dbHelper.InsertData($"INSERT INTO foosball_tables (id) VALUES ({mockTableId})");
             _dbHelper.InsertData($"INSERT INTO users (id) VALUES ({mockPlayer1Id}), ({mockPlayer2Id}), ({mockPlayer3Id})");
 
-            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
 
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
+
             MatchController SUT = new MatchController(matchLogic);
 
             TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { UserId = mockPlayer1Id, TableId = mockTableId, Side = "red" };
@@ -103,31 +111,29 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             // Assert
             Assert.IsType<OkObjectResult>(result);
 
-            IEnumerable<MatchModel> matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
-            IEnumerable<FoosballTableModel> table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
-            IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
+            IEnumerable<MatchDbModel> dbMatches = _dbHelper.ReadData<MatchDbModel>("SELECT * FROM foosball_matches");
+            IEnumerable<FoosballTableModel> dbTables = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
+            IEnumerable<TeamDbModel> dbTeams = _dbHelper.ReadData<TeamDbModel>("SELECT * FROM teams");
 
-            List<int?> userIdsRedTeam = new List<int?> { mockPlayer1Id, null };
-            List<int?> userIdsBlueTeam = new List<int?> { mockPlayer2Id, mockPlayer3Id };
+            Assert.True(dbMatches.Count() == 1);
 
-            TeamModel redTeam = matchLogic.GetOrRegisterTeam(userIdsRedTeam);
-            TeamModel blueTeam = matchLogic.GetOrRegisterTeam(userIdsBlueTeam);
+            MatchDbModel dbMatch = dbMatches.First();
 
-
-            Assert.True(matches.First() != null);
-            Assert.True(matches.Count() == 1);
-            Assert.True(mockPlayer1Id == redTeam.User1.Id && redTeam.User2 == null);
-            Assert.True(mockPlayer2Id == blueTeam.User1.Id && mockPlayer3Id == blueTeam.User2.Id);
-            Assert.True(matches.First().TeamRedScore == 0 && matches.First().TeamBlueScore == 0);
-            Assert.True(matches.First().StartTime.AddSeconds(5) >= DateTime.Now);
-            Assert.True(matches.First().EndTime == null);
-
-            Assert.True(table.First().ActiveMatchId == matches.First().Id);
-
-            Assert.True(teams.Count() == 2);
+            Assert.True(dbMatch != null);
+            Assert.True(dbMatch.TeamRedScore == 0 && dbMatch.TeamBlueScore == 0);
+            Assert.True(dbMatch.StartTime.AddSeconds(5) >= DateTime.Now);
+            Assert.True(dbMatch.EndTime == null);
 
 
+            Assert.True(dbTeams.Count() == 2);
 
+            TeamDbModel dbRedTeam = dbTeams.FirstOrDefault(t => t.Id == dbMatch.RedTeamId);
+            TeamDbModel dbBlueTeam = dbTeams.FirstOrDefault(t => t.Id == dbMatch.BlueTeamId);
+
+            Assert.True(mockPlayer1Id == dbRedTeam.Player1Id && dbRedTeam.Player2Id == null);
+            Assert.True(mockPlayer2Id == dbBlueTeam.Player1Id && dbBlueTeam.Player2Id == mockPlayer3Id);
+
+            Assert.True(dbTables.First().ActiveMatchId == dbMatch.Id);
         }
 
         [Fact]
@@ -138,9 +144,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
 
             _dbHelper.InsertData($"INSERT INTO foosball_tables (id) VALUES ({mockTableId})");
 
-            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
+
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
@@ -157,7 +167,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         }
 
         [Fact]
-        public void StartMatch_ShouldCreateTeamIfNoExistingTeam()
+        public void StartMatch_ShouldCreateTeamsAndReturnSuccessIfNoTeamsExistingPrior()
         {
             // Arrange
             int mockTableId = 1;
@@ -167,9 +177,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             _dbHelper.InsertData($"INSERT INTO foosball_tables (id) VALUES ({mockTableId})");
             _dbHelper.InsertData($"INSERT INTO users (id) VALUES ({mockPlayer1Id}), ({mockPlayer2Id})");
 
-            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
+
             MatchController SUT = new MatchController(matchLogic);
 
             TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { UserId = mockPlayer1Id, TableId = mockTableId, Side = "red" };
@@ -178,37 +192,50 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             // Act
             SUT.LoginOnTable(mockTableLoginRequestPlayer1);
             SUT.LoginOnTable(mockTableLoginRequestPlayer2);
-
             IActionResult result = SUT.StartMatch(mockTableId);
 
             // Assert
             Assert.IsType<OkObjectResult>(result);
 
-            IEnumerable<MatchModel> matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
-            IEnumerable<FoosballTableModel> table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
-            IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
+            // Verify match creation in the database
+            IEnumerable<MatchDbModel> dbMatches = _dbHelper.ReadData<MatchDbModel>("SELECT * FROM foosball_matches");
+            IEnumerable<FoosballTableModel> dbTables = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
 
-            List<int?> userIdsRedTeam = new List<int?> { mockPlayer1Id, null };
-            List<int?> userIdsBlueTeam = new List<int?> { mockPlayer2Id, null };
+            Assert.True(dbMatches.Count() == 1);
+            
+            MatchDbModel dbMatch = dbMatches.FirstOrDefault();
+            
+            Assert.True(dbMatch.TeamRedScore == 0);
+            Assert.True(dbMatch.TeamBlueScore == 0);
 
-            TeamModel redTeam = matchLogic.GetOrRegisterTeam(userIdsRedTeam);
-            TeamModel blueTeam = matchLogic.GetOrRegisterTeam(userIdsBlueTeam);
+            var test = DateTime.Now;
+            var test1 = dbMatch.StartTime.AddSeconds(5);
 
-            MatchModel createdMatch = matches.FirstOrDefault();
-            Assert.NotNull(createdMatch);
-            Assert.Equal(createdMatch.Id, table.First().ActiveMatchId);
+            Assert.True(dbMatch.StartTime.AddSeconds(5) >= DateTime.Now);
+            Assert.True(dbMatch.EndTime == null);
+
+            // Verify that the match ID is assigned to the table
+            Assert.True(dbTables.Count() == 1);
+
+            FoosballTableModel dbTable = dbTables.First();
+
+            Assert.Equal(dbMatch.Id, dbTable.ActiveMatchId);
+
+            // Verify team creation in the database
+            IEnumerable<TeamDbModel> teams = _dbHelper.ReadData<TeamDbModel>("SELECT * FROM teams");
             Assert.Equal(2, teams.Count());
 
-            TeamModel redTeamId = teams.FirstOrDefault(t => t.Id == createdMatch.RedTeamId);
-            Assert.NotNull(redTeam);
-            Assert.Equal(mockPlayer1Id, redTeam.User1.Id);
-            Assert.Null(redTeam.User2);
+            // Verify red and blue teams are created with correct player IDs
+            TeamDbModel dbRedTeam = teams.FirstOrDefault(t => t.Id == dbMatch.RedTeamId);
+            TeamDbModel dbBlueTeam = teams.FirstOrDefault(t => t.Id == dbMatch.BlueTeamId);
 
-            TeamModel blueTeamId = teams.FirstOrDefault(t => t.Id == createdMatch.BlueTeamId);
-            Assert.NotNull(blueTeam);
-            Assert.Equal(mockPlayer2Id, blueTeam.User1.Id);
-            Assert.Null(blueTeam.User2);
+            // Check that the red team has mockPlayer1Id and no second player
+            Assert.True(dbRedTeam.Player1Id == mockPlayer1Id && dbRedTeam.Player2Id == null );
+
+            // Check that the blue team has mockPlayer2Id and no second player
+            Assert.True(dbBlueTeam.Player1Id == mockPlayer2Id && dbBlueTeam.Player2Id == null );
         }
+
 
         [Fact]
         public void StartMatch_ShouldNotCreateTeamIfExistingTeam()
@@ -222,10 +249,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2)");
             _dbHelper.InsertData($"INSERT INTO teams (id, player1_id) VALUES (1, {redTeamId}), (2, {blueTeamId})");
 
-            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
 
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
+
             MatchController SUT = new MatchController(matchLogic);
 
             TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { UserId = 1, TableId = mockTableId, Side = "red" };
@@ -240,16 +270,28 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             // Assert
             Assert.IsType<OkObjectResult>(result);
 
-            IEnumerable<MatchModel> matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
-            IEnumerable<FoosballTableModel> table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
-            IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
+            IEnumerable<MatchDbModel> dbMatches = _dbHelper.ReadData<MatchDbModel>("SELECT * FROM foosball_matches");
+            IEnumerable<FoosballTableModel> dbTable = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
+            IEnumerable<TeamDbModel> dbTeams = _dbHelper.ReadData<TeamDbModel>("SELECT * FROM teams");
 
-            MatchModel createdMatch = matches.FirstOrDefault();
-            Assert.NotNull(createdMatch);
-            Assert.Equal(createdMatch.Id, table.First().ActiveMatchId);
-            Assert.Equal(2, teams.Count());
-            Assert.Equal(redTeamId, createdMatch.RedTeamId);
-            Assert.Equal(blueTeamId, createdMatch.BlueTeamId);
+            Assert.True(dbMatches.Count() == 1);
+
+
+            MatchDbModel dbMatch = dbMatches.First();
+
+            Assert.True(dbMatch.Id == dbTable.First().ActiveMatchId);
+            
+            Assert.True(dbTeams.Count() == 2);
+            Assert.True(redTeamId == dbMatch.RedTeamId);
+            Assert.True(blueTeamId == dbMatch.BlueTeamId);
+
+            Assert.True(dbTeams.Count() == 2);
+
+            TeamDbModel redTeam = dbTeams.Where(dbTeams => dbTeams.Id == redTeamId).FirstOrDefault();
+            TeamDbModel blueTeam = dbTeams.Where(dbTeams => dbTeams.Id == blueTeamId).FirstOrDefault();
+
+            Assert.True(redTeam.Player1Id == 1 && redTeam.Player2Id == null);
+            Assert.True(blueTeam.Player1Id == 2 && blueTeam.Player2Id == null);
         }
 
 
@@ -269,9 +311,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             _dbHelper.UpdateData($"UPDATE foosball_tables SET active_match_id = {matchId} WHERE id = {mockTableId}");
 
 
-            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
+
             MatchController SUT = new MatchController(matchLogic);
 
             TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { UserId = 1, TableId = mockTableId, Side = "red" };
@@ -298,7 +344,6 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         {
             // Arrange
             int mockTableId = 1;
-            int existingTeamId = 1;
             int mockPlayer1Id = 1;
             int mockPlayer2Id = 2;
             int mockPlayer3Id = 3;
@@ -307,10 +352,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             _dbHelper.InsertData($"INSERT INTO users (id) VALUES ({mockPlayer1Id}), ({mockPlayer2Id}), ({mockPlayer3Id})");
             _dbHelper.InsertData($"INSERT INTO teams (player1_id) VALUES ({mockPlayer1Id})");
 
-            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
 
             IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
+
             MatchController SUT = new MatchController(matchLogic);
 
             TableLoginRequest mockTableLoginRequestPlayer1 = new TableLoginRequest { UserId = mockPlayer1Id, TableId = mockTableId, Side = "red" };
@@ -327,29 +375,39 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             // Assert
             Assert.IsType<OkObjectResult>(result);
 
-            IEnumerable<MatchModel> matches = _dbHelper.ReadData<MatchModel>("SELECT * FROM foosball_matches");
-            IEnumerable<FoosballTableModel> table = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables");
-            IEnumerable<TeamModel> teams = _dbHelper.ReadData<TeamModel>("SELECT * FROM teams");
-
-            List<int?> userIdsRedTeam = new List<int?> { mockPlayer1Id, null };
-            List<int?> userIdsBlueTeam = new List<int?> { mockPlayer2Id, mockPlayer3Id };
-
-            TeamModel redTeam = matchLogic.GetOrRegisterTeam(userIdsRedTeam);
-            TeamModel blueTeam = matchLogic.GetOrRegisterTeam(userIdsBlueTeam);
-
-            MatchModel createdMatch = matches.FirstOrDefault();
+            // Verify match creation in the database
+            IEnumerable<MatchDbModel> dbMatches = _dbHelper.ReadData<MatchDbModel>("SELECT * FROM foosball_matches");
+            MatchDbModel createdMatch = dbMatches.FirstOrDefault();
             Assert.NotNull(createdMatch);
             Assert.Equal(mockTableId, createdMatch.TableId);
-            Assert.True(table.First().ActiveMatchId == createdMatch.Id);
+            Assert.Equal(0, createdMatch.TeamRedScore);
+            Assert.Equal(0, createdMatch.TeamBlueScore);
+            Assert.Null(createdMatch.EndTime);
+
+            // Verify table is updated with the new match ID
+            FoosballTableModel dbTable = _dbHelper.ReadData<FoosballTableModel>("SELECT * FROM foosball_tables").First();
+            Assert.Equal(createdMatch.Id, dbTable.ActiveMatchId);
+
+            // Verify that only one new team is created (total of 2 teams in the database)
+            IEnumerable<TeamDbModel> teams = _dbHelper.ReadData<TeamDbModel>("SELECT * FROM teams");
             Assert.Equal(2, teams.Count());
 
-            TeamModel existingTeam = teams.FirstOrDefault(t => t.Id == existingTeamId);
-            Assert.NotNull(existingTeam);
+            // Verify existing and new teams' player assignments
+            TeamDbModel dbRedTeam = teams.FirstOrDefault(t => t.Id == createdMatch.RedTeamId);
+            TeamDbModel dbBlueTeam = teams.FirstOrDefault(t => t.Id == createdMatch.BlueTeamId);
 
-            Assert.True(blueTeam.User1.Id == mockPlayer2Id && blueTeam.User2.Id == mockPlayer3Id);
+            Assert.NotNull(dbRedTeam);
+            Assert.NotNull(dbBlueTeam);
 
-            Assert.Equal(existingTeam.Id, createdMatch.RedTeamId);
-            Assert.Equal(blueTeam.Id, createdMatch.BlueTeamId);
+            // Assert that the existing team is reused as the red team
+            Assert.True(dbRedTeam.Id == teams.First().Id);
+            Assert.True(teams.First().Player1Id == 1 && teams.First().Player2Id == null);
+
+            // Assert that the new blue team has the correct player assignments
+            Assert.True(dbBlueTeam.Id == teams.Last().Id);
+            Assert.True(teams.Last().Player1Id == 2 && teams.Last().Player2Id == 3);
+
         }
+
     }
 }
