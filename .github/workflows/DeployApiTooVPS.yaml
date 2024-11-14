@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'FoosballProLeague.Api/**'  # Only trigger when the API code changes
+      - '.github/DeployApiTooVPS.yaml'  # Also trigger when this workflow file changes
 
 jobs:
   build:
@@ -59,6 +60,8 @@ jobs:
             docker run -d -p 5001:5001 \
             --name foosballproleague-api-container \
             -e ConnectionStrings__DatabaseConnection="${{ secrets.DATABASE_CONNECTION_STRING }}" \
+            -e ApiKey="${{ secrets.X_API_KEY }}" \
+            -e Jwt__SigningKey="${{ secrets.JWT_SIGNING_KEY }}" \
             foosballproleague-api:latest 
 
 
