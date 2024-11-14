@@ -8,7 +8,6 @@ using Newtonsoft.Json.Linq;
 
 namespace FoosballProLeague.Webserver.Controllers
 {
-    [Authorize]
     public class RegistrationController : Controller
     {
         private readonly IRegistrationLogic _registrationLogic;
