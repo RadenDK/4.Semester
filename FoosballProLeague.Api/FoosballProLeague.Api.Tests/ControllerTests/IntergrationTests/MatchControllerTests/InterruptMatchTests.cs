@@ -3,11 +3,9 @@ using FoosballProLeague.Api.Controllers;
 using FoosballProLeague.Api.DatabaseAccess;
 using FoosballProLeague.Api.Models.FoosballModels;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
+using Moq;
+
 
 namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchControllerTests
 {
@@ -27,7 +25,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             int mockTableId = 1;
 
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
@@ -47,7 +46,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         {
             // Arrange
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration());
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
             // Act

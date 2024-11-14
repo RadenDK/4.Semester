@@ -16,6 +16,8 @@ builder.Services.AddScoped<IUserDatabaseAccessor, UserDatabaseAccessor>();
 
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IDepartmentDatabaseAccessor, DepartmentDatabaseAccessor>();
+builder.Services.AddScoped<IMatchLogic, MatchLogic>();
+builder.Services.AddScoped<IMatchDatabaseAccessor, MatchDatabaseAccessor>();
 
 builder.Services.AddScoped<ITokenLogic, TokenLogic>();
 
@@ -47,6 +49,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("CorsPolicy");
 
 app.UseHttpsRedirection();
 
