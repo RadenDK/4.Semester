@@ -26,5 +26,22 @@ namespace FoosballProLeague.Webserver.Service
                 throw new Exception($"Could not get users. HTTP status code: {response.StatusCode}");
             }
         }
+
+        public async Task<List<MatchHistoryModel>> GetMatchHistoryByUserId(int userId)
+        {
+            HttpResponseMessage response = await _httpClientService.GetAsync($"/api/User/{userId}/match-history");
+            if (response.IsSuccessStatusCode)
+            {
+                string responseBody = await response.Content.ReadAsStringAsync();
+                
+                Console.WriteLine(responseBody);
+                
+                return JsonSerializer.Deserialize<List<MatchHistoryModel>>(responseBody);
+            }
+            else
+            {
+                throw new Exception($"Could not retrieve match history. HTTP status code: {response.StatusCode}");
+            }
+        }
     }
 }
