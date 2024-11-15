@@ -49,7 +49,9 @@ namespace FoosballProLeague.Webserver.Controllers
                     try
                     {
                         List<MatchHistoryModel> matchHistoryModels = await _homePageLogic.GetMatchHistoryByUserId(user.Id);
-                        matchHistory = matchHistoryModels.Select(m => new MatchHistoryViewModel
+                        matchHistory = matchHistoryModels
+                            .OrderByDescending(m => DateTime.Parse(m.EndTime))
+                            .Select(m => new MatchHistoryViewModel
                         {
                             RedTeamUser1 = m.RedTeam.User1.FirstName,
                             RedTeamUser2 = m.RedTeam.User2.FirstName,
@@ -57,7 +59,7 @@ namespace FoosballProLeague.Webserver.Controllers
                             BlueTeamUser2 = m.BlueTeam.User2.FirstName,
                             RedTeamScore = m.RedTeamScore,
                             BlueTeamScore = m.BlueTeamScore,
-                            TimeAgo = GetTimeAgo(m.EndTime)
+                            TimeAgo = _homePageLogic.GetTimeAgo(m.EndTime)
                         }).ToList();
                     }
                     catch (Exception ex)
@@ -90,29 +92,6 @@ namespace FoosballProLeague.Webserver.Controllers
             }
 
             return JsonConvert.DeserializeObject<UserModel>(cookieValue);
-        }
-
-        private string GetTimeAgo(string endTime)
-        {
-            DateTime endDateTime = DateTime.Parse(endTime);
-            TimeSpan timeSpan = DateTime.Now - endDateTime;
-
-            if (timeSpan.TotalHours < 24)
-            {
-                return $"{(int)timeSpan.TotalHours} hours ago";
-            }
-            else if (timeSpan.TotalDays < 30)
-            {
-                return $"{(int)timeSpan.TotalDays} days ago";
-            }
-            else if (timeSpan.TotalDays < 365)
-            {
-                return $"{(int)(timeSpan.TotalDays / 30)} months ago";
-            }
-            else
-            {
-                return $"{(int)(timeSpan.TotalDays / 365)} years ago";
-            }
         }
     }
 }

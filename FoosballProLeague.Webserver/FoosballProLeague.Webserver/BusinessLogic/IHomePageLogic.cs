@@ -6,5 +6,6 @@ namespace FoosballProLeague.Webserver.BusinessLogic
     {
         Task<List<UserModel>> GetUsers();
         public Task<List<MatchHistoryModel>> GetMatchHistoryByUserId(int userId);
+        public string GetTimeAgo(string endTime);
     }
 }

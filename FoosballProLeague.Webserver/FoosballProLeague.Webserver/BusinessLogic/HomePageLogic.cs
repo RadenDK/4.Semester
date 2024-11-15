@@ -21,5 +21,36 @@ namespace FoosballProLeague.Webserver.BusinessLogic
         {
             return await _homePageService.GetMatchHistoryByUserId(userId);
         }
+        
+        public string GetTimeAgo(string endTime)
+        {
+            DateTime endDateTime = DateTime.Parse(endTime);
+            TimeSpan timeSpan = DateTime.Now - endDateTime;
+
+            if (timeSpan.TotalMinutes < 1)
+            {
+                return "Just now";
+            }
+            else if (timeSpan.TotalMinutes < 60)
+            {
+                return $"{(int)timeSpan.TotalMinutes} minutes ago";
+            }
+            else if (timeSpan.TotalHours < 24)
+            {
+                return $"{(int)timeSpan.TotalHours} hours ago";
+            }
+            else if (timeSpan.TotalDays < 30)
+            {
+                return $"{(int)timeSpan.TotalDays} days ago";
+            }
+            else if (timeSpan.TotalDays < 365)
+            {
+                return $"{(int)(timeSpan.TotalDays / 30)} months ago";
+            }
+            else
+            {
+                return $"{(int)(timeSpan.TotalDays / 365)} years ago";
+            }
+        }
     }
 }
