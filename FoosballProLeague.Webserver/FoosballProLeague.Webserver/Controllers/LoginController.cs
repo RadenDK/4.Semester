@@ -26,16 +26,24 @@ public class LoginController : Controller
     [HttpPost("Login")]
     public async Task<IActionResult> LoginUser(LoginUserModel user)
     {
-        HttpResponseMessage response = await _loginLogic.LoginUser(user.Email, user.Password);
-        
-        if (response.IsSuccessStatusCode)
+        try
         {
-            return RedirectToAction("HomePage", "HomePage");
+            HttpResponseMessage response = await _loginLogic.LoginUser(user.Email, user.Password);
+        
+            if (response.IsSuccessStatusCode)
+            {
+                return RedirectToAction("HomePage", "HomePage");
+            }
+            
+            string errorContent = await response.Content.ReadAsStringAsync();
+            string errorMessage = JsonDocument.Parse(errorContent).RootElement.GetProperty("message").GetString();
+            ModelState.AddModelError(string.Empty, errorMessage);
         }
-
-        string errorContent = await response.Content.ReadAsStringAsync();
-        string errorMessage = JsonDocument.Parse(errorContent).RootElement.GetProperty("message").GetString();
-        ModelState.AddModelError(string.Empty, errorMessage);
+        catch (HttpRequestException)
+        {
+            ModelState.AddModelError(string.Empty, "Invalid email or password. Please try again.");
+        }
+        
         return View("Login");
     }
 
