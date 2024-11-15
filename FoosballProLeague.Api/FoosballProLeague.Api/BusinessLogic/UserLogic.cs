@@ -43,6 +43,7 @@ public class UserLogic : IUserLogic
                     if (_hubContext != null)
                     {
                         UpdateLeaderboard("1v1").Wait();
+                        UpdateLeaderboard("2v2").Wait();
                     }
                     else
                     {
