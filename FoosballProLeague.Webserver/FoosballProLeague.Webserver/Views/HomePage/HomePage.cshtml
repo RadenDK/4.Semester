@@ -81,28 +81,24 @@
                         @if (Model.MatchHistory != null)
                         {
                             <table>
-                                <thead>
-                                <tr>
-                                    <th>Red Team</th>
-                                    <th>Blue Team</th>
-                                    <th>Score</th>
-                                </tr>
-                                </thead>
                                 <tbody>
                                 @foreach (MatchHistoryViewModel match in Model.MatchHistory)
                                 {
                                     <tr>
-                                        <td>
-                                            @match.RedTeamUser1 @if (!string.IsNullOrEmpty(match.RedTeamUser2)) { @match.RedTeamUser2 }
+                                        <td class="team-red">
+                                            <span class="team-red-user1"> @match.RedTeamUser1 </span> 
+                                            <span class="team-red-user2"> @if (!string.IsNullOrEmpty(match.RedTeamUser2)) { @match.RedTeamUser2 } </span>
                                         </td>
-                                        <td>
-                                            @match.BlueTeamUser1 @if (!string.IsNullOrEmpty(match.BlueTeamUser2)) { @match.BlueTeamUser2 }
+                                        <td class="versus">VS</td>
+                                        <td class="team-blue">
+                                            <span class="team-blue-user1"> @match.BlueTeamUser1 </span>
+                                            <span class="team-blue-user2">@if (!string.IsNullOrEmpty(match.BlueTeamUser2)) { @match.BlueTeamUser2 } </span>
                                         </td>
                                         <td>
                                             @match.TimeAgo
                                         </td>
                                         <td>
-                                            <span class="team-red">@match.RedTeamScore</span> - <span class="team-blue">@match.BlueTeamScore</span>
+                                            <span class="team-red-score">@match.RedTeamScore</span> - <span class="team-blue-score">@match.BlueTeamScore</span>
                                         </td>
                                     </tr>
                                 }
