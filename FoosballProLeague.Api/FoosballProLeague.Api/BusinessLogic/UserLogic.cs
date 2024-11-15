@@ -35,27 +35,7 @@ public class UserLogic : IUserLogic
                 Elo2v2 = 500
             };
             bool userCreated = _userDatabaseAccessor.CreateUser(newUserWithHashedPassword);
-            if (userCreated)
-            {
-                // Notify clients about the leaderboard update
-                try
-                {
-                    if (_hubContext != null)
-                    {
-                        UpdateLeaderboard("1v1").Wait();
-                        UpdateLeaderboard("2v2").Wait();
-                    }
-                    else
-                    {
-                        throw new NullReferenceException("HubContext is not initialized.");
-                    }
-                }
-                catch (AggregateException ex)
-                {
-                    // Handle the exception
-                    throw ex.Flatten().InnerException;
-                }
-            }
+
             return userCreated;
         }
         return false;
