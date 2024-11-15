@@ -87,7 +87,7 @@
         if (!pageNumber) {
             pageNumber = this.currentPageNumber; // Use currentPageNumber if pageNumber is not provided
         }
-        const url = `/api/User?mode=${mode}&pageNumber=${pageNumber}`;
+        const url = `/api/User?mode=${mode}&pageNumber=${pageNumber}&pageSize=${this.pageSize}`;
 
         try {
             const response = await fetch(url);
@@ -104,29 +104,29 @@
         }
     }
 
-
     updateLeaderboard(pageNumber = 1) {
         this.currentPageNumber = pageNumber;
         const leaderboardBody = document.querySelector('#leaderboardBody');
         leaderboardBody.innerHTML = '';
 
-        const paginatedLeaderboard = this.leaderboardData;
+        const paginatedLeaderboard = this.leaderboardData.slice(0, this.pageSize);
 
         paginatedLeaderboard.forEach((player, index) => {
             const rank = (pageNumber - 1) * this.pageSize + index + 1;
             const elo = this.currentMode === '1v1' ? player.elo1v1 : player.elo2v2;
             const row = `
-        <tr>
-            <td>${rank}</td>
-            <td>${player.firstName} ${player.lastName}</td>
-            <td>${elo}</td>
-        </tr>
-        `;
+    <tr>
+        <td>${rank}</td>
+        <td>${player.firstName} ${player.lastName}</td>
+        <td>${elo}</td>
+    </tr>
+    `;
             leaderboardBody.innerHTML += row;
         });
 
         this.updatePaginationControls(this.leaderboardData.length, this.pageSize, pageNumber);
     }
+
 
     updatePaginationControls(totalItems, pageSize, pageNumber) {
         const paginationContainer = document.querySelector('.pagination');
