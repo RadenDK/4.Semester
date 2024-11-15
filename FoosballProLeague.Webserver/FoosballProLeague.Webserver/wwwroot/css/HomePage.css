@@ -134,7 +134,7 @@ body {
             }
 
     .leaderboard table tbody {
-        display: table-body-group;
+        display: table-row-group;
     }
 
         .leaderboard table tbody tr {
@@ -197,18 +197,54 @@ body {
         font-weight: bold;
     }
 
+    /* Styling of match history */
+.match-history-section {
+    margin-top: 30px;
+}
+
 .match-history {
     background-color: #0b1b38;
     box-shadow: 0 0 15px 0 rgb(0, 0, 0, 0.5);
     padding: 40px;
     border-radius: 10px;
-    flex-grow: 1;
+    height: 80vh;
     overflow-y: auto;
 }
 
     .match-history h2 {
         margin-bottom: 20px;
         font-size: 30px;
+        font-weight: bold;
+    }
+    
+    .match-history table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .match-history table thead {
+        background-color: #6c49eb;
+        border-radius: 10px;
+    }
+    
+    .match-history table th {
+        text-align: left;
+        padding: 10px;
+        font-size: 20px;
+        font-weight: bold;
+    }
+    
+    .match-history table thead tr {
+        border-bottom: 1px solid #6c49eb;
+    }
+    
+    .match-history table tbody .team-red {
+        color: #ff4c4c;
+        font-weight: bold;
+    }
+    
+    .match-history table tbody .team-blue {
+        color: #4c6cff;
         font-weight: bold;
     }
 

@@ -1,9 +1,10 @@
-@model List<FoosballProLeague.Webserver.Models.UserModel>
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@model FoosballProLeague.Webserver.Models.HomePageViewModel
 
 @{
     Layout = "_LayoutHomePage";
     var mode = ViewBag.Mode as string ?? "1v1";
-    var sortedModel = mode == "1v1" ? Model?.OrderByDescending(user => user.Elo1v1).ToList() : Model?.OrderByDescending(user => user.Elo2v2).ToList();
+    var sortedModel = mode == "1v1" ? Model.Users?.OrderByDescending(user => user.Elo1v1).ToList() : Model.Users?.OrderByDescending(user => user.Elo2v2).ToList();
 }
 
 <!DOCTYPE html>
@@ -14,8 +15,6 @@
     <title>FoosballProLeague</title>
     <link rel="stylesheet" href="~/css/HomePage.css">
     <link rel="stylesheet" href="~/css/layoutHomepage.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
-    <script src="~/js/homepage.js"></script>
 
 
 </head>
@@ -79,9 +78,43 @@
                 <div class="match-history-section">
                     <div class="match-history">
                         <h2>Match history</h2>
-                        <div class="history-item">
-                            <span class="match">Carl vs Olivier</span> <span class="score">10 - 4</span> <span class="points">10 pt</span>
-                        </div>
+                        @if (Model.MatchHistory != null)
+                        {
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th>Red Team</th>
+                                    <th>Blue Team</th>
+                                    <th>Score</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (MatchHistoryViewModel match in Model.MatchHistory)
+                                {
+                                    <tr>
+                                        <td>
+                                            @match.RedTeamUser1 @if (!string.IsNullOrEmpty(match.RedTeamUser2)) { @match.RedTeamUser2 }
+                                        </td>
+                                        <td>
+                                            @match.BlueTeamUser1 @if (!string.IsNullOrEmpty(match.BlueTeamUser2)) { @match.BlueTeamUser2 }
+                                        </td>
+                                        <td>
+                                            @match.TimeAgo
+                                        </td>
+                                        <td>
+                                            <span class="team-red">@match.RedTeamScore</span> - <span class="team-blue">@match.BlueTeamScore</span>
+                                        </td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="history-item">
+                                <span>No played matches available</span>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
