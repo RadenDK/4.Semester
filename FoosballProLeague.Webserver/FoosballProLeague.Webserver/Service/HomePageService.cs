@@ -34,8 +34,6 @@ namespace FoosballProLeague.Webserver.Service
             {
                 string responseBody = await response.Content.ReadAsStringAsync();
                 
-                Console.WriteLine(responseBody);
-                
                 return JsonSerializer.Deserialize<List<MatchHistoryModel>>(responseBody);
             }
             else
