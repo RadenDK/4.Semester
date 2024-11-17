@@ -14,17 +14,20 @@
         this.currentPageNumber = 1;
         this.pageSize = 10;
         this.currentMatch = JSON.parse(sessionStorage.getItem('currentMatch')) || null;
-        this.currentMode = '1v1'; // default mode
+        this.currentMode = sessionStorage.getItem('selectedLeaderboard') || '1v1'; // default mode
 
         this.initializeConnections();
         this.updateMatchInfoFromStorage();
         this.updateMatchTimeFromStorage();
         this.initializeEventListeners();
+        this.fetchLeaderboard(this.currentMode, this.currentPageNumber); // fetch initial leaderboard
     }
+
     initializeEventListeners() {
         document.querySelector('.elo-button[data-mode="2v2"]').addEventListener('click', (event) => {
             event.preventDefault();
             this.currentMode = '2v2';
+            sessionStorage.setItem('selectedLeaderboard', '2v2');
             this.currentPageNumber = 1; // Reset to first page
             const url = `/HomePage/2v2?pageNumber=${this.currentPageNumber}`;
             window.history.pushState({ path: url }, '', url); // Update the URL
@@ -35,6 +38,7 @@
         document.querySelector('.elo-button[data-mode="1v1"]').addEventListener('click', (event) => {
             event.preventDefault();
             this.currentMode = '1v1';
+            sessionStorage.setItem('selectedLeaderboard', '1v1');
             this.currentPageNumber = 1; // Reset to first page
             const url = `/HomePage/1v1?pageNumber=${this.currentPageNumber}`;
             window.history.pushState({ path: url }, '', url); // Update the URL
@@ -42,6 +46,7 @@
             this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
         });
     }
+
 
     updateActiveButton() {
         document.querySelectorAll('.elo-button').forEach(button => {
@@ -115,12 +120,12 @@
             const rank = (pageNumber - 1) * this.pageSize + index + 1;
             const elo = this.currentMode === '1v1' ? player.elo1v1 : player.elo2v2;
             const row = `
-    <tr>
-        <td>${rank}</td>
-        <td>${player.firstName} ${player.lastName}</td>
-        <td>${elo}</td>
-    </tr>
-    `;
+              <tr>
+                 <td>${rank}</td>
+                 <td>${player.firstName} ${player.lastName}</td>
+                 <td>${elo}</td>
+             </tr>
+        `;
             leaderboardBody.innerHTML += row;
         });
 
@@ -296,6 +301,7 @@ fetch('/config/url')
         console.log("Config: ", config);
         const apiUrl = config.apiUrl;
         const foosballProLeague = new FoosballProLeague(apiUrl);
-        foosballProLeague.fetchLeaderboard('1v1'); // fetch initial leaderboard
+        const initialMode = sessionStorage.getItem('selectedLeaderboard') || '1v1'; // default mode
+        foosballProLeague.fetchLeaderboard(initialMode); // fetch initial leaderboard with correct mode
     })
     .catch(error => console.error('Error fetching configuration:', error));
