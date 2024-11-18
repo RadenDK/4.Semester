@@ -58,7 +58,7 @@ namespace FoosballProLeague.Api.BusinessLogic
                     return AddPlayerToActiveMatchTeam(activeMatch, tableLoginRequest);
                 }
 
-                // There is is no room on the active match team side then we return false
+                // There is no room on the active match team side then we return false
                 else
                 {
                     return false;
