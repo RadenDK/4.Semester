@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
 using FoosballProLeague.Api.Models.RequestModels;
 using System.Linq.Expressions;
@@ -117,6 +117,21 @@ namespace FoosballProLeague.Api.Controllers
             {
                 MatchModel activeMatch = _matchLogic.GetActiveMatch();
                 return Ok(activeMatch);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("An error occurred: " + ex.Message);
+            }
+        }
+
+        [HttpGet("ClearPendingTeamsCache")]
+        public IActionResult ClearPendingTeamsCache()
+        {
+            try
+            {
+                _matchLogic.ClearPendingTeamsCache();
+
+                return Ok("Clearing pending teams cache was successful.");
             }
             catch (Exception ex)
             {

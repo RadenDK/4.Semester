@@ -331,6 +331,11 @@ namespace FoosballProLeague.Api.BusinessLogic
 
             await _hubContext.Clients.All.SendAsync("ReceiveGoalUpdate", redTeam, blueTeam, redScore, blueScore);
         }
+
+        public void ClearPendingTeamsCache()
+        {
+            _pendingMatchTeams.Clear();
+        }
     }
 }
 
