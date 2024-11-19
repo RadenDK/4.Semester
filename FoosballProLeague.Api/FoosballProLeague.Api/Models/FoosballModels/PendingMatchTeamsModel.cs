@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.Eventing.Reader;
-
+﻿
 namespace FoosballProLeague.Api.Models.FoosballModels
 {
     public class PendingMatchTeamsModel

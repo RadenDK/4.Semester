@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using FoosballProLeague.Api.BusinessLogic;
 using System.Runtime.CompilerServices;
 using FoosballProLeague.Api.Models.RequestModels;
 using System.Linq.Expressions;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
 
 namespace FoosballProLeague.Api.Controllers
 {
     [ApiController]
     //[Route("[controller]")]
+    [ApiKeyAuthorize]
     public class MatchController : Controller
     {
         private readonly IMatchLogic _matchLogic;

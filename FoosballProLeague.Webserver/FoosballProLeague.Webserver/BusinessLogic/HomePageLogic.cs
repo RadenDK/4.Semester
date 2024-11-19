@@ -17,9 +17,9 @@ namespace FoosballProLeague.Webserver.BusinessLogic
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<List<UserModel>> GetUsers()
+        public async Task<List<UserModel>> GetAllUsers()
         {
-            return await _homePageService.GetUsers();
+            return await _homePageService.GetAllUsers();
         }
 
         public async Task<List<MatchHistoryModel>> GetMatchHistoryByUserId(int userId)

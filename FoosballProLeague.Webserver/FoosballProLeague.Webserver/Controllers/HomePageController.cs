@@ -1,10 +1,12 @@
 ﻿using FoosballProLeague.Webserver.BusinessLogic;
 using FoosballProLeague.Webserver.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace FoosballProLeague.Webserver.Controllers
 {
+    [JwtAuthorize]
     public class HomePageController : Controller
     {
         private readonly IHomePageLogic _homePageLogic;
@@ -15,6 +17,7 @@ namespace FoosballProLeague.Webserver.Controllers
             _homePageLogic = homePageLogic;
         }
 
+        
         [HttpGet("HomePage")]
         public async Task<IActionResult> HomePage()
         {

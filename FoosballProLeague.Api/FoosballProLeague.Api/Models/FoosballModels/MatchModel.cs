@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Xml.Linq;
-
+﻿
 namespace FoosballProLeague.Api.Models.FoosballModels
 {
     public class MatchModel
@@ -9,9 +7,9 @@ namespace FoosballProLeague.Api.Models.FoosballModels
 
         public int TableId { get; set; }
 
-        public int RedTeamId { get; set; }
+        public TeamModel RedTeam { get; set; }
 
-        public int BlueTeamId { get; set; }
+        public TeamModel BlueTeam { get; set; }
 
         public int TeamRedScore { get; set; }
 

@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
-using FoosballProLeague.Api.BusinessLogic;
 using FoosballProLeague.Api.Models;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
 
 namespace FoosballProLeague.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ApiKeyAuthorize]
     public class CompanyController : Controller
     {
         private ICompanyLogic _companyLogic;

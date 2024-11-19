@@ -2,24 +2,15 @@
 using FoosballProLeague.Api.Models;
 using FoosballProLeague.Api.BusinessLogic;
 using Microsoft.AspNetCore.Mvc;
-using Xunit;
-using System.Collections.Generic;
 using FoosballProLeague.Api.DatabaseAccess;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
+using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 
 namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
 {
     [Collection("Non-Parallel Database Collection")]
     public class GetUsersTest : DatabaseTestBase
     {
-        private readonly UserController _userController;
-        private readonly IUserLogic _userLogic;
-
-        public GetUsersTest()
-        {
-            // Initialize UserLogic and UserController
-            _userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            _userController = new UserController(_userLogic);
-        }
 
         [Fact]
         public void GetUsers_ReturnsAllUsers()
@@ -31,16 +22,21 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
                        ('Jane', 'Smith', 'jane.smith@example.com', 'hashedpassword', 1400, 1500)";
             _dbHelper.InsertData(insertQuery);
 
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor);
+            UserController SUT = new UserController(userLogic, tokenLogic);
+
             // Act: Call the GetUsers method
-            var result = _userController.GetUsers() as OkObjectResult;
-            var users = result?.Value as List<UserModel>;
+            IActionResult result = SUT.GetUsers() as OkObjectResult;
+            IEnumerable<UserModel> users = (result as OkObjectResult)?.Value as IEnumerable<UserModel>;
 
             // Assert: Verify the results
             Assert.NotNull(users);
-            Assert.Equal(2, users.Count);
+            Assert.Equal(2, users.Count());
 
-            var user1 = users.Find(u => u.Email == "john.doe@example.com");
-            var user2 = users.Find(u => u.Email == "jane.smith@example.com");
+            UserModel user1 = users.First();
+            UserModel user2 = users.Last();
 
             Assert.NotNull(user1);
             Assert.Equal("John", user1.FirstName);
@@ -61,11 +57,17 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
             // Arrange: Ensure the database is empty
             _dbHelper.ClearDatabase();
 
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor);
+            UserController SUT = new UserController(userLogic, tokenLogic);
+
             // Act: Call the GetUsers method
-            var result = _userController.GetUsers() as OkObjectResult;
-            var users = result?.Value as List<UserModel>;
+            IActionResult result = SUT.GetUsers() as OkObjectResult;
+            IEnumerable<UserModel> users = (result as OkObjectResult)?.Value as IEnumerable<UserModel>;
 
             // Assert: Verify the results
+            Assert.IsType<OkObjectResult>(result);
             Assert.NotNull(users);
             Assert.Empty(users);
         }

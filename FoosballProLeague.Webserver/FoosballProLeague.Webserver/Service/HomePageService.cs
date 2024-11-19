@@ -13,7 +13,7 @@ namespace FoosballProLeague.Webserver.Service
         }
 
 
-        public async Task<List<UserModel>> GetUsers()
+        public async Task<List<UserModel>> GetAllUsers()
         {
             HttpResponseMessage response = await _httpClientService.GetAsync("/api/User");
             if (response.IsSuccessStatusCode)

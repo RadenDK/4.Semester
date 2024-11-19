@@ -1,28 +1,29 @@
 using System.Data;
 using Dapper;
+using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 using FoosballProLeague.Api.Models;
-using Npgsql;
 
-namespace FoosballProLeague.Api.DatabaseAccess;
-
-public class DepartmentDatabaseAccessor : DatabaseAccessor, IDepartmentDatabaseAccessor
+namespace FoosballProLeague.Api.DatabaseAccess
 {
-
-    public DepartmentDatabaseAccessor(IConfiguration configuration) : base(configuration)
+    public class DepartmentDatabaseAccessor : DatabaseAccessor, IDepartmentDatabaseAccessor
     {
-    }
-    
-    public List<DepartmentModel> GetDepartments()
-    {
-        List<DepartmentModel> departments = new List<DepartmentModel>();
-        string query = "SELECT id, name, company_id FROM departments";
 
-        using (IDbConnection connection = GetConnection())
+        public DepartmentDatabaseAccessor(IConfiguration configuration) : base(configuration)
         {
-            connection.Open();
-            departments = connection.Query<DepartmentModel>(query).ToList();
         }
 
-        return departments;
+        public List<DepartmentModel> GetDepartments()
+        {
+            List<DepartmentModel> departments = new List<DepartmentModel>();
+            string query = "SELECT id, name, company_id FROM departments";
+
+            using (IDbConnection connection = GetConnection())
+            {
+                connection.Open();
+                departments = connection.Query<DepartmentModel>(query).ToList();
+            }
+
+            return departments;
+        }
     }
 }

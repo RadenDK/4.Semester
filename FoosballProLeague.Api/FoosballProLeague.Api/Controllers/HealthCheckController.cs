@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace FoosballProLeague.Api.Controllers
 {
