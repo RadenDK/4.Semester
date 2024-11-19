@@ -3,9 +3,9 @@ name: Deploy FoosballProLeague API to DigitalOcean
 on:
   push:
     branches:
-      - '**'
+      - main
     paths:
-      - '**'
+      - 'FoosballProLeague.Api/**'
 
 jobs:
   build-and-test:
