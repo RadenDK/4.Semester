@@ -31,7 +31,7 @@ namespace FoosballProLeague.Webserver.BusinessLogic
         {
             try
             {
-                List<UserModel> users = await GetUsers();
+                List<UserModel> users = await GetAllUsers();
                 UserModel user = GetUserFromCookie();
                 List<MatchHistoryViewModel> matchHistory = null;
 
