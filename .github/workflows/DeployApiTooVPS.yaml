@@ -77,4 +77,4 @@ jobs:
           username: ${{ secrets.DIGITAL_OCEAN_USER }}
           key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
           script: |
-            rm -f /root/foosballproleague-api.tar
+            rm -rf /root/foosballproleague-api.tar
