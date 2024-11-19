@@ -17,14 +17,29 @@ namespace FoosballProLeague.Api.DatabaseAccess
 
         // This helper method is used to get a team by its id. It will return a TeamModel object with UserModel objects nested inside.
         // It reuses the connection object to avoid opening and closing the connection multiple times.
-        public TeamModel GetTeamById(NpgsqlConnection connection, int teamId)
+        public TeamModel GetTeamById(int teamId, NpgsqlConnection? connection = null)
         {
+            bool shouldCloseConnection = false;
+            if (connection == null)
+            {
+                connection = GetConnection();
+                connection.Open();
+                shouldCloseConnection = true;
+            }
+
             string teamQuery = "SELECT * FROM teams WHERE id = @TeamId";
 
             // 
             TeamDbModel teamDb = connection.QuerySingleOrDefault<TeamDbModel>(teamQuery, new { TeamId = teamId });
+            
+            
             if (teamDb == null)
             {
+                if (shouldCloseConnection)
+                {
+                    connection.Close();
+                }
+
                 return null;
             }
 
@@ -41,6 +56,11 @@ namespace FoosballProLeague.Api.DatabaseAccess
                 User1 = user1,
                 User2 = user2
             };
+
+            if (shouldCloseConnection)
+            {
+                connection.Close();
+            }
 
             return team;
         }
@@ -78,7 +98,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
                 // If the teamId is not null, get the team
                 if (teamId.HasValue)
                 {
-                    team = GetTeamById(connection, teamId.Value);
+                    team = GetTeamById(teamId.Value, connection);
                 }
 
                 // will be null if the team does not exist
@@ -95,7 +115,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
                 connection.Open();
                 int teamId = connection.QuerySingle<int>(query, new { Player1Id = playerIds[0], Player2Id = playerIds[1] });
 
-                TeamModel newTeam = GetTeamById(connection, teamId);
+                TeamModel newTeam = GetTeamById(teamId, connection);
 
                 return newTeam;
             }

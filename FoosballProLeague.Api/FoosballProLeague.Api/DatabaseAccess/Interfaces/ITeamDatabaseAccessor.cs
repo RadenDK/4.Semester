@@ -5,7 +5,7 @@ namespace FoosballProLeague.Api.DatabaseAccess.Interfaces
 {
     public interface ITeamDatabaseAccessor
     {
-        TeamModel GetTeamById(NpgsqlConnection connection, int teamId);
+        TeamModel GetTeamById(int teamId, NpgsqlConnection? connection = null);
         TeamModel GetTeamIdByUsers(List<int?> playerIds);
         TeamModel CreateTeam(List<int?> playerIds);
     }
