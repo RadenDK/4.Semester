@@ -348,5 +348,29 @@ namespace FoosballProLeague.Api.Tests
             // Assert that no other teams have been created other than the teams inserted in the database
             Assert.Equal(3, teams.Count());
         }
+
+        [Fact]
+        public void LoginOnTableWithUserThatDoesNotExists_ShouldReturnBadRequest()
+        {
+            // Arrange
+            _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
+
+            TableLoginRequest mockTableLoginRequest = new TableLoginRequest { UserId = 999, TableId = 1, Side = "red" };
+
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
+
+            MatchController SUT = new MatchController(matchLogic);
+
+            // Act
+            IActionResult result = SUT.LoginOnTable(mockTableLoginRequest);
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result); // Expect the login to fail since the user does not exist
+        }
     }
 }
