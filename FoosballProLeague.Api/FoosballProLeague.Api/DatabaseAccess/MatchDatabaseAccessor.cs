@@ -31,10 +31,10 @@ namespace FoosballProLeague.Api.DatabaseAccess
                 }
 
                 // Retrieve the red team
-                TeamModel redTeam = _teamDatabaseAccessor.GetTeamById(connection, matchDb.RedTeamId);
+                TeamModel redTeam = _teamDatabaseAccessor.GetTeamById(matchDb.RedTeamId, connection);
 
                 // Retrieve the blue team
-                TeamModel blueTeam = _teamDatabaseAccessor.GetTeamById(connection, matchDb.BlueTeamId);
+                TeamModel blueTeam = _teamDatabaseAccessor.GetTeamById(matchDb.BlueTeamId, connection);
 
                 // Map the matchDb to a MatchModel
                 MatchModel match = new MatchModel
@@ -58,7 +58,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         {
             string query = "SELECT * FROM foosball_matches";
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
                 List<MatchModel> matches = connection.Query<MatchModel>(query).ToList();
