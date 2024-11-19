@@ -23,8 +23,11 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore FoosballProLeague.Api/FoosballProLeague.Api/FoosballProLeague.Api.csproj
 
+      - name: Build project
+        run: dotnet build FoosballProLeague.Api/FoosballProLeague.Api/FoosballProLeague.Api.csproj --configuration Release
+
       - name: Run tests
-        run: dotnet test FoosballProLeague.Api/FoosballProLeague.Api.Tests/FoosballProLeague.Api.Tests.csproj --no-build --verbosity normal
+        run: dotnet test FoosballProLeague.Api/FoosballProLeague.Api.Tests/FoosballProLeague.Api.Tests.csproj --verbosity normal
         env:
           ConnectionStrings__DatabaseConnection: ${{ secrets.TEST_DATABASE_CONNECTION }}
           ApiKey: very_secure_api_key
