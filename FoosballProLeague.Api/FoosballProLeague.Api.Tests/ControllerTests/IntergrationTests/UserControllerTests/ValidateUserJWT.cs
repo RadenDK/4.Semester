@@ -3,9 +3,12 @@ using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.Controllers;
 using FoosballProLeague.Api.DatabaseAccess;
 using FoosballProLeague.Api.DatabaseAccess.Interfaces;
+using FoosballProLeague.Api.Hubs;
 using FoosballProLeague.Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,8 +39,10 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.UserCont
                 Password = mockUserNonHashedPassword
             };
 
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
-            IUserLogic userLogic = new UserLogic(userDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
             ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
             UserController SUT = new UserController(userLogic, tokenLogic);
 
@@ -62,9 +67,10 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.UserCont
         public void ValidateUserJWT_ShouldReturnFalse_ForAJwtThatTheApiDidNotMake()
         {
             // Arrange
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
-            IUserLogic userLogic = new UserLogic(userDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
             ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
             UserController SUT = new UserController(userLogic, tokenLogic);
 
@@ -87,9 +93,10 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.UserCont
         public void ValidateUserJWT_ShouldReturnFalse_OnAnReqeustWithNoJWTInTheHeader()
         {
             // Arrange
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
-            IUserLogic userLogic = new UserLogic(userDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
             ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
             UserController SUT = new UserController(userLogic, tokenLogic);
 
@@ -113,9 +120,10 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.UserCont
         public void ValidateUserJWT_ShouldReturnFalse_OnAnReqeustWithNoAuthorizationHeader()
         {
             // Arrange
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
-            IUserLogic userLogic = new UserLogic(userDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
             ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
             UserController SUT = new UserController(userLogic, tokenLogic);
 

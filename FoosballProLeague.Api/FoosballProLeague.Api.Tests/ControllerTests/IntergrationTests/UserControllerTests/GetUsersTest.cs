@@ -14,11 +14,6 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
     [Collection("Non-Parallel Database Collection")]
     public class GetUsersTest : DatabaseTestBase
     {
-        public GetUsersTest()
-        {
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
-            
-        }
 
         [Fact]
         public void GetLeaderboards_ReturnsAllUsers()
@@ -29,6 +24,9 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
                 VALUES ('John', 'Doe', 'john.doe@example.com', 'hashedpassword', 1500, 1600),
                        ('Jane', 'Smith', 'jane.smith@example.com', 'hashedpassword', 1400, 1500)";
             _dbHelper.InsertData(insertQuery);
+
+
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
@@ -70,7 +68,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
         public void GetLeaderboards_ReturnsEmptyList_WhenNoUsersExist()
         {
             // Arrange: Ensure the database is empty
-            _dbHelper.ClearDatabase();
+
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());

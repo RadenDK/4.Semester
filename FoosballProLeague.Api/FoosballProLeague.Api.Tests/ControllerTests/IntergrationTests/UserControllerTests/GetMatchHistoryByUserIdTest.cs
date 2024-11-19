@@ -3,9 +3,12 @@ using FoosballProLeague.Api.BusinessLogic;
 using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.Controllers;
 using FoosballProLeague.Api.DatabaseAccess;
+using FoosballProLeague.Api.Hubs;
 using FoosballProLeague.Api.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
+using Moq;
 
 namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.UserControllerTests
 {
@@ -23,8 +26,10 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.UserCont
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, 1, 2, 9, 0)");
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
 
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+
             IConfiguration configuration = new ConfigurationManager();
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
             ITokenLogic tokenLogic = new TokenLogic(configuration);
             UserController SUT = new UserController(userLogic, tokenLogic);
             
@@ -47,8 +52,10 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.UserCont
             int userId = 1;
             _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 1000, 1000)");
 
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+
             IConfiguration configuration = new ConfigurationManager();
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
             ITokenLogic tokenLogic = new TokenLogic(configuration);
             UserController SUT = new UserController(userLogic, tokenLogic);
 

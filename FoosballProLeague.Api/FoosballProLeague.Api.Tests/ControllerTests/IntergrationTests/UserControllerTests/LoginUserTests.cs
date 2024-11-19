@@ -42,8 +42,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserContr
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
             Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
-            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, tokenLogic, mockHubContext.Object);
-            UserController SUT = new UserController(userLogic);
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
+            UserController SUT = new UserController(userLogic, tokenLogic);
 
             // Act: Call the LoginUser method
             IActionResult result = SUT.LoginUser(loginModel);
@@ -72,8 +72,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserContr
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
             Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
-            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, tokenLogic, mockHubContext.Object);
-            UserController SUT = new UserController(userLogic);
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
+            UserController SUT = new UserController(userLogic, tokenLogic);
 
             // Act: Call the LoginUser method
             IActionResult result = SUT.LoginUser(loginModel);

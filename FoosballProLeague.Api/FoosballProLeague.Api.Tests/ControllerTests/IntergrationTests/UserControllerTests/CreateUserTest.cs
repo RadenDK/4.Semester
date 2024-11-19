@@ -15,10 +15,6 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
 
     public class CreateUserTest : DatabaseTestBase
     {
-        public CreateUserTest()
-        {
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
-        }
 
         [Fact]
         public async void CreateUser_ShouldReturnOk()
@@ -39,6 +35,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
                 DepartmentId = 1,
                 CompanyId = 1
             };
+
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
@@ -81,6 +79,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
                 CompanyId = 1
             };
 
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
             IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
@@ -121,6 +121,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
                 DepartmentId = 1,
                 CompanyId = 1
             };
+
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
