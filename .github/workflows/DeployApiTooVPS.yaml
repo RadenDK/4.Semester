@@ -3,10 +3,9 @@ name: Deploy FoosballProLeague API to DigitalOcean
 on:
   push:
     branches:
-    #  - main
       - '**'
-    #paths:
-    #  - 'FoosballProLeague.Api/**'
+    paths:
+      - '**'
 
 jobs:
   build-and-test:
@@ -22,10 +21,10 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore FoosballProLeague.Api/FoosballProLeague.Api.csproj
 
       - name: Run tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test FoosballProLeague.Api.Tests/FoosballProLeague.Api.Tests.csproj --no-build --verbosity normal
         env:
           ConnectionStrings__DatabaseConnection: ${{ secrets.TEST_DATABASE_CONNECTION }}
           ApiKey: very_secure_api_key
