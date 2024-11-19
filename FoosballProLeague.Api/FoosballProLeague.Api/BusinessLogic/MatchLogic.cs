@@ -1,5 +1,6 @@
 using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.DatabaseAccess.Interfaces;
+using FoosballProLeague.Api.Models;
 using FoosballProLeague.Api.Hubs;
 using FoosballProLeague.Api.Models.FoosballModels;
 using FoosballProLeague.Api.Models.RequestModels;
@@ -69,6 +70,15 @@ namespace FoosballProLeague.Api.BusinessLogic
         */
         public bool LoginOnTable(TableLoginRequest tableLoginRequest)
         {
+            // Check if the userId exists in the database
+            UserModel user = _userLogic.GetUserById(tableLoginRequest.UserId);
+            if (user == null)
+            {
+                // The user does not exists so it should not be possible to login on the table
+                return false;
+            }
+
+            // get the active match at the table, may be null if no match is active
             MatchModel activeMatch = _matchDatabaseAccessor.GetActiveMatchByTableId(tableLoginRequest.TableId);
 
             // If there is no active match then we try to add the player to the pending match
