@@ -34,7 +34,7 @@ jobs:
             },
             "ApiKey": "very_secure_api_key",
             "Jwt": {
-              "SigningKey": "very_secure_signing_key"
+              "SigningKey": "very_secure_signing_key_that_is_long_enough"
             }
           }' > FoosballProLeague.Api/FoosballProLeague.Api.Tests/appsettings.test.json
 
