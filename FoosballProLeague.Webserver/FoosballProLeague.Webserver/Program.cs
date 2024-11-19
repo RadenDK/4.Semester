@@ -24,6 +24,7 @@ builder.Services.AddScoped<IHomePageLogic, HomePageLogic>();
 builder.Services.AddScoped<IHomePageService, HomePageService>();
 
 // Login services
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<ILoginLogic, LoginLogic>();
 

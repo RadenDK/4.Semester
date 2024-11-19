@@ -134,7 +134,7 @@ body {
             }
 
     .leaderboard table tbody {
-        display: table-body-group;
+        display: table-row-group;
     }
 
         .leaderboard table tbody tr {
@@ -197,12 +197,17 @@ body {
         font-weight: bold;
     }
 
+    /* Styling of match history */
+.match-history-section {
+    margin-top: 30px;
+}
+
 .match-history {
     background-color: #0b1b38;
     box-shadow: 0 0 15px 0 rgb(0, 0, 0, 0.5);
     padding: 40px;
     border-radius: 10px;
-    flex-grow: 1;
+    height: 80vh;
     overflow-y: auto;
 }
 
@@ -210,6 +215,64 @@ body {
         margin-bottom: 20px;
         font-size: 30px;
         font-weight: bold;
+    }
+    
+    .match-history table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    
+    .match-history table tr{
+        border: 3px solid #6c49eb;
+        border-radius: 20px;
+        background-color: #0b1424;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 15px ;
+        display: flex;
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .match-history table tbody .team-red{
+        display: flex;
+        flex-direction: column;
+        font-size: 20px;
+    }
+
+    .match-history table .versus {
+        font-weight: bold;
+        text-align: center;
+        padding: 0 10px;
+        position: relative;
+    }
+
+    .match-history table .versus::after {
+        content: "___";
+        position: absolute;
+        bottom: -5px; /* Adjust the position as needed */
+        left: 50%;
+        transform: translateX(-50%);
+        color: #6c49eb;
+    }
+
+    .match-history table tbody .team-blue{
+        display: flex;
+        flex-direction: column;
+        font-size: 20px;
+    }
+    
+    .match-history table tbody .team-red-score {
+        color: #ff4c4c;
+        font-weight: bold;
+        font-size: 20px;
+    }
+    
+    .match-history table tbody .team-blue-score {
+        color: #4c6cff;
+        font-weight: bold;
+        font-size: 20px;
     }
 
     .match-history .history-item {

@@ -49,10 +49,7 @@ public class LoginController : Controller
 
             return RedirectToAction("HomePage", "HomePage");
         }
-
-        string errorContent = await response.Content.ReadAsStringAsync();
-        string errorMessage = JsonDocument.Parse(errorContent).RootElement.GetProperty("message").GetString();
-        ModelState.AddModelError(string.Empty, errorMessage);
+        
         return View("Login");
     }
 
