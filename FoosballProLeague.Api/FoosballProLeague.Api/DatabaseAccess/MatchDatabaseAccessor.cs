@@ -68,6 +68,18 @@ namespace FoosballProLeague.Api.DatabaseAccess
                 return match;
             }
         }
+        
+        public List<MatchModel> GetAllMatches()
+        {
+            string query = "SELECT * FROM foosball_matches";
+
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            {
+                connection.Open();
+                List<MatchModel> matches = connection.Query<MatchModel>(query).ToList();
+                return matches;
+            }
+        }
 
 
         public int? GetTeamIdByUsers(List<int?> playerIds)

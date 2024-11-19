@@ -3,6 +3,9 @@ using FoosballProLeague.Api.BusinessLogic;
 using System.Runtime.CompilerServices;
 using FoosballProLeague.Api.Models.RequestModels;
 using System.Linq.Expressions;
+using FoosballProLeague.Api.Models;
+using FoosballProLeague.Api.Models.FoosballModels;
+
 
 namespace FoosballProLeague.Api.Controllers
 {
@@ -86,6 +89,33 @@ namespace FoosballProLeague.Api.Controllers
                 {
                     return BadRequest("Registering goal was not successful.");
                 }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("An error occurred: " + ex.Message);
+            }
+        }
+        
+        [HttpGet("GetAllMatches")]
+        public IActionResult GetAllMatches()
+        {
+            try
+            {
+                List<MatchModel> matches = _matchLogic.GetAllMatches();
+                return Ok(matches);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("An error occurred: " + ex.Message);
+            }
+        }
+        [HttpGet("GetActiveMatches")]
+        public IActionResult GetActiveMatches()
+        {
+            try
+            {
+                List<MatchModel> activeMatches = _matchLogic.GetActiveMatches();
+                return Ok(activeMatches);
             }
             catch (Exception ex)
             {

@@ -11,6 +11,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         public bool UpdateMatchScore(int matchId, int redScore, int blueScore);
         public bool EndMatch(int matchId);
         public bool UpdateValidEloMatch(int matchId, bool validEloMatch);
+        public List<MatchModel> GetAllMatches();
 
         // Team-related methods
         public int GetTeamIdByMatchId(int matchId, string teamSide);

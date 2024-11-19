@@ -41,6 +41,30 @@ namespace FoosballProLeague.Api.BusinessLogic
             return _matchDatabaseAccessor.GetTeamById(teamId);
         }
 
+        //Hjælpemetode til at hente alle kampe, bruges i GetActiveMatches til at loope igennem kampene, finde en uden endTime og tilføje holdene til listen
+        public List<MatchModel> GetAllMatches()
+        {
+            return _matchDatabaseAccessor.GetAllMatches();
+        }
+       
+        
+        public List<MatchModel> GetActiveMatches()
+        {
+            List<MatchModel> allMatches = _matchDatabaseAccessor.GetAllMatches();
+            List<MatchModel> activeMatches = new List<MatchModel>();
+
+            foreach (MatchModel match in allMatches)
+            {
+                if (match.EndTime == null)
+                {
+                    match.RedTeam = _matchDatabaseAccessor.GetTeamById(match.RedTeamId);
+                    match.BlueTeam = _matchDatabaseAccessor.GetTeamById(match.BlueTeamId);
+                    activeMatches.Add(match);
+                }
+            }
+
+            return activeMatches;
+        }
         // Helper method to get or register a team by player IDs
         public TeamModel GetOrRegisterTeam(List<int?> userIds, int? existingTeamId = null)
         {

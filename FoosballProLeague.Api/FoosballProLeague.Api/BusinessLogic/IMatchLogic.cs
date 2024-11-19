@@ -1,4 +1,5 @@
-﻿using FoosballProLeague.Api.Models.FoosballModels;
+﻿using System.Text.RegularExpressions;
+using FoosballProLeague.Api.Models.FoosballModels;
 using FoosballProLeague.Api.Models.RequestModels;
 
 namespace FoosballProLeague.Api.BusinessLogic
@@ -14,6 +15,9 @@ namespace FoosballProLeague.Api.BusinessLogic
         public void InterruptMatch(int tableId);
 
         public TeamModel GetOrRegisterTeam(List<int?> userIds, int? existingTeamId = null);
+        
+        List<MatchModel> GetAllMatches();
+        List<MatchModel> GetActiveMatches();
 
     }
 
