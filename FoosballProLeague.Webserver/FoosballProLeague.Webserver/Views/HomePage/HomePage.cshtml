@@ -1,7 +1,8 @@
-﻿@model List<FoosballProLeague.Webserver.Models.UserModel>
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@model FoosballProLeague.Webserver.Models.HomePageViewModel
 
 @{
-    Layout = "_Layout";
+    Layout = "_LayoutHomePage";
     var mode = ViewBag.Mode as string ?? "1v1";
     var pageNumber = ViewBag.PageNumber as int? ?? 1;
     var pageSize = ViewBag.PageSize as int? ?? 10;
@@ -19,6 +20,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js" integrity="sha512-7SRCYIJtR6F8ocwW7UxW6wGKqbSyqREDbfCORCbGLatU0iugBLwyOXpzhkPyHIFdBO0K2VCu57fvP2Twgx1o2A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="~/js/homepage.js"></script>
     <link rel="stylesheet" href="~/css/layout.css">
+    <link rel="stylesheet" href="~/css/HomePage.css">
+
+
 </head>
 <body>
     <main class="main">
@@ -64,8 +68,7 @@
                     <a href="#" class="next-page">Next</a>
                 </div>
             </div>
-        </section>
-        <section class="match-section">
+            <section class="match-section">
             <section class="ongoing-match-section">
                 <div class="ongoing-match">
                     <h2>Ongoing match</h2>
@@ -85,15 +88,46 @@
                     </div>
                 </div>
             </section>
-            <section class="match-history-section">
-                <div class="match-history">
-                    <h2>Match history</h2>
-                    <div class="history-item">
-                        <span class="match">Carl vs Olivier</span> <span class="score">10 - 4</span> <span class="points">10 pt</span>
+                <section class="match-history-section">
+                    <div class="match-history">
+                        <h2>Match history</h2>
+                        @if (Model.MatchHistory != null)
+                        {
+                            <table>
+                                <tbody>
+                                @foreach (MatchHistoryViewModel match in Model.MatchHistory)
+                                {
+                                    <tr>
+                                        <td class="team-red">
+                                            <span class="team-red-user1"> @match.RedTeamUser1 </span> 
+                                            <span class="team-red-user2"> @if (!string.IsNullOrEmpty(match.RedTeamUser2)) { @match.RedTeamUser2 } </span>
+                                        </td>
+                                        <td class="versus">VS</td>
+                                        <td class="team-blue">
+                                            <span class="team-blue-user1"> @match.BlueTeamUser1 </span>
+                                            <span class="team-blue-user2">@if (!string.IsNullOrEmpty(match.BlueTeamUser2)) { @match.BlueTeamUser2 } </span>
+                                        </td>
+                                        <td>
+                                            @match.TimeAgo
+                                        </td>
+                                        <td>
+                                            <span class="team-red-score">@match.RedTeamScore</span> - <span class="team-blue-score">@match.BlueTeamScore</span>
+                                        </td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="history-item">
+                                <span>No played matches available</span>
+                            </div>
+                        }
                     </div>
                 </div>
             </section>
-        </section>
-    </main>
+        </div>
+    </div>
 </body>
 </html>

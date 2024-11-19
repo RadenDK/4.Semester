@@ -6,6 +6,8 @@ using FoosballProLeague.Api.DatabaseAccess;
 using bc = BCrypt.Net.BCrypt;
 using Microsoft.AspNetCore.Mvc;
 
+using FoosballProLeague.Api.DatabaseAccess.Interfaces;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using System.Collections.Generic;
 using FoosballProLeague.Api.Hubs;
 using Microsoft.AspNetCore.SignalR;
@@ -38,15 +40,16 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserContr
             };
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
             Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
-            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, tokenLogic, mockHubContext.Object);
             UserController SUT = new UserController(userLogic);
 
             // Act: Call the LoginUser method
             IActionResult result = SUT.LoginUser(loginModel);
 
             // Assert: Verify the results
-            Assert.IsType<OkResult>(result);
+            Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]
@@ -67,8 +70,9 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserContr
             };
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
             Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
-            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, tokenLogic, mockHubContext.Object);
             UserController SUT = new UserController(userLogic);
 
             // Act: Call the LoginUser method

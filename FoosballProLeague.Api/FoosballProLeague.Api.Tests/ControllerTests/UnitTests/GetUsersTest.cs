@@ -1,11 +1,8 @@
 ﻿using FoosballProLeague.Api.Controllers;
-using FoosballProLeague.Api.Models;
-using FoosballProLeague.Api.BusinessLogic;
 using Microsoft.AspNetCore.Mvc;
-using Xunit;
-using System.Collections.Generic;
 using FoosballProLeague.Api.DatabaseAccess;
 using Moq;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 using FoosballProLeague.Api.Hubs;
 
@@ -21,15 +18,6 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.UnitTests
         {
             // Mock IHubContext and IHubClients
             Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
-            Mock<IHubClients> mockClients = new Mock<IHubClients>();
-            Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
-
-            mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
-            mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
-
-            // Initialize UserLogic and UserController
-            _userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            _userController = new UserController(_userLogic);
         }
 
         [Fact]
@@ -37,17 +25,16 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.UnitTests
         {
             // Arrange: Create a mock of IUserLogic that throws an exception
             Mock<IUserLogic> mockUserLogic = new Mock<IUserLogic>();
+            Mock<ITokenLogic> mockTokenLogic = new Mock<ITokenLogic>();
             mockUserLogic.Setup(logic => logic.GetLeaderboards()).Throws(new Exception("Test exception"));
 
-            UserController controller = new UserController(mockUserLogic.Object);
+            UserController SUT = new UserController(mockUserLogic.Object, mockTokenLogic.Object);
 
             // Act: Call the GetUsers method
-            BadRequestObjectResult result = controller.GetLeaderboards() as BadRequestObjectResult;
+            IActionResult result = SUT.GetLeaderboards();
 
             // Assert: Verify the results
-            Assert.NotNull(result);
-            Assert.Equal(400, result.StatusCode);
-            Assert.Equal("Test exception", result.Value);
+            Assert.IsType<BadRequestObjectResult>(result);
         }
     }
 }

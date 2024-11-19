@@ -5,26 +5,52 @@
 #include "ApiRequester.h"    // To send HTTP requests
 
 namespace sensorHandler {
-  const int sensorPin = 23;          // Sensor pin
-  unsigned long lastTriggerTime = 0; // Time of the last trigger
-  const unsigned long debounceDelay = 500; // Debounce delay in milliseconds
+    const int numSensors = 4;
+    const int sensorPins[numSensors] = {18, 19, 22, 23}; // Sensor pins
+    unsigned long lastTriggerTimes[numSensors] = {0};   // Time of the last trigger for each sensor
+    const unsigned long debounceDelay = 500;            // Debounce delay in milliseconds
 
-  void initializeSensor() {
-    pinMode(sensorPin, INPUT_PULLDOWN);  // Enable internal pull-down resistor
-    LedHandler::initializeLed();         // Initialize the LED
-    Serial.println("Sensor and LED initialized.");
-  }
-
-  void monitorSensor() {
-    int sensorState = digitalRead(sensorPin);
-    unsigned long currentTime = millis();
-
-    if (sensorState == HIGH && (currentTime - lastTriggerTime >= debounceDelay)) {
-      lastTriggerTime = currentTime;
-      Serial.println("Sensor triggered, sending HTTP request...");
-      LedHandler::shortFlash();
-      ApiRequester::sendHttpRequest();
-      Serial.println("HTTP request sent.");
+    void initializeSensors() {
+        for (int i = 0; i < numSensors; i++) {
+            pinMode(sensorPins[i], INPUT_PULLDOWN);  // Enable internal pull-down resistor
+        }
+        LedHandler::initializeLed();         // Initialize the LED
+        Serial.println("Sensors and LED initialized.");
     }
-  }
+
+    void monitorSensors() {
+        unsigned long currentTime = millis();
+
+        for (int i = 0; i < numSensors; i++) {
+            int sensorState = digitalRead(sensorPins[i]);
+
+            if (sensorState == HIGH && (currentTime - lastTriggerTimes[i] >= debounceDelay)) {
+                lastTriggerTimes[i] = currentTime;
+                Serial.print("Sensor on pin ");
+                Serial.print(sensorPins[i]);
+                Serial.println(" triggered, sending HTTP request...");
+                LedHandler::shortFlash();
+
+                // Trigger the corresponding API request based on the pin
+                switch(sensorPins[i]) {
+                    case 18:
+                        ApiRequester::sendRegisterGoal();
+                        break;
+                    case 19:
+                        ApiRequester::sendInterruptMatch();
+                        break;
+                    case 22:
+                        ApiRequester::sendStartMatch();
+                        break;
+                    case 23:
+                        ApiRequester::sendLoginOnTable();
+                        break;
+                    default:
+                        Serial.println("Unknown sensor pin!");
+                        break;
+                }
+                Serial.println("HTTP request sent.");
+            }
+        }
+    }
 }

@@ -7,6 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+
+    <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
+
     <_WebToolingArtifacts Remove="Properties\launchSettings.json" />
   </ItemGroup>
 
@@ -15,12 +18,12 @@
   </ItemGroup>
 
   <ItemGroup>
+
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Dapper" Version="2.1.35" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="9.0.0-rc.2.24474.3" />
     <PackageReference Include="Npgsql" Version="8.0.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.1.2" />
   </ItemGroup>
 
 </Project>

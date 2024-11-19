@@ -1,29 +1,28 @@
-using System.Data;
 using Dapper;
+using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 using FoosballProLeague.Api.Models;
-using Npgsql;
+using System.Data;
 
-namespace FoosballProLeague.Api.DatabaseAccess;
-
-public class CompanyDatabaseAccessor : ICompanyDatabaseAccessor
+namespace FoosballProLeague.Api.DatabaseAccess
 {
-    private readonly string _connectionString;
-
-    public CompanyDatabaseAccessor(IConfiguration configuration)
+    public class CompanyDatabaseAccessor : DatabaseAccessor, ICompanyDatabaseAccessor
     {
-        _connectionString = configuration.GetConnectionString("DatabaseConnection");
-    }
-    
-    public List<CompanyModel> GetCompanies()
-    {
-        List<CompanyModel> companies = new List<CompanyModel>();
-        string query = "SELECT id AS Id, name AS Name FROM companies";
 
-        using (IDbConnection connection = new NpgsqlConnection(_connectionString))
+        public CompanyDatabaseAccessor(IConfiguration configuration) : base(configuration)
         {
-            connection.Open();
-            companies = connection.Query<CompanyModel>(query).ToList();
         }
-        return companies;
+
+        public List<CompanyModel> GetCompanies()
+        {
+            List<CompanyModel> companies = new List<CompanyModel>();
+            string query = "SELECT id, name FROM companies";
+
+            using (IDbConnection connection = GetConnection())
+            {
+                connection.Open();
+                companies = connection.Query<CompanyModel>(query).ToList();
+            }
+            return companies;
+        }
     }
 }

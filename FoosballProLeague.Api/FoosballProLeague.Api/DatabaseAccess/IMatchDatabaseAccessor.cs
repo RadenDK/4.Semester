@@ -28,3 +28,4 @@ namespace FoosballProLeague.Api.DatabaseAccess
         public bool LogGoal(MatchLogModel matchLog);
     }
 }
+

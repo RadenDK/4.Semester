@@ -6,6 +6,7 @@ on:
         - main
     paths:
       - 'FoosballProLeague.Webserver/**'  # Only trigger when the Webserver code changes
+      - '.github/DeployWebserverTooVPS.yaml'  # Also trigger when this workflow file changes
       
 jobs:
   build:
@@ -58,6 +59,7 @@ jobs:
             docker run -d -p 5000:5000 \
             --name foosballproleague-webserver-container \
             -e HttpClientSettings__BaseAddress="${{ secrets.BASE_API_URL }}" \
+            -e ApiKey="${{ secrets.X_API_KEY }}" \
             foosballproleague-webserver:latest
 
 

@@ -1,74 +1,59 @@
-﻿using Dapper;
+using Dapper;
 using FoosballProLeague.Api.Models.FoosballModels;
-using FoosballProLeague.Api.Models;
-using Microsoft.Extensions.Configuration;
 using Npgsql;
-using System.Text.RegularExpressions;
+using FoosballProLeague.Api.DatabaseAccess.Interfaces;
+using FoosballProLeague.Api.Models.DbModels;
 
 namespace FoosballProLeague.Api.DatabaseAccess
 {
-    public class MatchDatabaseAccessor : IMatchDatabaseAccessor
+    public class MatchDatabaseAccessor : DatabaseAccessor, IMatchDatabaseAccessor
     {
-        private readonly string _connectionString;
-
-        public MatchDatabaseAccessor(IConfiguration configuration)
+        private readonly ITeamDatabaseAccessor _teamDatabaseAccessor;
+        public MatchDatabaseAccessor(IConfiguration configuration, ITeamDatabaseAccessor teamDatabaseAccessor) : base(configuration)
         {
-            _connectionString = configuration.GetConnectionString("DatabaseConnection");
-            Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
-
+            _teamDatabaseAccessor = teamDatabaseAccessor;
         }
 
-        // GET METHODS
-
-        public int? GetActiveMatchIdByTableId(int tableId)
-        {
-            string query = "SELECT active_match_id FROM foosball_tables WHERE id = @TableId";
-
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
-            {
-                connection.Open();
-                int? activeMatchId = connection.QuerySingleOrDefault<int?>(query, new { TableId = tableId });
-                return activeMatchId;
-            }
-        }
-
-        public int GetTeamIdByMatchId(int matchId, string teamSide)
-        {
-            // Validate the teamSide input
-            if (teamSide != "red" && teamSide != "blue")
-            {
-                throw new ArgumentException("Invalid team side. Allowed values are 'red' or 'blue'.");
-            }
-
-            // Construct the query using the validated teamSide
-            string query = $"SELECT {teamSide}_team_id FROM foosball_matches WHERE id = @MatchId";
-
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
-            {
-                connection.Open();
-                int teamId = connection.QuerySingleOrDefault<int>(query, new { MatchId = matchId });
-                return teamId;
-            }
-        }
-
-
+        // This method is used to get a match by its id. It will return a MatchModel object with TeamModel and UserModel objects nested inside.
         public MatchModel GetMatchById(int matchId)
         {
-            string query = "SELECT * FROM foosball_matches WHERE id = @MatchId";
+            string matchQuery = "SELECT * FROM foosball_matches WHERE id = @MatchId";
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
 
-                // Retrieve the raw result set as a dynamic object
-                IEnumerable<dynamic> resultSet = connection.Query(query, new { MatchId = matchId });
+                // Retrieve the match
+                MatchDbModel matchDb = connection.QuerySingleOrDefault<MatchDbModel>(matchQuery, new { MatchId = matchId });
+                if (matchDb == null)
+                {
+                    return null;
+                }
 
-                // Map the result to MatchModel
-                MatchModel match = connection.QuerySingleOrDefault<MatchModel>(query, new { MatchId = matchId });
+                // Retrieve the red team
+                TeamModel redTeam = _teamDatabaseAccessor.GetTeamById(connection, matchDb.RedTeamId);
+
+                // Retrieve the blue team
+                TeamModel blueTeam = _teamDatabaseAccessor.GetTeamById(connection, matchDb.BlueTeamId);
+
+                // Map the matchDb to a MatchModel
+                MatchModel match = new MatchModel
+                {
+                    Id = matchDb.Id,
+                    TableId = matchDb.TableId,
+                    RedTeam = redTeam,
+                    BlueTeam = blueTeam,
+                    TeamRedScore = matchDb.TeamRedScore,
+                    TeamBlueScore = matchDb.TeamBlueScore,
+                    StartTime = matchDb.StartTime,
+                    EndTime = matchDb.EndTime,
+                    ValidEloMatch = matchDb.ValidEloMatch
+                };
+
                 return match;
             }
         }
-        
+
         public List<MatchModel> GetAllMatches()
         {
             string query = "SELECT * FROM foosball_matches";
@@ -81,92 +66,59 @@ namespace FoosballProLeague.Api.DatabaseAccess
             }
         }
 
-
-        public int? GetTeamIdByUsers(List<int?> playerIds)
+        // This method is used to get the active match for a table by its id. It will return a MatchModel object with TeamModel and UserModel objects nested inside.
+        public MatchModel GetActiveMatchByTableId(int tableId)
         {
-            string query = @"
-                    SELECT id 
-                    FROM teams 
-                    WHERE player1_id = @Player1Id 
-                        AND (player2_id = @Player2Id OR @Player2Id IS NULL)";
+            string query = "SELECT * FROM foosball_matches";
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-                int? teamId = connection.QuerySingleOrDefault<int?>(query, new { Player1Id = playerIds[0], Player2Id = playerIds[1] });
-                return teamId;
+                List<MatchModel> matches = connection.Query<MatchModel>(query).ToList();
+                return matches;
             }
         }
 
-
-        public TeamModel GetTeamById(int teamId)
+        // This method is used to get the active match for a table by its id. It will return a MatchModel object with TeamModel and UserModel objects nested inside.
+        public MatchModel GetActiveMatchByTableId(int tableId)
         {
-            string query = @"
-        SELECT 
-            teams.id,
-            user1.id, user1.first_name, user1.last_name, user1.elo_1v1, user1.elo_2v2,
-            user2.id, user2.first_name, user2.last_name, user2.elo_1v1, user2.elo_2v2
-        FROM
-            teams
-        LEFT JOIN
-            users user1 ON teams.player1_id = user1.id
-        LEFT JOIN
-            users user2 ON teams.player2_id = user2.id
-        WHERE
-            teams.id = @TeamId";
+            string query = "SELECT active_match_id FROM foosball_tables WHERE id = @TableId";
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            MatchModel activeMatch = null;
+
+            using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
+                int? activeMatchId = connection.QuerySingleOrDefault<int?>(query, new { TableId = tableId });
 
-                TeamModel team = connection.Query<TeamModel, UserModel, UserModel, TeamModel>(
-                    query,
-                    (teamResult, user1, user2) =>
-                    {
-                        teamResult.User1 = user1;
-                        teamResult.User2 = user2;
-                        return teamResult;
-                    },
-                    new { TeamId = teamId },
-                    splitOn: "id,id"  // Dapper needs this to split at user1.id and user2.id
-                ).FirstOrDefault();
+                // If there is an active match, get the match
+                if (activeMatchId.HasValue)
+                {
+                    activeMatch = GetMatchById(activeMatchId.Value);
+                }
 
-                return team;
+                // This will be null if there is no active match
+                return activeMatch;
             }
         }
-
 
         // CREATE METHODS
-
         public int CreateMatch(int tableId, int redTeamId, int blueTeamId, bool? validEloMatch = null)
         {
             string query = "INSERT INTO foosball_matches (table_id, red_team_id, blue_team_id, valid_elo_match) VALUES (@TableId, @RedTeamId, @BlueTeamId, @ValidEloMatch) RETURNING id";
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
                 int matchId = connection.QuerySingle<int>(query, new { TableId = tableId, RedTeamId = redTeamId, BlueTeamId = blueTeamId, ValidEloMatch = validEloMatch });
                 return matchId;
             }
         }
-
-        public int RegisterTeam(List<int?> playerIds)
-        {
-            string query = "INSERT INTO teams (player1_id, player2_id) VALUES (@Player1Id, @Player2Id) RETURNING id";
-
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
-            {
-                connection.Open();
-                int teamId = connection.QuerySingle<int>(query, new { Player1Id = playerIds[0], Player2Id = playerIds[1] });
-                return teamId;
-            }
-        }
-
-        public bool LogGoal(MatchLogModel matchLog)
+        public bool CreateMatchLog(MatchLogModel matchLog)
         {
             string query = "INSERT INTO match_logs (match_id, team_id, side, log_time) VALUES (@MatchId, @TeamId, @Side, @LogTime)";
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
                 int rowsAffected = connection.Execute(query, matchLog);
@@ -176,23 +128,23 @@ namespace FoosballProLeague.Api.DatabaseAccess
 
         // UPDATE METHODS
 
-        public bool UpdateMatchScore(int matchId, int teamRedScore, int teamBlueScore)
+        public bool UpdateMatchScore(MatchModel match)
         {
             string query = "UPDATE foosball_matches SET team_red_score = @TeamRedScore, team_blue_score = @TeamBlueScore WHERE id = @MatchId";
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-                int rowsAffected = connection.Execute(query, new { MatchId = matchId, TeamRedScore = teamRedScore, TeamBlueScore = teamBlueScore });
+                int rowsAffected = connection.Execute(query, new { MatchId = match.Id, TeamRedScore = match.TeamRedScore, TeamBlueScore = match.TeamBlueScore });
                 return rowsAffected > 0;
             }
         }
 
-        public bool SetTableActiveMatch(int tableId, int? matchId)
+        public bool UpdateTableActiveMatch(int tableId, int? matchId)
         {
             string query = "UPDATE foosball_tables SET active_match_id = @MatchId WHERE id = @TableId";
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
                 int rowsAffected = connection.Execute(query, new { TableId = tableId, MatchId = matchId });
@@ -204,7 +156,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         {
             string query = "UPDATE foosball_matches SET end_time = @EndTime WHERE id = @MatchId";
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
                 int rowsAffected = connection.Execute(query, new { MatchId = matchId, EndTime = DateTime.Now });
@@ -212,26 +164,26 @@ namespace FoosballProLeague.Api.DatabaseAccess
             }
         }
 
-        public bool UpdateUserIdOnTeamByTeamId(int? teamId, int userId)
+        public bool UpdateValidEloMatch(int matchId, bool validEloMatch)
         {
-            string query = "UPDATE teams SET player2_id = @UserId WHERE id = @TeamId";
+            string query = "UPDATE foosball_matches SET valid_elo_match = @ValidEloMatch WHERE id = @MatchId";
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-                int rowsAffected = connection.Execute(query, new { UserId = userId, TeamId = teamId });
+                int rowsAffected = connection.Execute(query, new { ValidEloMatch = validEloMatch, MatchId = matchId });
                 return rowsAffected > 0;
             }
         }
 
-        public bool UpdateValidEloMatch(int matchId, bool validEloMatch)
+        public bool UpdateMatchTeamIds(MatchModel match)
         {
-            string query = "UPDATE public.foosball_matches SET valid_elo_match = @ValidEloMatch WHERE id = @MatchId";
+            string query = "UPDATE foosball_matches SET red_team_id = @RedTeamId, blue_team_id = @BlueTeamId WHERE id = @MatchId";
 
-            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-                int rowsAffected = connection.Execute(query, new { ValidEloMatch = validEloMatch, MatchId = matchId });
+                int rowsAffected = connection.Execute(query, new { RedTeamId = match.RedTeam.Id, BlueTeamId = match.BlueTeam.Id, MatchId = match.Id });
                 return rowsAffected > 0;
             }
         }

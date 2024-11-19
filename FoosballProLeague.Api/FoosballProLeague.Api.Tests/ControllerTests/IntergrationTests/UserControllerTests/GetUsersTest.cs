@@ -2,9 +2,9 @@
 using FoosballProLeague.Api.Models;
 using FoosballProLeague.Api.BusinessLogic;
 using Microsoft.AspNetCore.Mvc;
-using Xunit;
-using System.Collections.Generic;
 using FoosballProLeague.Api.DatabaseAccess;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
+using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 using FoosballProLeague.Api.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Moq;
@@ -35,8 +35,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
                        ('Jane', 'Smith', 'jane.smith@example.com', 'hashedpassword', 1400, 1500)";
             _dbHelper.InsertData(insertQuery);
 
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor);
+            UserController SUT = new UserController(userLogic, tokenLogic);
+
             // Act: Call the GetUsers method
-            OkObjectResult result = _userController.GetLeaderboards() as OkObjectResult;
+            OkObjectResult result = SUT.GetLeaderboards() as OkObjectResult;
             Dictionary<string, List<UserModel>> leaderboards = result?.Value as Dictionary<string, List<UserModel>>;
 
             // Assert: Verify the results
@@ -72,8 +77,13 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
             // Arrange: Ensure the database is empty
             _dbHelper.ClearDatabase();
 
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor);
+            UserController SUT = new UserController(userLogic, tokenLogic);
+
             // Act: Call the GetUsers method
-            OkObjectResult result = _userController.GetLeaderboards() as OkObjectResult;
+            OkObjectResult result = SUT.GetLeaderboards() as OkObjectResult;
             Dictionary<string, List<UserModel>> leaderboards = result?.Value as Dictionary<string, List<UserModel>>;
 
             // Assert: Verify the results

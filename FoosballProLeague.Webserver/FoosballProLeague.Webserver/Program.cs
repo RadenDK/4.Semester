@@ -1,6 +1,11 @@
+using AspNetCoreRateLimit;
 using FoosballProLeague.Webserver.BusinessLogic;
 using FoosballProLeague.Webserver.Service;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +24,7 @@ builder.Services.AddScoped<IHomePageLogic, HomePageLogic>();
 builder.Services.AddScoped<IHomePageService, HomePageService>();
 
 // Login services
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<ILoginLogic, LoginLogic>();
 
@@ -34,6 +40,29 @@ builder.Services.AddCors(options =>
             .SetIsOriginAllowed((host) => true));
 });
 
+builder.Services.AddScoped<ITokenLogic, TokenLogic>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+// Configure Authentication
+builder.Services.AddAuthentication("CookieAuth")
+    .AddCookie("CookieAuth", options =>
+    {
+        options.Cookie.Name = "accessToken"; // Same name as in your login method
+        options.LoginPath = "/Login"; // Redirect to login if not authenticated
+    });
+
+// Add Rate limiting services
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("RatePolicy", confic =>
+    
+    {
+        confic.Window = TimeSpan.FromMinutes(1);
+        confic.PermitLimit = 100;
+        confic.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        confic.QueueLimit = 1;
+    });
+});
 
 var app = builder.Build();
 
@@ -45,17 +74,18 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-
-
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
 
+// Add rate limiting middleware
+app.UseRateLimiter();
 
-
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers().RequireRateLimiting("RatePolicy");
 
 app.MapControllerRoute(
     name: "default",
