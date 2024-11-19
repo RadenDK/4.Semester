@@ -127,7 +127,7 @@ body {
             }
 
     .leaderboard table tbody {
-        display: table-body-group;
+            display: table-row-group;
     }
 
         .leaderboard table tbody tr {
@@ -181,25 +181,30 @@ body {
     justify-content: center;
 }
 
-    .match-team .team-red {
-        text-align: center;
-        font-size: 20px;
-        font-weight: bold;
-        color: red;
-    }
+.match-team .team-red {
+    text-align: center;
+    font-size: 25px;
+    font-weight: 1000;
+    color: #f24a4a;
+    display: block; 
+    margin-bottom: 20px; 
+}
 
-    .match-team .team-blue {
-        text-align: center;
-        font-size: 20px;
-        font-weight: bold;
-        color: blue;
-    }
+.match-team .team-blue {
+    text-align: center;
+    font-size: 25px;
+    font-weight: 1000;
+    color: #1164f8;
+    display: block; 
+    margin-bottom: 20px; 
+}
 
-    .match-team .team p{
-        text-align: center;
-        font-size: 15px;
-        font-weight: normal;
-    }
+.match-team .team-red p,
+.match-team .team-blue p {
+    text-align: center;
+    font-size: 20px; !important;
+    font-weight: 750;
+}
 
     .match-score .dash {
         font-size: 20px;

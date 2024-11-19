@@ -21,6 +21,7 @@
         this.updateMatchTimeFromStorage();
         this.initializeEventListeners();
         this.fetchLeaderboard(this.currentMode, this.currentPageNumber); // fetch initial leaderboard
+        this.fetchAllMatches(); // Fetch all matches upon initialization
     }
 
     initializeEventListeners() {
@@ -46,7 +47,6 @@
             this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
         });
     }
-
 
     updateActiveButton() {
         document.querySelectorAll('.elo-button').forEach(button => {
@@ -109,6 +109,98 @@
         }
     }
 
+    async fetchAllMatches() {
+        const url = `${this.apiUrl}GetActiveMatches`;
+        console.log('Fetching active matches from URL:', url); // Log the URL for debugging
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const matches = await response.json();
+            if (matches.length > 0) {
+                const newestMatch = matches[0]; // Assuming the endpoint returns the newest match first
+
+                const redTeamUsers = [
+                    {
+                        firstName: newestMatch.redTeam.user1.firstName,
+                        lastName: newestMatch.redTeam.user1.lastName
+                    },
+                    newestMatch.redTeam.user2 ? {
+                        firstName: newestMatch.redTeam.user2.firstName,
+                        lastName: newestMatch.redTeam.user2.lastName
+                    } : null
+                ];
+
+                const blueTeamUsers = [
+                    {
+                        firstName: newestMatch.blueTeam.user1.firstName,
+                        lastName: newestMatch.blueTeam.user1.lastName
+                    },
+                    newestMatch.blueTeam.user2 ? {
+                        firstName: newestMatch.blueTeam.user2.firstName,
+                        lastName: newestMatch.blueTeam.user2.lastName
+                    } : null
+                ];
+
+                this.updateOngoingMatches(newestMatch, redTeamUsers, blueTeamUsers);
+            } else {
+                this.updateOngoingMatches(null, [], []);
+            }
+        } catch (error) {
+            console.error('Error fetching active matches:', error);
+        }
+    }
+
+    updateOngoingMatches(match, redTeamUsers, blueTeamUsers) {
+        const ongoingMatchContainer = document.querySelector('.ongoing-match');
+        const matchTimeElement = ongoingMatchContainer.querySelector('.match-time');
+        const redScoreElement = ongoingMatchContainer.querySelector('.match-score .score:nth-child(1)');
+        const blueScoreElement = ongoingMatchContainer.querySelector('.match-score .score:nth-child(3)');
+
+        if (!match) {
+            matchTimeElement.textContent = '';
+            this.updateTeamInfo('.team-red', null);
+            this.updateTeamInfo('.team-blue', null);
+            redScoreElement.textContent = '0';
+            blueScoreElement.textContent = '0';
+            if (this.matchTimer) {
+                clearInterval(this.matchTimer);
+                this.matchTimer = null;
+            }
+            return;
+        }
+
+        const startTime = new Date(match.startTime);
+        const now = new Date();
+        const elapsedTime = Math.floor((now - startTime) / 1000);
+        const minutes = Math.floor(elapsedTime / 60);
+        const seconds = elapsedTime % 60;
+
+        matchTimeElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        // Update team information using the existing method
+        this.updateTeamInfo('.team-red', { user1: redTeamUsers[0], user2: redTeamUsers[1] });
+        this.updateTeamInfo('.team-blue', { user1: blueTeamUsers[0], user2: blueTeamUsers[1] });
+
+        redScoreElement.textContent = match.teamRedScore;
+        blueScoreElement.textContent = match.teamBlueScore;
+
+        if (this.matchTimer) {
+            clearInterval(this.matchTimer);
+        }
+
+        this.matchTimer = setInterval(() => {
+            const now = new Date();
+            const elapsedTime = Math.floor((now - startTime) / 1000);
+            const minutes = Math.floor(elapsedTime / 60);
+            const seconds = elapsedTime % 60;
+            matchTimeElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }, 1000);
+    }
+
     updateLeaderboard(pageNumber = 1) {
         this.currentPageNumber = pageNumber;
         const leaderboardBody = document.querySelector('#leaderboardBody');
@@ -131,7 +223,6 @@
 
         this.updatePaginationControls(this.leaderboardData.length, this.pageSize, pageNumber);
     }
-
 
     updatePaginationControls(totalItems, pageSize, pageNumber) {
         const paginationContainer = document.querySelector('.pagination');
@@ -177,6 +268,7 @@
         window.history.pushState({ path: url }, '', url); // Update the URL
         this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
     }
+
     handleMatchStart(isMatchStart, teamRed, teamBlue, redScore, blueScore) {
         console.log("ReceiveMatchStart called with data:", { isMatchStart, teamRed, teamBlue, redScore, blueScore });
 
@@ -220,10 +312,10 @@
             this.handleMatchEnd(false);
         }
     }
-
     updateTeamInfo(selector, team) {
         const teamContainer = document.querySelector(selector);
-        teamContainer.innerHTML = `<span class="${selector.slice(1)}">${selector.slice(1).replace('-', ' ')}</span>`;
+        const teamName = selector.includes('red') ? 'Red Team' : 'Blue Team';
+        teamContainer.innerHTML = `<span class="${selector.slice(1)}">${teamName}</span>`;
 
         if (team && team.user1) {
             const userElement = document.createElement("p");
@@ -303,5 +395,6 @@ fetch('/config/url')
         const foosballProLeague = new FoosballProLeague(apiUrl);
         const initialMode = sessionStorage.getItem('selectedLeaderboard') || '1v1'; // default mode
         foosballProLeague.fetchLeaderboard(initialMode); // fetch initial leaderboard with correct mode
+        foosballProLeague.fetchAllMatches(); // Fetch all matches upon initialization
     })
     .catch(error => console.error('Error fetching configuration:', error));
