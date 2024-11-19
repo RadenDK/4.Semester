@@ -20,7 +20,5 @@ namespace FoosballProLeague.Api.Models.FoosballModels
         public DateTime? EndTime { get; set; }
         
         public bool ValidEloMatch { get; set; }
-        public TeamModel RedTeam { get; set; }
-        public TeamModel BlueTeam { get; set; }
     }
 }
