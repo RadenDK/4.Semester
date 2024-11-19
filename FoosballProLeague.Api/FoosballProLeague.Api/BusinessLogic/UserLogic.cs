@@ -6,7 +6,7 @@ using bc = BCrypt.Net.BCrypt;
 using Microsoft.AspNetCore.SignalR;
 using FoosballProLeague.Api.Hubs; 
 
-namespace FoosballProLeague.Api.BusinessLogic;
+namespace FoosballProLeague.Api.BusinessLogic { 
 
 public class UserLogic : IUserLogic
 {
@@ -72,7 +72,7 @@ public class UserLogic : IUserLogic
 
     public List<UserModel> GetSortedLeaderboard(string mode)
     {
-        List<UserModel> users = _userDatabaseAccessor.GetUsers();
+        List<UserModel> users = _userDatabaseAccessor.GetAllUsers();
         if (mode == "1v1")
         {
             return users.OrderByDescending(u => u.Elo1v1).ToList();
