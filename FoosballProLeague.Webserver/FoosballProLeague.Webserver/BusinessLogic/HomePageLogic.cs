@@ -31,10 +31,17 @@ namespace FoosballProLeague.Webserver.BusinessLogic
             }
         }
 
-        public async Task<int> GetTotalUserCount()
+        public async Task<int> GetTotalUserCount(string mode)
         {
-            var users = await _homePageService.GetUsers();
-            return users.Count;
+            Dictionary<string, List<UserModel>> userDict = await _homePageService.GetLeaderboards();
+            if (userDict.TryGetValue(mode, out List<UserModel> users))
+            {
+                return users.Count;
+            }
+            else
+            {
+                throw new Exception($"Mode {mode} not found in the leaderboards.");
+            }
         }
 
         public async Task<List<MatchHistoryModel>> GetMatchHistoryByUserId(int userId)
@@ -46,7 +53,9 @@ namespace FoosballProLeague.Webserver.BusinessLogic
         {
             try
             {
-                List<UserModel> users = await GetAllUsers();
+                int pageNumber = 1;
+                int pageSize = 10;
+                List<UserModel> users = await GetLeaderboards(mode, pageNumber, pageSize);
                 UserModel user = GetUserFromCookie();
                 List<MatchHistoryViewModel> matchHistory = null;
 

@@ -5,6 +5,9 @@ public class HomePageViewModel
     public List<UserModel> Users { get; set; }
     public List<MatchHistoryViewModel> MatchHistory { get; set; }
     public string Mode { get; set; }
+    public int PageNumber { get; set; }
+    public int PageSize { get; set; }
+    public int TotalUserCount { get; set; }
 }
 
 public class MatchHistoryViewModel
