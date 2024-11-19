@@ -23,6 +23,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             _dbHelper.InsertData("INSERT INTO teams (id, player1_id, player2_id) VALUES (1, 1, 2), (2, 3, 4)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score, valid_elo_match) VALUES (1, 1, 1, 2, 9, 0, true)");
+            _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score, valid_elo_match) VALUES (1, 1, 1, 2, 9, 0, true)");
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
 
             int mockTableId = 1;
@@ -32,10 +33,10 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
-
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, teamDatabaseAccessor, mockHubContext.Object, userLogic);
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
@@ -54,7 +55,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             Assert.True(user1.Elo2v2 > 1000);
             Assert.True(user2.Elo2v2 > 1000);
             Assert.True(user3.Elo2v2 < 1000);
-            Assert.True(user4.Elo2v2 < 1000);
+            Assert.True(user4.Elo2v2 < 1000);  
         }
 
         [Fact]
@@ -74,12 +75,11 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
-
-            MatchController SUT = new MatchController(matchLogic);
-
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, teamDatabaseAccessor, mockHubContext.Object, userLogic);
+            
             // Act
             IActionResult result = SUT.RegisterGoal(mockRegisterGoalRequestBlueSide);
 
@@ -121,10 +121,11 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
-
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, teamDatabaseAccessor, mockHubContext.Object, userLogic);
+            
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
@@ -168,10 +169,11 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
-
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, teamDatabaseAccessor, mockHubContext.Object, userLogic);
+            
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
@@ -219,10 +221,11 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
-
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, teamDatabaseAccessor, mockHubContext.Object, userLogic);
+            
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
@@ -270,9 +273,10 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, teamDatabaseAccessor, mockHubContext.Object, userLogic);
 
             MatchController SUT = new MatchController(matchLogic);
 
@@ -306,14 +310,14 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             int mockTableId = 1;
             RegisterGoalRequest mockRegisterGoalRequestRedSide =
                 new RegisterGoalRequest { TableId = mockTableId, Side = "red" };
-
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
-
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, teamDatabaseAccessor, mockHubContext.Object, userLogic);
+            
             MatchController SUT = new MatchController(matchLogic);
 
             // Simulate player joining mid-match
@@ -351,14 +355,14 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             int mockTableId = 1;
             RegisterGoalRequest mockRegisterGoalRequestRedSide =
                 new RegisterGoalRequest { TableId = mockTableId, Side = "red" };
-
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
-
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, teamDatabaseAccessor, mockHubContext.Object, userLogic);
+            
             MatchController SUT = new MatchController(matchLogic);
 
             // Simulate player joining mid-match
@@ -403,9 +407,11 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, teamDatabaseAccessor, mockHubContext.Object, userLogic);
+            
 
             MatchController SUT = new MatchController(matchLogic);
 
@@ -452,9 +458,11 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()));
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, teamDatabaseAccessor, mockHubContext.Object, userLogic);
+            
 
             MatchController SUT = new MatchController(matchLogic);
 

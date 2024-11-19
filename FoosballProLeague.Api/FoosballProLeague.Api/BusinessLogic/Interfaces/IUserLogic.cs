@@ -8,6 +8,9 @@ namespace FoosballProLeague.Api.BusinessLogic.Interfaces
         public bool CreateUser(UserRegistrationModel userRegistrationModel);
 
         public bool LoginUser(string email, string password);
+        public Task UpdateLeaderboard(string mode);
+        public List<UserModel> GetSortedLeaderboard(string mode);
+        public Dictionary<string, List<UserModel>> GetLeaderboards();
         public List<UserModel> GetAllUsers();
         public UserModel GetUserByEmail(string email);
         public UserModel GetUserById(int userId);

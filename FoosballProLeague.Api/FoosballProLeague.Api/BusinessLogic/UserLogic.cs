@@ -3,43 +3,47 @@ using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 using FoosballProLeague.Api.Models;
 using FoosballProLeague.Api.Models.FoosballModels;
 using bc = BCrypt.Net.BCrypt;
+using Microsoft.AspNetCore.SignalR;
+using FoosballProLeague.Api.Hubs; 
 
-namespace FoosballProLeague.Api.BusinessLogic
+namespace FoosballProLeague.Api.BusinessLogic;
+
+public class UserLogic : IUserLogic
 {
-    public class UserLogic : IUserLogic
+    private readonly IUserDatabaseAccessor _userDatabaseAccessor;
+    private readonly IHubContext<HomepageHub> _hubContext;
+    
+    public UserLogic(IUserDatabaseAccessor userDatabaseAccessor, IHubContext<HomepageHub> hubContext)
     {
-        IUserDatabaseAccessor _userDatabaseAccessor;
-
-        public UserLogic(IUserDatabaseAccessor userDatabaseAccessor)
+        _userDatabaseAccessor = userDatabaseAccessor;
+        _hubContext = hubContext;
+    }
+    
+    // method to create user for registration
+    public bool CreateUser(UserRegistrationModel userRegistrationModel)
+    {
+        if (AccountHasValues(userRegistrationModel))
         {
-            _userDatabaseAccessor = userDatabaseAccessor;
-        }
-
-        // method to create user for registration
-        public bool CreateUser(UserRegistrationModel userRegistrationModel)
-        {
-            if (AccountHasValues(userRegistrationModel))
+            UserRegistrationModel newUserWithHashedPassword = new UserRegistrationModel
             {
-                UserRegistrationModel newUserWithHashedPassword = new UserRegistrationModel
-                {
-                    FirstName = userRegistrationModel.FirstName,
-                    LastName = userRegistrationModel.LastName,
-                    Email = userRegistrationModel.Email,
-                    Password = bc.HashPassword(userRegistrationModel.Password),
-                    DepartmentId = userRegistrationModel.DepartmentId,
-                    CompanyId = userRegistrationModel.CompanyId,
-                    Elo1v1 = 500,
-                    Elo2v2 = 500
-                };
-                return _userDatabaseAccessor.CreateUser(newUserWithHashedPassword);
-            }
-            return false;
+                FirstName = userRegistrationModel.FirstName,
+                LastName = userRegistrationModel.LastName,
+                Email = userRegistrationModel.Email,
+                Password = bc.HashPassword(userRegistrationModel.Password),
+                DepartmentId = userRegistrationModel.DepartmentId,
+                CompanyId = userRegistrationModel.CompanyId,
+                Elo1v1 = 500,
+                Elo2v2 = 500
+            };
+            return _userDatabaseAccessor.CreateUser(newUserWithHashedPassword);
         }
-
-        // checks if the account has values
-        private bool AccountHasValues(UserRegistrationModel newUser)
-        {
-            if (newUser == null)
+        return false;
+    }
+    
+    // checks if the account has values
+    private bool AccountHasValues(UserRegistrationModel newUser)
+    {
+        if (newUser == null)
             {
                 return false;
             }
@@ -58,20 +62,54 @@ namespace FoosballProLeague.Api.BusinessLogic
             }
 
             return true;
-        }
+    }
 
-        //method to login user
-        public bool LoginUser(string email, string password)
+    public async Task UpdateLeaderboard(string mode)
+    {
+        List<UserModel> leaderboard = GetSortedLeaderboard(mode);
+        await _hubContext.Clients.All.SendAsync("ReceiveLeaderboardUpdate", leaderboard);
+    }
+
+    public List<UserModel> GetSortedLeaderboard(string mode)
+    {
+        List<UserModel> users = _userDatabaseAccessor.GetUsers();
+        if (mode == "1v1")
         {
-            UserModel user = _userDatabaseAccessor.GetUserByEmail(email);
-
-            if (user == null)
-            {
-                return false;
-            }
-
-            return bc.Verify(password, user.Password);
+            return users.OrderByDescending(u => u.Elo1v1).ToList();
         }
+        else if (mode == "2v2")
+        {
+            return users.OrderByDescending(u => u.Elo2v2).ToList();
+        }
+        else
+        {
+            throw new ArgumentException("Invalid mode specified");
+        }
+    }
+
+    // New method to get both 1v1 and 2v2 leaderboards
+    public Dictionary<string, List<UserModel>> GetLeaderboards()
+    {
+        Dictionary<string, List<UserModel>> leaderboards = new Dictionary<string, List<UserModel>>
+        {
+            { "1v1", GetSortedLeaderboard("1v1") },
+            { "2v2", GetSortedLeaderboard("2v2") }
+        };
+        return leaderboards;
+    }
+
+    //method to login user
+    public bool LoginUser(string email, string password)
+    {
+        UserModel user = _userDatabaseAccessor.GetUserByEmail(email);
+
+        if (user == null)
+        {
+            return false;
+        }
+
+        return bc.Verify(password, user.Password);
+    }
 
         // get all user in a list
         public List<UserModel> GetAllUsers()
@@ -99,6 +137,24 @@ namespace FoosballProLeague.Api.BusinessLogic
 
             // Update ELO ratings for the Blue Team based on the average ELO of the opposing Red Team
             UpdateTeamEloForPlayers(match.BlueTeam, match.RedTeam.GetTeamEloAverage(), match.TeamBlueScore == 10, is1v1);
+
+            // Notify clients about the leaderboard update
+            try
+            {
+                if (_hubContext != null)
+                {
+                    UpdateLeaderboard(is1v1 ? "1v1" : "2v2").Wait();
+                }
+                else
+                {
+                    throw new NullReferenceException("HubContext is not initialized.");
+                }
+            }
+            catch (AggregateException ex)
+            {
+            // Handle the exception
+            throw ex.Flatten().InnerException;
+            }
         }
 
         private void UpdateTeamEloForPlayers(TeamModel team, int opponentEloAverage, bool teamWon, bool is1v1)

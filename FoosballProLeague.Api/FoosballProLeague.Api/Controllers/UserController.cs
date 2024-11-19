@@ -51,12 +51,13 @@ namespace FoosballProLeague.Api.Controllers
         
         // method to get all users in a list
         [HttpGet]
-        public IActionResult GetUsers()
+        public IActionResult GetLeaderboards()
         {
             try
             {
-                List<UserModel> users = _userLogic.GetAllUsers();
-                return Ok(users);
+                Dictionary<string, List<UserModel>> leaderboards = _userLogic.GetLeaderboards();
+                
+                return Ok(leaderboards);
             }
             catch (Exception ex)
             {
@@ -144,6 +145,4 @@ namespace FoosballProLeague.Api.Controllers
             }
         }
     }
-    
-    
 }

@@ -9,7 +9,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.UnitTests;
 public class CreateUserTest
 {
     [Fact]
-    public void CreateUser_ReturnsOkResult_WithValidData()
+    public async void CreateUser_ReturnsOkResult_WithValidData()
     {
         // Arrange
         UserRegistrationModel validUser = new UserRegistrationModel

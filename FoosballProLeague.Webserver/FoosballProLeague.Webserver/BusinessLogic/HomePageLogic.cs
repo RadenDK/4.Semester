@@ -17,9 +17,24 @@ namespace FoosballProLeague.Webserver.BusinessLogic
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<List<UserModel>> GetAllUsers()
+       public async Task<List<UserModel>> GetLeaderboards(string mode, int pageNumber, int pageSize)
         {
-            return await _homePageService.GetAllUsers();
+            
+            Dictionary<string, List<UserModel>> usersDictionary = await _homePageService.GetLeaderboards();
+            if (usersDictionary.TryGetValue(mode, out List<UserModel> users))
+            {
+                return users.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+            }
+            else
+            {
+                throw new Exception($"Mode {mode} not found in the leaderboards.");
+            }
+        }
+
+        public async Task<int> GetTotalUserCount()
+        {
+            var users = await _homePageService.GetUsers();
+            return users.Count;
         }
 
         public async Task<List<MatchHistoryModel>> GetMatchHistoryByUserId(int userId)

@@ -54,6 +54,18 @@ namespace FoosballProLeague.Api.DatabaseAccess
             }
         }
 
+        public List<MatchModel> GetAllMatches()
+        {
+            string query = "SELECT * FROM foosball_matches";
+
+            using (NpgsqlConnection connection = new NpgsqlConnection(_connectionString))
+            {
+                connection.Open();
+                List<MatchModel> matches = connection.Query<MatchModel>(query).ToList();
+                return matches;
+            }
+        }
+
         // This method is used to get the active match for a table by its id. It will return a MatchModel object with TeamModel and UserModel objects nested inside.
         public MatchModel GetActiveMatchByTableId(int tableId)
         {
@@ -80,12 +92,12 @@ namespace FoosballProLeague.Api.DatabaseAccess
         // CREATE METHODS
         public int CreateMatch(int tableId, int redTeamId, int blueTeamId, bool? validEloMatch = null)
         {
-            string query = "INSERT INTO foosball_matches (table_id, red_team_id, blue_team_id) VALUES (@TableId, @RedTeamId, @BlueTeamId) RETURNING id";
+            string query = "INSERT INTO foosball_matches (table_id, red_team_id, blue_team_id, valid_elo_match) VALUES (@TableId, @RedTeamId, @BlueTeamId, @ValidEloMatch) RETURNING id";
 
             using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-                int matchId = connection.QuerySingle<int>(query, new { TableId = tableId, RedTeamId = redTeamId, BlueTeamId = blueTeamId });
+                int matchId = connection.QuerySingle<int>(query, new { TableId = tableId, RedTeamId = redTeamId, BlueTeamId = blueTeamId, ValidEloMatch = validEloMatch });
                 return matchId;
             }
         }

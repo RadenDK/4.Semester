@@ -1,6 +1,7 @@
 ﻿using FoosballProLeague.Webserver.BusinessLogic;
 using FoosballProLeague.Webserver.Models;
 using Microsoft.AspNetCore.Authorization;
+using FoosballProLeague.Webserver.Service;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -53,6 +54,12 @@ namespace FoosballProLeague.Webserver.Controllers
         {
             try
             {
+                List<UserModel> users = await _homePageLogic.GetLeaderboards(mode, pageNumber, pageSize);
+                int totalUserCount = await _homePageLogic.GetTotalUserCount(mode);
+                ViewBag.Mode = mode;
+                ViewBag.PageNumber = pageNumber;
+                ViewBag.PageSize = pageSize;
+                ViewBag.TotalUserCount = totalUserCount;
                 HomePageViewModel viewModel = await _homePageLogic.GetUsersAndMatchHistory("2v2");
                 return View("HomePage", viewModel);
             }
@@ -60,6 +67,36 @@ namespace FoosballProLeague.Webserver.Controllers
             {
                 ModelState.AddModelError(string.Empty, "Could not load leaderboard or match history");
                 return View("HomePage", new HomePageViewModel { Users = new List<UserModel>(), MatchHistory = null });
+            }
+        }
+        
+        [HttpGet("api/User")]
+        public async Task<IActionResult> GetUsersJson(string mode, int pageNumber = 1, int pageSize = 10)
+        {
+            try
+            {
+                List<UserModel> users = await _homePageLogic.GetLeaderboards(mode, pageNumber, pageSize);
+                int totalUserCount = await _homePageLogic.GetTotalUserCount(mode);
+                return Json(new { users, totalUserCount });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+        
+        [HttpGet("api/User")]
+        public async Task<IActionResult> GetUsersJson(string mode, int pageNumber = 1, int pageSize = 10)
+        {
+            try
+            {
+                List<UserModel> users = await _homePageLogic.GetLeaderboards(mode, pageNumber, pageSize);
+                int totalUserCount = await _homePageLogic.GetTotalUserCount(mode);
+                return Json(new { users, totalUserCount });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
             }
         }
     }

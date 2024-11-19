@@ -4,7 +4,10 @@
 @{
     Layout = "_LayoutHomePage";
     var mode = ViewBag.Mode as string ?? "1v1";
-    var sortedModel = mode == "1v1" ? Model.Users?.OrderByDescending(user => user.Elo1v1).ToList() : Model.Users?.OrderByDescending(user => user.Elo2v2).ToList();
+    var pageNumber = ViewBag.PageNumber as int? ?? 1;
+    var pageSize = ViewBag.PageSize as int? ?? 10;
+    var totalUserCount = ViewBag.TotalUserCount as int? ?? 0;
+    var totalPages = (int)Math.Ceiling((double)totalUserCount / pageSize);
 }
 
 <!DOCTYPE html>
@@ -13,54 +16,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FoosballProLeague</title>
+    <a href="#"><link rel="icon" href="/favicon.ico" type="image/x-icon"></a>    <link rel="stylesheet" href="~/css/HomePage.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js" integrity="sha512-7SRCYIJtR6F8ocwW7UxW6wGKqbSyqREDbfCORCbGLatU0iugBLwyOXpzhkPyHIFdBO0K2VCu57fvP2Twgx1o2A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="~/js/homepage.js"></script>
+    <link rel="stylesheet" href="~/css/layout.css">
     <link rel="stylesheet" href="~/css/HomePage.css">
-    <link rel="stylesheet" href="~/css/layoutHomepage.css">
 
 
 </head>
 <body>
-    <div class="container">
-        <div class="main">
-            <div class="leaderboard-section">
-                <div class="leaderboard">
-                    <div class="leaderboard-header">
-                        <h2>Leaderboard</h2>
-                        <a href="/HomePage/1v1" class="elo-button @(mode == "1v1" ? "active" : "")">1v1</a>
-                        <a href="/HomePage/2v2" class="elo-button @(mode == "2v2" ? "active" : "")">2v2</a>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Rank</th>
-                                <th>Name</th>
-                                <th>Elo</th>
-                            </tr>
-                        </thead>
-                        <tbody id="leaderboardBody">
-                            @if (sortedModel != null && sortedModel.Count > 0)
-                            {
-                                @for (int i = 0; i < sortedModel.Count; i++)
-                                {
-                                    <tr>
-                                        <td>@(i + 1)</td>
-                                        <td>@sortedModel[i].FirstName @sortedModel[i].LastName</td>
-                                        <td>@(mode == "1v1" ? sortedModel[i].Elo1v1 : sortedModel[i].Elo2v2)</td>
-                                    </tr>
-                                }
-                            }
-                            else
+    <main class="main">
+        <section class="leaderboard-section">
+            <div class="leaderboard">
+                <div class="leaderboard-header">
+                    <h2>Leaderboard</h2>
+                    <a href="@Url.Action("GetUsers1v1", "HomePage", new { pageNumber = 1, pageSize = pageSize })" class="elo-button @(mode == "1v1" ? "active" : "")" data-mode="1v1">1v1</a>
+                    <a href="@Url.Action("GetUsers2v2", "HomePage", new { pageNumber = 1, pageSize = pageSize })" class="elo-button @(mode == "2v2" ? "active" : "")" data-mode="2v2">2v2</a>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Name</th>
+                            <th>Elo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                        @if (Model.Count > 0)
+                        {
+                            for (int i = 0; i < Model.Count; i++)
                             {
                                 <tr>
-                                    <td colspan="3">No users available</td>
+                                    <td>@((pageNumber - 1) * pageSize + i + 1)</td>
+                                    <td>@Model[i].FirstName @Model[i].LastName</td>
+                                    <td>@(mode == "1v1" ? Model[i].Elo1v1 : Model[i].Elo2v2)</td>
                                 </tr>
                             }
-                        </tbody>
-                    </table>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="3">No users found</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <a href="#" class="previous-page">Previous</a>
+                    <span>Page 1</span>
+                    <a href="#" class="next-page">Next</a>
                 </div>
             </div>
-
-            <div class="match-section">
-                <div class="ongoing-match-section">
+            <section class="match-section">
+                <section class="ongoing-match-section">
                     <div class="ongoing-match">
                         <h2>Ongoing match</h2>
                         <div class="match-info">
@@ -69,13 +77,17 @@
                                 <span class="team-red">Team Red</span>
                             </div>
                             <div class="match-score">
-                                <span class="team">Carl</span> <span class="score">4 - 0</span> <span class="team">Olivier</span>
+                                <span class="score"></span>
+                                <span class="dash"> - </span>
+                                <span class="score"></span>
+                            </div>
+                            <div class="match-team">
+                                <span class="team-blue">Team Blue</span>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="match-history-section">
+                </section>
+                <section class="match-history-section">
                     <div class="match-history">
                         <h2>Match history</h2>
                         @if (Model.MatchHistory != null)
@@ -112,8 +124,8 @@
                             </div>
                         }
                     </div>
-                </div>
-            </div>
+                </section>
+            </section>
         </div>
     </div>
 </body>

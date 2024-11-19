@@ -9,15 +9,71 @@ namespace FoosballProLeague.Api.BusinessLogic
     {
         private IMatchDatabaseAccessor _matchDatabaseAccessor;
         private IUserLogic _userLogic;
+        private readonly IHubContext<HomepageHub> _hubContext;
         private ITeamDatabaseAccessor _teamDatabaseAccessor;
         private readonly Dictionary<int, PendingMatchTeamsModel> _pendingMatchTeams;
 
-        public MatchLogic(IMatchDatabaseAccessor matchDatabaseAccessor, IUserLogic userLogic, ITeamDatabaseAccessor teamDatabaseAccessor)
+        public MatchLogic(IMatchDatabaseAccessor matchDatabaseAccessor, IHubContext<HomepageHub> hubContext, IUserLogic userLogic, ITeamDatabaseAccessor teamDatabaseAccessor)
         {
             _userLogic = userLogic;
             _matchDatabaseAccessor = matchDatabaseAccessor;
+            _hubContext = hubContext;
             _pendingMatchTeams = new Dictionary<int, PendingMatchTeamsModel>();
             _teamDatabaseAccessor = teamDatabaseAccessor;
+        }
+
+        // Helper method to retrieve team by side
+        private TeamModel GetTeamBySide(MatchModel match, string side)
+        {
+            int teamId;
+            if (side == "red")
+            {
+                teamId = match.RedTeamId;
+            }
+            else
+            {
+                teamId = match.BlueTeamId;
+            }
+
+            return _matchDatabaseAccessor.GetTeamById(teamId);
+        }
+
+        //Hjælpemetode til at hente alle kampe, bruges i GetActiveMatches til at loope igennem kampene, finde en uden endTime og tilføje holdene til listen
+        public List<MatchModel> GetAllMatches()
+        {
+            return _matchDatabaseAccessor.GetAllMatches();
+        }
+       
+        
+        public MatchModel GetActiveMatch()
+        {
+            List<MatchModel> allMatches = _matchDatabaseAccessor.GetAllMatches();
+            MatchModel activeMatch = new MatchModel();
+
+            foreach (MatchModel match in allMatches)
+            {
+                if (match.EndTime == null)
+                {
+                    match.RedTeam = _matchDatabaseAccessor.GetTeamById(match.RedTeamId);
+                    match.BlueTeam = _matchDatabaseAccessor.GetTeamById(match.BlueTeamId);
+                    activeMatch = match;
+                }
+            }
+            return activeMatch;
+        }
+
+        private TeamModel GetOrRegisterTeam(List<int?> userIds)
+        {
+            // Retrives the team if it already exists for the users
+            TeamModel team = _teamDatabaseAccessor.GetTeamIdByUsers(userIds);
+
+            if (team == null)
+            {
+                // If the users does not have a team then we register a new team
+                team = _teamDatabaseAccessor.CreateTeam(userIds);
+            }
+
+            return team;
         }
 
         /*
@@ -124,20 +180,6 @@ namespace FoosballProLeague.Api.BusinessLogic
             return match;
         }
 
-        private TeamModel GetOrRegisterTeam(List<int?> userIds)
-        {
-            // Retrives the team if it already exists for the users
-            TeamModel team = _teamDatabaseAccessor.GetTeamIdByUsers(userIds);
-
-            if (team == null)
-            {
-                // If the users does not have a team then we register a new team
-                team = _teamDatabaseAccessor.CreateTeam(userIds);
-            }
-
-            return team;
-        }
-
         /*
          * StartMatch should take a tableId and try to start a match with the pending teams at the table.
          * It should create a match in the database and set the table to have an active match.
@@ -180,6 +222,7 @@ namespace FoosballProLeague.Api.BusinessLogic
                 return false;
             }
         }
+        
         private bool TeamsAreValidForRankedMatch(TeamModel redTeam, TeamModel blueTeam)
         {
             bool is1v1 = redTeam.User2 == null && blueTeam.User2 == null;
