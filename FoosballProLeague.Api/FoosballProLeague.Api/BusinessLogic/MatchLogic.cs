@@ -48,10 +48,10 @@ namespace FoosballProLeague.Api.BusinessLogic
         }
        
         
-        public List<MatchModel> GetActiveMatches()
+        public MatchModel GetActiveMatch()
         {
             List<MatchModel> allMatches = _matchDatabaseAccessor.GetAllMatches();
-            List<MatchModel> activeMatches = new List<MatchModel>();
+            MatchModel activeMatch = new MatchModel();
 
             foreach (MatchModel match in allMatches)
             {
@@ -59,11 +59,10 @@ namespace FoosballProLeague.Api.BusinessLogic
                 {
                     match.RedTeam = _matchDatabaseAccessor.GetTeamById(match.RedTeamId);
                     match.BlueTeam = _matchDatabaseAccessor.GetTeamById(match.BlueTeamId);
-                    activeMatches.Add(match);
+                    activeMatch = match;
                 }
             }
-
-            return activeMatches;
+            return activeMatch;
         }
         // Helper method to get or register a team by player IDs
         public TeamModel GetOrRegisterTeam(List<int?> userIds, int? existingTeamId = null)

@@ -21,7 +21,7 @@
         this.updateMatchTimeFromStorage();
         this.initializeEventListeners();
         this.fetchLeaderboard(this.currentMode, this.currentPageNumber); // fetch initial leaderboard
-        this.fetchAllMatches(); // Fetch all matches upon initialization
+        this.fetchActiveMatch(); // Fetch all matches upon initialization
     }
 
     initializeEventListeners() {
@@ -109,8 +109,8 @@
         }
     }
 
-    async fetchAllMatches() {
-        const url = `${this.apiUrl}GetActiveMatches`;
+    async fetchActiveMatch() {
+        const url = `${this.apiUrl}GetActiveMatch`;
         console.log('Fetching active matches from URL:', url); // Log the URL for debugging
 
         try {
@@ -119,9 +119,9 @@
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            const matches = await response.json();
-            if (matches.length > 0) {
-                const newestMatch = matches[0]; // Assuming the endpoint returns the newest match first
+            const match = await response.json();
+            if (match) {
+                const newestMatch = match; // Assuming the endpoint returns the newest match first
 
                 const redTeamUsers = [
                     {
@@ -395,6 +395,6 @@ fetch('/config/url')
         const foosballProLeague = new FoosballProLeague(apiUrl);
         const initialMode = sessionStorage.getItem('selectedLeaderboard') || '1v1'; // default mode
         foosballProLeague.fetchLeaderboard(initialMode); // fetch initial leaderboard with correct mode
-        foosballProLeague.fetchAllMatches(); // Fetch all matches upon initialization
+        foosballProLeague.fetchActiveMatch(); // Fetch all matches upon initialization
     })
     .catch(error => console.error('Error fetching configuration:', error));

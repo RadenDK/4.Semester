@@ -109,13 +109,13 @@ namespace FoosballProLeague.Api.Controllers
                 return BadRequest("An error occurred: " + ex.Message);
             }
         }
-        [HttpGet("GetActiveMatches")]
+        [HttpGet("GetActiveMatch")]
         public IActionResult GetActiveMatches()
         {
             try
             {
-                List<MatchModel> activeMatches = _matchLogic.GetActiveMatches();
-                return Ok(activeMatches);
+                MatchModel activeMatch = _matchLogic.GetActiveMatch();
+                return Ok(activeMatch);
             }
             catch (Exception ex)
             {

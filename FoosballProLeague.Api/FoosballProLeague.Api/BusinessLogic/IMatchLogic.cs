@@ -16,8 +16,8 @@ namespace FoosballProLeague.Api.BusinessLogic
 
         public TeamModel GetOrRegisterTeam(List<int?> userIds, int? existingTeamId = null);
         
-        List<MatchModel> GetAllMatches();
-        List<MatchModel> GetActiveMatches();
+        public List<MatchModel> GetAllMatches();
+        public MatchModel GetActiveMatch();
 
     }
 
