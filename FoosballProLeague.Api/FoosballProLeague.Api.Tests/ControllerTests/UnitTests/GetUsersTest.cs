@@ -11,9 +11,6 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.UnitTests
     [Collection("Non-Parallel Database Collection")]
     public class GetUsersTest : DatabaseTestBase
     {
-        private readonly UserController _userController;
-        private readonly IUserLogic _userLogic;
-
         public GetUsersTest()
         {
             // Mock IHubContext and IHubClients

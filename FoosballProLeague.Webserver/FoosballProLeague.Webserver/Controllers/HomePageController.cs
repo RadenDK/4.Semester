@@ -60,7 +60,6 @@ namespace FoosballProLeague.Webserver.Controllers
                 ViewBag.PageNumber = pageNumber;
                 ViewBag.PageSize = pageSize;
                 ViewBag.TotalUserCount = totalUserCount;
-                return View("HomePage", users);
                 HomePageViewModel viewModel = await _homePageLogic.GetUsersAndMatchHistory("2v2");
                 return View("HomePage", viewModel);
             }

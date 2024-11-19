@@ -14,15 +14,10 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
     [Collection("Non-Parallel Database Collection")]
     public class GetUsersTest : DatabaseTestBase
     {
-        private readonly UserController _userController;
-        private readonly IUserLogic _userLogic;
-
         public GetUsersTest()
         {
-            // Initialize UserLogic and UserController
             Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
-            _userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            _userController = new UserController(_userLogic);
+            
         }
 
         [Fact]
@@ -37,7 +32,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
-            IUserLogic userLogic = new UserLogic(userDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
             UserController SUT = new UserController(userLogic, tokenLogic);
 
             // Act: Call the GetUsers method
@@ -79,7 +74,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
-            IUserLogic userLogic = new UserLogic(userDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
             UserController SUT = new UserController(userLogic, tokenLogic);
 
             // Act: Call the GetUsers method

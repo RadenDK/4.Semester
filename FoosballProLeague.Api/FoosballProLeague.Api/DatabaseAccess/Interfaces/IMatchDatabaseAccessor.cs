@@ -11,6 +11,7 @@ namespace FoosballProLeague.Api.DatabaseAccess.Interfaces
         // Read methods
         public MatchModel GetMatchById(int matchId);
         public MatchModel GetActiveMatchByTableId(int tableId);
+        public List<MatchModel> GetAllMatches();
 
         // Update methods
         public bool UpdateMatchScore(MatchModel match);

@@ -62,28 +62,17 @@ namespace FoosballProLeague.Api.BusinessLogic
             return activeMatch;
         }
 
-        // Helper method to get or register a team by player IDs
-        public TeamModel GetOrRegisterTeam(List<int?> userIds, int? existingTeamId = null)
+        private TeamModel GetOrRegisterTeam(List<int?> userIds)
         {
-            int? teamId = _matchDatabaseAccessor.GetTeamIdByUsers(userIds);
-            TeamModel team;
-            if (teamId == null && existingTeamId == null)
+            // Retrives the team if it already exists for the users
+            TeamModel team = _teamDatabaseAccessor.GetTeamIdByUsers(userIds);
+
+            if (team == null)
             {
-                int newTeamId = _matchDatabaseAccessor.RegisterTeam(userIds);
-                team = _matchDatabaseAccessor.GetTeamById(newTeamId);
+                // If the users does not have a team then we register a new team
+                team = _teamDatabaseAccessor.CreateTeam(userIds);
             }
-            else
-            {
-                if (teamId != null)
-                {
-                    team = _matchDatabaseAccessor.GetTeamById(teamId.Value);
-                }
-                else
-                {
-                    team = _matchDatabaseAccessor.GetTeamById(existingTeamId.Value);
-                    return team;
-                }
-            }
+
             return team;
         }
 
@@ -191,20 +180,6 @@ namespace FoosballProLeague.Api.BusinessLogic
             return match;
         }
 
-        private TeamModel GetOrRegisterTeam(List<int?> userIds)
-        {
-            // Retrives the team if it already exists for the users
-            TeamModel team = _teamDatabaseAccessor.GetTeamIdByUsers(userIds);
-
-            if (team == null)
-            {
-                // If the users does not have a team then we register a new team
-                team = _teamDatabaseAccessor.CreateTeam(userIds);
-            }
-
-            return team;
-        }
-
         /*
          * StartMatch should take a tableId and try to start a match with the pending teams at the table.
          * It should create a match in the database and set the table to have an active match.
@@ -247,6 +222,7 @@ namespace FoosballProLeague.Api.BusinessLogic
                 return false;
             }
         }
+        
         private bool TeamsAreValidForRankedMatch(TeamModel redTeam, TeamModel blueTeam)
         {
             bool is1v1 = redTeam.User2 == null && blueTeam.User2 == null;

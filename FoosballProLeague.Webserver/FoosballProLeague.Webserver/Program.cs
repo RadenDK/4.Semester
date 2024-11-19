@@ -28,18 +28,6 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<ILoginLogic, LoginLogic>();
 
-
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("CorsPolicy",
-        builder => builder
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials()
-            .SetIsOriginAllowed((host) => true));
-});
-
 builder.Services.AddScoped<ITokenLogic, TokenLogic>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 

@@ -14,6 +14,10 @@ namespace FoosballProLeague.Api.BusinessLogic.Interfaces
 
         public void InterruptMatch(int tableId);
 
+        public List<MatchModel> GetAllMatches();
+
+        public MatchModel GetActiveMatch();
+
     }
 
 }

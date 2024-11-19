@@ -31,6 +31,12 @@ namespace FoosballProLeague.Webserver.BusinessLogic
             }
         }
 
+        public async Task<int> GetTotalUserCount()
+        {
+            var users = await _homePageService.GetUsers();
+            return users.Count;
+        }
+
         public async Task<List<MatchHistoryModel>> GetMatchHistoryByUserId(int userId)
         {
             return await _homePageService.GetMatchHistoryByUserId(userId);

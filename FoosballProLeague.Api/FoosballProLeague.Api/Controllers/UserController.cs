@@ -145,6 +145,4 @@ namespace FoosballProLeague.Api.Controllers
             }
         }
     }
-    
-    
 }

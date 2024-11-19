@@ -44,14 +44,17 @@ public class UserLogic : IUserLogic
     private bool AccountHasValues(UserRegistrationModel newUser)
     {
         if (newUser == null)
-        {
-            return false;
-        }
-        
-        if (string.IsNullOrEmpty(newUser.FirstName))
-        {
-            return false;
-        }
+            {
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(newUser.FirstName) ||
+                string.IsNullOrEmpty(newUser.LastName) ||
+                string.IsNullOrEmpty(newUser.Email) ||
+                string.IsNullOrEmpty(newUser.Password))
+            {
+                return false;
+            }
 
             if (_userDatabaseAccessor.GetUserByEmail(newUser.Email) != null)
             {
@@ -59,7 +62,7 @@ public class UserLogic : IUserLogic
             }
 
             return true;
-        }
+    }
 
     public async Task UpdateLeaderboard(string mode)
     {
@@ -95,18 +98,18 @@ public class UserLogic : IUserLogic
         return leaderboards;
     }
 
-        //method to login user
-        public bool LoginUser(string email, string password)
+    //method to login user
+    public bool LoginUser(string email, string password)
+    {
+        UserModel user = _userDatabaseAccessor.GetUserByEmail(email);
+
+        if (user == null)
         {
-            UserModel user = _userDatabaseAccessor.GetUserByEmail(email);
-
-            if (user == null)
-            {
-                return false;
-            }
-
-            return bc.Verify(password, user.Password);
+            return false;
         }
+
+        return bc.Verify(password, user.Password);
+    }
 
         // get all user in a list
         public List<UserModel> GetAllUsers()
@@ -137,21 +140,21 @@ public class UserLogic : IUserLogic
 
             // Notify clients about the leaderboard update
             try
-                {
+            {
                 if (_hubContext != null)
-            {
-                UpdateLeaderboard(is1v1 ? "1v1" : "2v2").Wait();
+                {
+                    UpdateLeaderboard(is1v1 ? "1v1" : "2v2").Wait();
+                }
+                else
+                {
+                    throw new NullReferenceException("HubContext is not initialized.");
+                }
             }
-            else
+            catch (AggregateException ex)
             {
-                throw new NullReferenceException("HubContext is not initialized.");
-            }
-        }
-        catch (AggregateException ex)
-        {
             // Handle the exception
             throw ex.Flatten().InnerException;
-        }
+            }
         }
 
         private void UpdateTeamEloForPlayers(TeamModel team, int opponentEloAverage, bool teamWon, bool is1v1)

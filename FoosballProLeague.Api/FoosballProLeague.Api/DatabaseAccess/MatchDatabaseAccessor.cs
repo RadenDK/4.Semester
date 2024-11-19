@@ -69,19 +69,6 @@ namespace FoosballProLeague.Api.DatabaseAccess
         // This method is used to get the active match for a table by its id. It will return a MatchModel object with TeamModel and UserModel objects nested inside.
         public MatchModel GetActiveMatchByTableId(int tableId)
         {
-            string query = "SELECT * FROM foosball_matches";
-
-            using (NpgsqlConnection connection = GetConnection())
-            {
-                connection.Open();
-                List<MatchModel> matches = connection.Query<MatchModel>(query).ToList();
-                return matches;
-            }
-        }
-
-        // This method is used to get the active match for a table by its id. It will return a MatchModel object with TeamModel and UserModel objects nested inside.
-        public MatchModel GetActiveMatchByTableId(int tableId)
-        {
             string query = "SELECT active_match_id FROM foosball_tables WHERE id = @TableId";
 
             MatchModel activeMatch = null;

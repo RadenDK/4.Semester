@@ -15,20 +15,9 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
 
     public class CreateUserTest : DatabaseTestBase
     {
-        private readonly UserController _userController;
-        private readonly IUserLogic _userLogic;
-
         public CreateUserTest()
         {
             Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
-            Mock<IHubClients> mockClients = new Mock<IHubClients>();
-            Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
-
-            mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
-            mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
-
-            _userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            _userController = new UserController(_userLogic);
         }
 
         [Fact]
@@ -53,7 +42,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
-            IUserLogic userLogic = new UserLogic(userDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
             UserController SUT = new UserController(userLogic, tokenLogic);
 
             // Act
@@ -71,8 +60,6 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
             Assert.Equal("john.doe@example.com", user.Email);
             Assert.Equal(500, user.Elo1v1); // The database should assign default values for Elo1v1 and Elo2v2
             Assert.Equal(500, user.Elo2v2); // The database should assign default values for Elo1v1 and Elo2v2
-
-
         }
 
         [Fact]
@@ -96,7 +83,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
-            IUserLogic userLogic = new UserLogic(userDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
             UserController SUT = new UserController(userLogic, tokenLogic);
 
             SUT.ModelState.AddModelError("Email", "Email is required");
@@ -137,7 +124,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
-            IUserLogic userLogic = new UserLogic(userDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
             UserController SUT = new UserController(userLogic, tokenLogic);
 
             // Act
