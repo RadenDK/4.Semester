@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
-using Microsoft.AspNetCore.Http.HttpResults;
-using FoosballProLeague.Api.BusinessLogic;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FoosballProLeague.Api.Controllers
 {
@@ -31,7 +29,7 @@ namespace FoosballProLeague.Api.Controllers
             
             try
             {
-                if (_userLogic.GetUser(userRegistrationModel.Email) != null)
+                if (_userLogic.GetUserByEmail(userRegistrationModel.Email) != null)
                 {
                     return BadRequest(new { message = "Email already exists" });
                 }
@@ -57,7 +55,7 @@ namespace FoosballProLeague.Api.Controllers
         {
             try
             {
-                List<UserModel> users = _userLogic.GetUsers();
+                List<UserModel> users = _userLogic.GetAllUsers();
                 return Ok(users);
             }
             catch (Exception ex)
@@ -69,7 +67,6 @@ namespace FoosballProLeague.Api.Controllers
         
         // Method to handle user login
         [HttpPost("login")]
-        
         public IActionResult LoginUser(UserLoginModel userLoginModel)
         {
             try
@@ -78,7 +75,9 @@ namespace FoosballProLeague.Api.Controllers
                 if(loginSucces)
                 {
                     // Since the login was successful, generate a JWT for the user
-                    string jwt = _tokenLogic.GenerateJWT();
+
+                    UserModel user = _userLogic.GetUserByEmail(userLoginModel.Email);
+                    string jwt = _tokenLogic.GenerateJWT(user);
                     return Ok(jwt); // Return Ok if the user was logged in successfully and the JWT was generated
                 }
                 else
@@ -106,7 +105,11 @@ namespace FoosballProLeague.Api.Controllers
 
                 if (_tokenLogic.ValidateJWT(authorizationHeader))
                 {
-                    string newJwt = _tokenLogic.GenerateJWT();
+                    int userIdInToken = _tokenLogic.GetUserIdFromJWT(authorizationHeader);
+                    
+                    UserModel userFromToken = _userLogic.GetUserById(userIdInToken);
+
+                    string newJwt = _tokenLogic.GenerateJWT(userFromToken);
 
                     return Ok(newJwt);
                 }
@@ -118,6 +121,26 @@ namespace FoosballProLeague.Api.Controllers
             catch (Exception e)
             {
                 return StatusCode(500, new { message = "An error occurred while validating the user" });
+            }
+        }
+
+        [HttpGet("{userId}/match-history")]
+        public IActionResult GetMatchHistoryByUserId(int userId)
+        {
+            try
+            {
+                List<MatchHistoryModel> matchHistory = _userLogic.GetMatchHistoryByUserId(userId);
+                if (matchHistory == null || !matchHistory.Any())
+                {
+                    return NotFound("No match history found for the provided user id");
+                }
+
+                return Ok(matchHistory);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "An error occurred while processing your request.");
             }
         }
     }

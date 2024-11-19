@@ -2,6 +2,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
+using FoosballProLeague.Api.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -18,7 +20,7 @@ namespace FoosballProLeague.Api.BusinessLogic
             _configuration = configuration;
         }
 
-        public string GenerateJWT()
+        public string GenerateJWT(UserModel user)
         {
             // Get the secret key from configuration
             string signingKey = _configuration["Jwt:signingKey"];
@@ -30,9 +32,14 @@ namespace FoosballProLeague.Api.BusinessLogic
             // Define token handler 
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
 
-            // Have a list of claims currently empty but could later be filled with user data
+            // Add claims from UserModel
             List<Claim> claims = new List<Claim>
             {
+                new Claim("UserId", user.Id.ToString()),
+                new Claim("FullName", $"{user.FirstName} {user.LastName}"),
+                new Claim("Email", user.Email ?? string.Empty),
+                new Claim("Elo1v1", user.Elo1v1.ToString()),
+                new Claim("Elo2v2", user.Elo2v2.ToString())
             };
 
             // Define token descriptor with key and optional claims
@@ -105,6 +112,26 @@ namespace FoosballProLeague.Api.BusinessLogic
             }
 
             return authorizationHeader;
+        }
+
+        public int GetUserIdFromJWT(string authorizationHeader)
+        {
+            // Extract the JWT from the authorization header
+            string jwt = ExtractToken(authorizationHeader);
+
+            // Decode the JWT token without validation
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+            JwtSecurityToken jwtToken = tokenHandler.ReadJwtToken(jwt);
+
+            // Extract the user ID from the claims
+            Claim userIdClaim = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "UserId");
+            if (userIdClaim == null)
+            {
+                throw new InvalidOperationException("User ID claim not found in token");
+            }
+
+            // Return the user ID as an integer
+            return int.Parse(userIdClaim.Value);
         }
     }
 }

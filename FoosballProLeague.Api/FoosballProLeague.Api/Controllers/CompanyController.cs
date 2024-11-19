@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using FoosballProLeague.Api.BusinessLogic;
 using FoosballProLeague.Api.Models;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
 
 namespace FoosballProLeague.Api.Controllers
 {

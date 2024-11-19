@@ -6,7 +6,8 @@ using FoosballProLeague.Api.DatabaseAccess;
 using bc = BCrypt.Net.BCrypt;
 using Microsoft.AspNetCore.Mvc;
 
-using System.Collections.Generic;
+using FoosballProLeague.Api.DatabaseAccess.Interfaces;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
 
 
 namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserControllerTests

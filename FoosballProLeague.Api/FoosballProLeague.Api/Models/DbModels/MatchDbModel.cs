@@ -1,15 +1,14 @@
-﻿
-namespace FoosballProLeague.Api.Models.FoosballModels
+﻿namespace FoosballProLeague.Api.Models.DbModels
 {
-    public class MatchModel
+    public class MatchDbModel
     {
         public int Id { get; set; }
 
         public int TableId { get; set; }
 
-        public TeamModel RedTeam { get; set; }
+        public int RedTeamId { get; set; }
 
-        public TeamModel BlueTeam { get; set; }
+        public int BlueTeamId { get; set; }
 
         public int TeamRedScore { get; set; }
 
@@ -18,7 +17,7 @@ namespace FoosballProLeague.Api.Models.FoosballModels
         public DateTime StartTime { get; set; }
 
         public DateTime? EndTime { get; set; }
-        
+
         public bool ValidEloMatch { get; set; }
     }
 }

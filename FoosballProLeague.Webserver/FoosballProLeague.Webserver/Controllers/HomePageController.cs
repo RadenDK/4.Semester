@@ -19,28 +19,28 @@ namespace FoosballProLeague.Webserver.Controllers
         [HttpGet("HomePage")]
         public async Task<IActionResult> HomePage()
         {
-            return await GetUsers("1v1");
+            return await GetAllUsers("1v1");
         }
 
         [HttpGet("HomePage/1v1")]
         public async Task<IActionResult> GetUsers1v1()
         {
-            return await GetUsers("1v1");
+            return await GetAllUsers("1v1");
         }
 
         [HttpGet("HomePage/2v2")]
         public async Task<IActionResult> GetUsers2v2()
         {
-            return await GetUsers("2v2");
+            return await GetAllUsers("2v2");
         }
 
 
         [HttpGet]
-        public async Task<IActionResult> GetUsers(string mode)
+        public async Task<IActionResult> GetAllUsers(string mode)
         {
             try
             {
-                List<UserModel> users = await _homePageLogic.GetUsers();
+                List<UserModel> users = await _homePageLogic.GetAllUsers();
                 ViewBag.Mode = mode;
                 return View("HomePage", users);
             }

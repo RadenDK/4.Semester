@@ -1,6 +1,6 @@
-namespace FoosballProLeague.Api.Models
+﻿namespace FoosballProLeague.Api.Models.DbModels
 {
-    public class UserModel
+    public class UserDbModel
     {
         public int Id { get; set; }
         public string FirstName { get; set; }

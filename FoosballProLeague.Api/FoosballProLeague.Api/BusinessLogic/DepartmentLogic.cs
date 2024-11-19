@@ -1,18 +1,20 @@
-using FoosballProLeague.Api.DatabaseAccess;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
+using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 using FoosballProLeague.Api.Models;
 
-namespace FoosballProLeague.Api.BusinessLogic;
-
-public class DepartmentLogic : IDepartmentLogic
+namespace FoosballProLeague.Api.BusinessLogic
 {
-    IDepartmentDatabaseAccessor _departmentDatabaseAccessor;
-    
-    public DepartmentLogic(IDepartmentDatabaseAccessor departmentDatabaseAccessor)
+    public class DepartmentLogic : IDepartmentLogic
     {
-        _departmentDatabaseAccessor = departmentDatabaseAccessor;
-    }
-    public List<DepartmentModel> GetDepartments()
-    {
-        return _departmentDatabaseAccessor.GetDepartments();
+        IDepartmentDatabaseAccessor _departmentDatabaseAccessor;
+
+        public DepartmentLogic(IDepartmentDatabaseAccessor departmentDatabaseAccessor)
+        {
+            _departmentDatabaseAccessor = departmentDatabaseAccessor;
+        }
+        public List<DepartmentModel> GetDepartments()
+        {
+            return _departmentDatabaseAccessor.GetDepartments();
+        }
     }
 }

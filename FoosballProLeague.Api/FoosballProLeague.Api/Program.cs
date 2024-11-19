@@ -1,7 +1,9 @@
 using System.Threading.RateLimiting;
 using AspNetCoreRateLimit;
 using FoosballProLeague.Api.BusinessLogic;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.DatabaseAccess;
+using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,8 +18,11 @@ builder.Services.AddScoped<IUserDatabaseAccessor, UserDatabaseAccessor>();
 
 builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddScoped<IDepartmentDatabaseAccessor, DepartmentDatabaseAccessor>();
+
 builder.Services.AddScoped<IMatchLogic, MatchLogic>();
 builder.Services.AddScoped<IMatchDatabaseAccessor, MatchDatabaseAccessor>();
+
+builder.Services.AddScoped<ITeamDatabaseAccessor, TeamDatabaseAccessor>();
 
 builder.Services.AddScoped<ITokenLogic, TokenLogic>();
 

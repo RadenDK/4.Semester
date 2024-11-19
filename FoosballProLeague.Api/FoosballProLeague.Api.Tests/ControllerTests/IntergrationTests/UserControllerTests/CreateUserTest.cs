@@ -1,9 +1,10 @@
 using FoosballProLeague.Api.BusinessLogic;
-using Xunit;
 using FoosballProLeague.Api.Controllers;
 using FoosballProLeague.Api.DatabaseAccess;
 using FoosballProLeague.Api.Models;
 using Microsoft.AspNetCore.Mvc;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
+using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 
 namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
 {
