@@ -3,18 +3,20 @@ using FoosballProLeague.Webserver.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace FoosballProLeague.Webserver.BusinessLogic
 {
     public class HomePageLogic : IHomePageLogic
     {
         private readonly IHomePageService _homePageService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ITokenLogic _tokenLogic;
 
-        public HomePageLogic(IHomePageService homePageService, IHttpContextAccessor httpContextAccessor)
+        public HomePageLogic(IHomePageService homePageService, ITokenLogic tokenLogic)
         {
             _homePageService = homePageService;
-            _httpContextAccessor = httpContextAccessor;
+            _tokenLogic = tokenLogic;
         }
 
        public async Task<List<UserModel>> GetLeaderboards(string mode, int pageNumber, int pageSize)
@@ -56,7 +58,7 @@ namespace FoosballProLeague.Webserver.BusinessLogic
                 int pageNumber = 1;
                 int pageSize = 10;
                 List<UserModel> users = await GetLeaderboards(mode, pageNumber, pageSize);
-                UserModel user = GetUserFromCookie();
+                UserModel user = GetUserFromJWT();
                 List<MatchHistoryViewModel> matchHistory = null;
 
                 if (user != null)
@@ -99,15 +101,31 @@ namespace FoosballProLeague.Webserver.BusinessLogic
 
         }
 
-        private UserModel GetUserFromCookie()
+        private UserModel GetUserFromJWT()
         {
-            string cookieValue = _httpContextAccessor.HttpContext.Request.Cookies["User"];
-            if (string.IsNullOrEmpty(cookieValue))
+            JwtSecurityToken jsonToken = _tokenLogic.GetJWTFromCookie();
+
+            Claim userIdClaim = jsonToken.Claims.FirstOrDefault(claim => claim.Type == "UserId");
+            Claim firstNameClaim = jsonToken.Claims.FirstOrDefault(claim => claim.Type == "FirstName");
+            Claim lastNameClaim = jsonToken.Claims.FirstOrDefault(claim => claim.Type == "LastName");
+            Claim elo1v1Claim = jsonToken.Claims.FirstOrDefault(claim => claim.Type == "Elo1v1");
+            Claim elo2v2Claim = jsonToken.Claims.FirstOrDefault(claim => claim.Type == "Elo2v2");
+
+            if (userIdClaim == null || firstNameClaim == null || lastNameClaim == null || elo1v1Claim == null || elo2v2Claim == null)
             {
                 return null;
             }
 
-            return JsonConvert.DeserializeObject<UserModel>(cookieValue);
+            UserModel user = new UserModel
+            {
+                Id = int.Parse(userIdClaim.Value),
+                FirstName = firstNameClaim.Value,
+                LastName = lastNameClaim.Value,
+                Elo1v1 = int.Parse(elo1v1Claim.Value),
+                Elo2v2 = int.Parse(elo2v2Claim.Value)
+            };
+
+            return user;
         }
 
         public string GetTimeAgo(string endTime)
