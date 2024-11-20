@@ -36,7 +36,8 @@ namespace FoosballProLeague.Api.BusinessLogic
             List<Claim> claims = new List<Claim>
             {
                 new Claim("UserId", user.Id.ToString()),
-                new Claim("FullName", $"{user.FirstName} {user.LastName}"),
+                new Claim("FirstName", user.FirstName.ToString()),
+                new Claim("LastName", user.LastName.ToString()),
                 new Claim("Email", user.Email ?? string.Empty),
                 new Claim("Elo1v1", user.Elo1v1.ToString()),
                 new Claim("Elo2v2", user.Elo2v2.ToString())
