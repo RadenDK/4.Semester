@@ -17,7 +17,6 @@ namespace FoosballProLeague.Api.BusinessLogic.Interfaces
         public List<MatchModel> GetAllMatches();
 
         public MatchModel GetActiveMatch();
-
     }
 
 }
