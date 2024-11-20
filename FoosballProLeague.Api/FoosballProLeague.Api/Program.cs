@@ -12,6 +12,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
+
+// All is added as singleton instead of scoped because matchlogic caches data in forms of pending match teams
+// Because of this, we want to make sure that the same instance is used for all requests
+// If it were scoped, it would be created for each request, and the cache would be empty for each request
 builder.Services.AddSingleton<ICompanyLogic, CompanyLogic>();
 builder.Services.AddSingleton<ICompanyDatabaseAccessor, CompanyDatabaseAccessor>();
 
