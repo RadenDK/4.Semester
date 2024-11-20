@@ -11,21 +11,22 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddScoped<ICompanyLogic, CompanyLogic>();
-builder.Services.AddScoped<ICompanyDatabaseAccessor, CompanyDatabaseAccessor>();
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<ICompanyLogic, CompanyLogic>();
+builder.Services.AddSingleton<ICompanyDatabaseAccessor, CompanyDatabaseAccessor>();
 
-builder.Services.AddScoped<IUserLogic, UserLogic>();
-builder.Services.AddScoped<IUserDatabaseAccessor, UserDatabaseAccessor>();
+builder.Services.AddSingleton<IUserLogic, UserLogic>();
+builder.Services.AddSingleton<IUserDatabaseAccessor, UserDatabaseAccessor>();
 
-builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
-builder.Services.AddScoped<IDepartmentDatabaseAccessor, DepartmentDatabaseAccessor>();
+builder.Services.AddSingleton<IDepartmentLogic, DepartmentLogic>();
+builder.Services.AddSingleton<IDepartmentDatabaseAccessor, DepartmentDatabaseAccessor>();
 
-builder.Services.AddScoped<IMatchLogic, MatchLogic>();
-builder.Services.AddScoped<IMatchDatabaseAccessor, MatchDatabaseAccessor>();
+builder.Services.AddSingleton<IMatchLogic, MatchLogic>();
+builder.Services.AddSingleton<IMatchDatabaseAccessor, MatchDatabaseAccessor>();
 
-builder.Services.AddScoped<ITeamDatabaseAccessor, TeamDatabaseAccessor>();
+builder.Services.AddSingleton<ITeamDatabaseAccessor, TeamDatabaseAccessor>();
 
-builder.Services.AddScoped<ITokenLogic, TokenLogic>();
+builder.Services.AddSingleton<ITokenLogic, TokenLogic>();
 
 // Add Rate limiting services
 builder.Services.AddRateLimiter(options =>
