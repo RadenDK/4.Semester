@@ -43,6 +43,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.UserCont
             Assert.NotNull(matchHistory);
             Assert.Single(matchHistory);
             Assert.Equal(1, matchHistory[0].Id);
+            
         }
         
         [Fact]
