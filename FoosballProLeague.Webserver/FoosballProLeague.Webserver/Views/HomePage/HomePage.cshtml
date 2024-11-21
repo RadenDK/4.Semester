@@ -42,7 +42,7 @@
                     {
                         <tr>
                             <td>@((Model.PageNumber - 1) * Model.PageSize + i + 1)</td>
-                            <td>@Model.Users[i].FirstName @Model.Users[i].LastName @Model.Users[i].Id</td>
+                            <td>@Model.Users[i].FirstName @Model.Users[i].LastName </td>
                             <td>@(Model.Mode == "1v1" ? Model.Users[i].Elo1v1 : Model.Users[i].Elo2v2)</td>
                         </tr>
                     }
