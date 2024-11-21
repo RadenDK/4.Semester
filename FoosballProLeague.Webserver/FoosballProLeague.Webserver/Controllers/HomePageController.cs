@@ -30,7 +30,7 @@ namespace FoosballProLeague.Webserver.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, "Could not load leaderboard or match history");
-                return View("HomePage", new HomePageViewModel { Users = new List<UserModel>(), MatchHistory = null });
+                return View("HomePage", new HomePageViewModel { Users = new List<UserModel>(), MatchHistory = new List<MatchHistoryViewModel>(), ActiveMatch = new MatchViewModel()});
             }
         }
 
@@ -55,32 +55,6 @@ namespace FoosballProLeague.Webserver.Controllers
             try
             {
                 HomePageViewModel viewModel = await _homePageLogic.GetUsersAndMatchHistory("2v2");
-                return View("HomePage", viewModel);
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, "Could not load leaderboard or match history");
-                return View("HomePage", new HomePageViewModel { Users = new List<UserModel>(), MatchHistory = null });
-            }
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetUsers(string mode, int pageNumber = 1, int pageSize = 10)
-        {
-            try
-            {
-                List<UserModel> users = await _homePageLogic.GetLeaderboards(mode, pageNumber, pageSize);
-                int totalUserCount = await _homePageLogic.GetTotalUserCount(mode);
-
-                HomePageViewModel viewModel = new HomePageViewModel
-                {
-                    Users = users,
-                    Mode = mode,
-                    PageNumber = pageNumber,
-                    PageSize = pageSize,
-                    TotalUserCount = totalUserCount
-                };
-                
                 return View("HomePage", viewModel);
             }
             catch (Exception ex)
