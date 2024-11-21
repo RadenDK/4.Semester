@@ -4,7 +4,7 @@
         this.leaderboardData = initialLeaderboardData;
         this.homepageConnection = new signalR.HubConnectionBuilder()
             .withUrl(`${this.apiUrl}homepageHub`, {
-                skipNegotiation: true,
+                skipNegotiation: false,
                 transport: signalR.HttpTransportType.WebSockets,
             })
             .configureLogging(signalR.LogLevel.Information)
