@@ -30,8 +30,8 @@ namespace FoosballProLeague.Api.BusinessLogic
         {
             return _matchDatabaseAccessor.GetAllMatches();
         }
-       
-        
+
+
         public MatchModel GetActiveMatch()
         {
             List<MatchModel> allMatches = _matchDatabaseAccessor.GetAllMatches();
@@ -219,7 +219,7 @@ namespace FoosballProLeague.Api.BusinessLogic
                 return false;
             }
         }
-        
+
         private bool TeamsAreValidForRankedMatch(TeamModel redTeam, TeamModel blueTeam)
         {
             bool is1v1 = redTeam.User2 == null && blueTeam.User2 == null;
@@ -272,7 +272,7 @@ namespace FoosballProLeague.Api.BusinessLogic
             _matchDatabaseAccessor.UpdateMatchScore(activeMatch);
 
             NotifyGoalsScored(registerGoalRequest).Wait();
-            
+
             // If the score of either team is 10 then the match is over
             if (activeMatch.TeamRedScore == 10 || activeMatch.TeamBlueScore == 10)
             {
@@ -288,7 +288,7 @@ namespace FoosballProLeague.Api.BusinessLogic
             }
 
             NotifyMatchStartOrEnd(activeMatch.TableId, false).Wait();
-            
+
             // If no expection happend we assume that everything went okay
             return true;
         }
@@ -306,7 +306,7 @@ namespace FoosballProLeague.Api.BusinessLogic
                 NotifyMatchStartOrEnd(tableId, false).Wait();
             }
         }
-        
+
         // Method to send data to SignalR MatchHub when a match is starting or ending
         private async Task NotifyMatchStartOrEnd(int tableId, bool isMatchStart)
         {
@@ -314,7 +314,10 @@ namespace FoosballProLeague.Api.BusinessLogic
 
             if (match == null)
             {
-                await _hubContext.Clients.All.SendAsync("ReceiveMatchEnd", isMatchStart);
+                if (_hubContext.Clients != null)
+                {
+                    await _hubContext.Clients.All.SendAsync("ReceiveMatchEnd", isMatchStart);
+                }
             }
             else
             {
@@ -324,10 +327,13 @@ namespace FoosballProLeague.Api.BusinessLogic
                 int redScore = match.TeamRedScore;
                 int blueScore = match.TeamBlueScore;
 
-                await _hubContext.Clients.All.SendAsync("ReceiveMatchStart", isMatchStart, redTeam, blueTeam, redScore, blueScore);
+                if (_hubContext.Clients != null)
+                {
+                    await _hubContext.Clients.All.SendAsync("ReceiveMatchStart", isMatchStart, redTeam, blueTeam, redScore, blueScore);
+                }
             }
         }
-        
+
         // Method to send data to SignalR MatchHub when a goal is scored
         private async Task NotifyGoalsScored(RegisterGoalRequest registerGoalRequest)
         {
@@ -339,7 +345,10 @@ namespace FoosballProLeague.Api.BusinessLogic
             int redScore = match.TeamRedScore;
             int blueScore = match.TeamBlueScore;
 
-            await _hubContext.Clients.All.SendAsync("ReceiveGoalUpdate", redTeam, blueTeam, redScore, blueScore);
+            if (_hubContext.Clients != null)
+            {
+                await _hubContext.Clients.All.SendAsync("ReceiveGoalUpdate", redTeam, blueTeam, redScore, blueScore);
+            }
         }
 
         public void ClearPendingTeamsCache()

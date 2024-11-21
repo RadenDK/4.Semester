@@ -4,46 +4,47 @@ using FoosballProLeague.Api.Models;
 using FoosballProLeague.Api.Models.FoosballModels;
 using bc = BCrypt.Net.BCrypt;
 using Microsoft.AspNetCore.SignalR;
-using FoosballProLeague.Api.Hubs; 
+using FoosballProLeague.Api.Hubs;
 
-namespace FoosballProLeague.Api.BusinessLogic { 
-
-public class UserLogic : IUserLogic
+namespace FoosballProLeague.Api.BusinessLogic
 {
-    private readonly IUserDatabaseAccessor _userDatabaseAccessor;
-    private readonly IHubContext<HomepageHub> _hubContext;
-    
-    public UserLogic(IUserDatabaseAccessor userDatabaseAccessor, IHubContext<HomepageHub> hubContext)
+
+    public class UserLogic : IUserLogic
     {
-        _userDatabaseAccessor = userDatabaseAccessor;
-        _hubContext = hubContext;
-    }
-    
-    // method to create user for registration
-    public bool CreateUser(UserRegistrationModel userRegistrationModel)
-    {
-        if (AccountHasValues(userRegistrationModel))
+        private readonly IUserDatabaseAccessor _userDatabaseAccessor;
+        private readonly IHubContext<HomepageHub> _hubContext;
+
+        public UserLogic(IUserDatabaseAccessor userDatabaseAccessor, IHubContext<HomepageHub> hubContext)
         {
-            UserRegistrationModel newUserWithHashedPassword = new UserRegistrationModel
-            {
-                FirstName = userRegistrationModel.FirstName,
-                LastName = userRegistrationModel.LastName,
-                Email = userRegistrationModel.Email,
-                Password = bc.HashPassword(userRegistrationModel.Password),
-                DepartmentId = userRegistrationModel.DepartmentId,
-                CompanyId = userRegistrationModel.CompanyId,
-                Elo1v1 = 500,
-                Elo2v2 = 500
-            };
-            return _userDatabaseAccessor.CreateUser(newUserWithHashedPassword);
+            _userDatabaseAccessor = userDatabaseAccessor;
+            _hubContext = hubContext;
         }
-        return false;
-    }
-    
-    // checks if the account has values
-    private bool AccountHasValues(UserRegistrationModel newUser)
-    {
-        if (newUser == null)
+
+        // method to create user for registration
+        public bool CreateUser(UserRegistrationModel userRegistrationModel)
+        {
+            if (AccountHasValues(userRegistrationModel))
+            {
+                UserRegistrationModel newUserWithHashedPassword = new UserRegistrationModel
+                {
+                    FirstName = userRegistrationModel.FirstName,
+                    LastName = userRegistrationModel.LastName,
+                    Email = userRegistrationModel.Email,
+                    Password = bc.HashPassword(userRegistrationModel.Password),
+                    DepartmentId = userRegistrationModel.DepartmentId,
+                    CompanyId = userRegistrationModel.CompanyId,
+                    Elo1v1 = 500,
+                    Elo2v2 = 500
+                };
+                return _userDatabaseAccessor.CreateUser(newUserWithHashedPassword);
+            }
+            return false;
+        }
+
+        // checks if the account has values
+        private bool AccountHasValues(UserRegistrationModel newUser)
+        {
+            if (newUser == null)
             {
                 return false;
             }
@@ -62,54 +63,57 @@ public class UserLogic : IUserLogic
             }
 
             return true;
-    }
-
-    public async Task UpdateLeaderboard(string mode)
-    {
-        List<UserModel> leaderboard = GetSortedLeaderboard(mode);
-        await _hubContext.Clients.All.SendAsync("ReceiveLeaderboardUpdate", leaderboard);
-    }
-
-    public List<UserModel> GetSortedLeaderboard(string mode)
-    {
-        List<UserModel> users = _userDatabaseAccessor.GetAllUsers();
-        if (mode == "1v1")
-        {
-            return users.OrderByDescending(u => u.Elo1v1).ToList();
         }
-        else if (mode == "2v2")
-        {
-            return users.OrderByDescending(u => u.Elo2v2).ToList();
-        }
-        else
-        {
-            throw new ArgumentException("Invalid mode specified");
-        }
-    }
 
-    // New method to get both 1v1 and 2v2 leaderboards
-    public Dictionary<string, List<UserModel>> GetLeaderboards()
-    {
-        Dictionary<string, List<UserModel>> leaderboards = new Dictionary<string, List<UserModel>>
+        public async Task UpdateLeaderboard(string mode)
+        {
+            List<UserModel> leaderboard = GetSortedLeaderboard(mode);
+            if (_hubContext.Clients != null)
+            {
+                await _hubContext.Clients.All.SendAsync("ReceiveLeaderboardUpdate", leaderboard);
+            }
+        }
+
+        public List<UserModel> GetSortedLeaderboard(string mode)
+        {
+            List<UserModel> users = _userDatabaseAccessor.GetAllUsers();
+            if (mode == "1v1")
+            {
+                return users.OrderByDescending(u => u.Elo1v1).ToList();
+            }
+            else if (mode == "2v2")
+            {
+                return users.OrderByDescending(u => u.Elo2v2).ToList();
+            }
+            else
+            {
+                throw new ArgumentException("Invalid mode specified");
+            }
+        }
+
+        // New method to get both 1v1 and 2v2 leaderboards
+        public Dictionary<string, List<UserModel>> GetLeaderboards()
+        {
+            Dictionary<string, List<UserModel>> leaderboards = new Dictionary<string, List<UserModel>>
         {
             { "1v1", GetSortedLeaderboard("1v1") },
             { "2v2", GetSortedLeaderboard("2v2") }
         };
-        return leaderboards;
-    }
-
-    //method to login user
-    public bool LoginUser(string email, string password)
-    {
-        UserModel user = _userDatabaseAccessor.GetUserByEmail(email);
-
-        if (user == null)
-        {
-            return false;
+            return leaderboards;
         }
 
-        return bc.Verify(password, user.Password);
-    }
+        //method to login user
+        public bool LoginUser(string email, string password)
+        {
+            UserModel user = _userDatabaseAccessor.GetUserByEmail(email);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            return bc.Verify(password, user.Password);
+        }
 
         // get all user in a list
         public List<UserModel> GetAllUsers()
@@ -141,19 +145,15 @@ public class UserLogic : IUserLogic
             // Notify clients about the leaderboard update
             try
             {
-                if (_hubContext != null)
+                if (_hubContext.Clients != null)
                 {
                     UpdateLeaderboard(is1v1 ? "1v1" : "2v2").Wait();
-                }
-                else
-                {
-                    throw new NullReferenceException("HubContext is not initialized.");
                 }
             }
             catch (AggregateException ex)
             {
-            // Handle the exception
-            throw ex.Flatten().InnerException;
+                // Handle the exception
+                throw ex.Flatten().InnerException;
             }
         }
 
