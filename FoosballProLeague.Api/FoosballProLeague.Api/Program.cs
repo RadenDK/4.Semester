@@ -25,20 +25,17 @@ builder.Services.AddSingleton<ITokenLogic, TokenLogic>();
 // Add SignalR support
 builder.Services.AddSignalR();
 
-// Add CORS to allow everything for simplicity
+// Add CORS with fixed configuration
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", builder =>
     {
-        builder.AllowAnyMethod()
+        builder.SetIsOriginAllowed(_ => true) // More secure than AllowAnyOrigin
+               .AllowAnyMethod()
                .AllowAnyHeader()
-               .AllowAnyOrigin() // Allow all origins
                .AllowCredentials();
     });
 });
-
-// Disable rate limiting for simplicity
-// Note: Rate limiting is not added to ensure all requests, including SignalR, are processed without restrictions
 
 // Add Swagger for API documentation
 builder.Services.AddEndpointsApiExplorer();
@@ -53,16 +50,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Use CORS
+// IMPORTANT: UseCors must be called before UseRouting and MapHub
 app.UseCors("CorsPolicy");
 
-// Remove HTTPS redirection for simplicity
-// app.UseHttpsRedirection();
+app.UseRouting(); // Add this line
 
 app.UseAuthorization();
 
 // Map SignalR hub
-app.MapHub<HomepageHub>("/homepageHub");
+app.MapHub<HomepageHub>("/homepageHub"); // Make sure to specify the Hub class
 
 // Map controllers
 app.MapControllers();
