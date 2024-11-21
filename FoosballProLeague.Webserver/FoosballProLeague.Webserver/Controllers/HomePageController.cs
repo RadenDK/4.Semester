@@ -20,11 +20,11 @@ namespace FoosballProLeague.Webserver.Controllers
 
         
         [HttpGet("HomePage")]
-        public async Task<IActionResult> HomePage()
+        public async Task<IActionResult> HomePage(int pageNumber = 1, int pageSize = 10)
         {
             try
             {
-                HomePageViewModel viewModel = await _homePageLogic.GetUsersAndMatchHistory("1v1");
+                HomePageViewModel viewModel = await _homePageLogic.GetUsersAndMatchHistory("1v1", pageNumber, pageSize);
                 return View("HomePage", viewModel);
             }
             catch (Exception ex)
@@ -35,11 +35,11 @@ namespace FoosballProLeague.Webserver.Controllers
         }
 
         [HttpGet("HomePage/1v1")]
-        public async Task<IActionResult> GetUsers1v1()
+        public async Task<IActionResult> GetUsers1v1(int pageNumber = 1, int pageSize = 10)
         {
             try
             {
-                HomePageViewModel viewModel = await _homePageLogic.GetUsersAndMatchHistory("1v1");
+                HomePageViewModel viewModel = await _homePageLogic.GetUsersAndMatchHistory("1v1", pageNumber, pageSize);
                 return View("HomePage", viewModel);
             }
             catch (Exception ex)
@@ -50,11 +50,11 @@ namespace FoosballProLeague.Webserver.Controllers
         }
         
         [HttpGet("HomePage/2v2")]
-        public async Task<IActionResult> GetUsers2v2()
+        public async Task<IActionResult> GetUsers2v2(int pageNumber = 1, int pageSize = 10)
         {
             try
             {
-                HomePageViewModel viewModel = await _homePageLogic.GetUsersAndMatchHistory("2v2");
+                HomePageViewModel viewModel = await _homePageLogic.GetUsersAndMatchHistory("2v2", pageNumber, pageSize);
                 return View("HomePage", viewModel);
             }
             catch (Exception ex)
@@ -64,7 +64,7 @@ namespace FoosballProLeague.Webserver.Controllers
             }
         }
         
-        [HttpGet("api/User")]
+        [HttpGet("web/user")]
         public async Task<IActionResult> GetUsersJson(string mode, int pageNumber = 1, int pageSize = 10)
         {
             try

@@ -51,12 +51,10 @@ namespace FoosballProLeague.Webserver.BusinessLogic
             return await _homePageService.GetMatchHistoryByUserId(userId);
         }
 
-        public async Task<HomePageViewModel> GetUsersAndMatchHistory(string mode)
+        public async Task<HomePageViewModel> GetUsersAndMatchHistory(string mode, int pageNumber, int pageSize)
         {
             try
             {
-                int pageNumber = 1;
-                int pageSize = 10;
                 List<UserModel> users = await GetLeaderboards(mode, pageNumber, pageSize);
                 UserModel user = GetUserFromJWT();
                 List<MatchHistoryViewModel> matchHistory = null;
@@ -96,9 +94,10 @@ namespace FoosballProLeague.Webserver.BusinessLogic
                     MatchHistory = matchHistory,
                     Mode = mode,
                     FullName = $"{user.FirstName} {user.LastName}",
+                    LoggedInUserId = user.Id,
                     TotalUserCount = users.Count,
-                    PageNumber = 1,
-                    PageSize = 10,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
                     ActiveMatch = activeMatch ?? new MatchViewModel(),
                 };
                 return viewModel;

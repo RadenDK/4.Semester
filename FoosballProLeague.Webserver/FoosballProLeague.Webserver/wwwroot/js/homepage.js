@@ -1,6 +1,7 @@
 ﻿class FoosballProLeague {
-    constructor(apiUrl) {
+    constructor(apiUrl, initialLeaderboardData) {
         this.apiUrl = apiUrl;
+        this.leaderboardData = initialLeaderboardData;
         this.homepageConnection = new signalR.HubConnectionBuilder()
             .withUrl(`${this.apiUrl}homepagehub`, {
                 transport: signalR.HttpTransportType.WebSockets,
@@ -31,6 +32,7 @@
             const url = `/HomePage/2v2?pageNumber=${this.currentPageNumber}`;
             window.history.pushState({ path: url }, '', url); // Update the URL
             this.updateActiveButton();
+            this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
         });
 
         document.querySelector('.elo-button[data-mode="1v1"]').addEventListener('click', (event) => {
@@ -41,7 +43,26 @@
             const url = `/HomePage/1v1?pageNumber=${this.currentPageNumber}`;
             window.history.pushState({ path: url }, '', url); // Update the URL
             this.updateActiveButton();
+            this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
         });
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            const matchTimeElement = document.querySelector(".match-time");
+            if (matchTimeElement){
+                const startTime = new Date(matchTimeElement.getAttribute("data-start-time"));
+                this.updateOngoingTime(matchTimeElement, startTime);
+                setInterval(() => this.updateOngoingTime(matchTimeElement, startTime), 1000);
+            }
+        });
+    }
+    
+    updateOngoingTime(element, startTime){
+        const now = new Date();
+        const diff = now - startTime;
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60)) / 1000);
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        element.textContent = '${hours}h ${minutes}m ${seconds}s';
     }
 
     updateActiveButton() {
@@ -84,14 +105,34 @@
         }
     }
 
-    updateLeaderboard(pageNumber = 1) {
+    async fetchLeaderboard(mode, pageNumber) {
+        if (!pageNumber) {
+            pageNumber = this.currentPageNumber; // Use currentPageNumber if pageNumber is not provided
+        }
+
+        try {
+            const response = await fetch(`/web/user?mode=${mode}&pageNumber=${pageNumber}&pageSize=${this.pageSize}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const paginatedData = data.users;
+            const totalItems = data.totalUserCount;
+
+            this.updateLeaderboard(paginatedData, pageNumber);
+            this.updatePaginationControls(totalItems, this.pageSize, pageNumber);
+        } catch (error) {
+            console.error('Error fetching leaderboard:', error);
+        }
+    }
+
+    updateLeaderboard(paginatedData, pageNumber = 1) {
         this.currentPageNumber = pageNumber;
         const leaderboardBody = document.querySelector('#leaderboardBody');
         leaderboardBody.innerHTML = '';
 
-        const paginatedLeaderboard = this.leaderboardData.slice(0, this.pageSize);
-
-        paginatedLeaderboard.forEach((player, index) => {
+        paginatedData.forEach((player, index) => {
             const rank = (pageNumber - 1) * this.pageSize + index + 1;
             const elo = this.currentMode === '1v1' ? player.elo1v1 : player.elo2v2;
             const row = `
@@ -103,8 +144,6 @@
         `;
             leaderboardBody.innerHTML += row;
         });
-
-        this.updatePaginationControls(this.leaderboardData.length, this.pageSize, pageNumber);
     }
 
     updatePaginationControls(totalItems, pageSize, pageNumber) {
@@ -141,6 +180,7 @@
         this.currentPageNumber -= 1; // Update currentPageNumber
         const url = `/HomePage/${this.currentMode}?pageNumber=${this.currentPageNumber}`;
         window.history.pushState({ path: url }, '', url); // Update the URL
+        this.fetchLeaderboard(this.currentMode, this.currentPageNumber).wait();
     }
 
     handleNextPageClick(event) {
@@ -148,6 +188,7 @@
         this.currentPageNumber += 1; // Update currentPageNumber
         const url = `/HomePage/${this.currentMode}?pageNumber=${this.currentPageNumber}`;
         window.history.pushState({ path: url }, '', url); // Update the URL
+        this.fetchLeaderboard(this.currentMode, this.currentPageNumber).wait();
     }
 
     handleMatchStart(isMatchStart, teamRed, teamBlue, redScore, blueScore) {
@@ -276,6 +317,5 @@ fetch('/config/url')
         const foosballProLeague = new FoosballProLeague(apiUrl);
         const initialMode = sessionStorage.getItem('selectedLeaderboard') || '1v1'; // default mode
         foosballProLeague.fetchLeaderboard(initialMode); // fetch initial leaderboard with correct mode
-        foosballProLeague.fetchActiveMatch(); // Fetch all matches upon initialization
     })
     .catch(error => console.error('Error fetching configuration:', error));
