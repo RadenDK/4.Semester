@@ -11,7 +11,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddSignalR();
 
 // All is added as singleton instead of scoped because matchlogic caches data in forms of pending match teams
 // Because of this, we want to make sure that the same instance is used for all requests
@@ -82,6 +81,8 @@ app.UseRateLimiter();
 app.MapControllers().RequireRateLimiting("RatePolicy");
 
 // Map the SignalR hub
+builder.Services.AddSignalR();
+
 app.MapHub<HomepageHub>("/homepageHub");
 
 
