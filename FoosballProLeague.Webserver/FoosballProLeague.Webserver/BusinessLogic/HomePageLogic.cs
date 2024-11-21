@@ -66,7 +66,9 @@ namespace FoosballProLeague.Webserver.BusinessLogic
                     try
                     {
                         List<MatchHistoryModel> matchHistoryModels = await GetMatchHistoryByUserId(user.Id);
-                        matchHistory = matchHistoryModels
+                        if (matchHistoryModels != null)
+                        {
+                            matchHistory = matchHistoryModels
                             .OrderByDescending(m => DateTime.Parse(m.EndTime))
                             .Select(m => new MatchHistoryViewModel
                             {
@@ -78,6 +80,7 @@ namespace FoosballProLeague.Webserver.BusinessLogic
                                 BlueTeamScore = m.BlueTeamScore,
                                 TimeAgo = GetTimeAgo(m.EndTime)
                             }).ToList();
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -89,7 +92,8 @@ namespace FoosballProLeague.Webserver.BusinessLogic
                 {
                     Users = users,
                     MatchHistory = matchHistory,
-                    Mode = mode
+                    Mode = mode,
+                    FullName = $"{user.FirstName} {user.LastName}"
                 };
                 return viewModel;
             }
