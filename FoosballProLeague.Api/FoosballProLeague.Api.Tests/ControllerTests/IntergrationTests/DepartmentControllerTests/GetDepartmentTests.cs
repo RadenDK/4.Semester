@@ -1,13 +1,11 @@
 ﻿using FoosballProLeague.Api.BusinessLogic;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.Controllers;
 using FoosballProLeague.Api.DatabaseAccess;
+using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 using FoosballProLeague.Api.Models;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.DepartmentControllerTests
 {

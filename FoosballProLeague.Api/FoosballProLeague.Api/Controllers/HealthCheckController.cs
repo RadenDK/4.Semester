@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace FoosballProLeague.Api.Controllers
 {
@@ -36,7 +34,7 @@ namespace FoosballProLeague.Api.Controllers
             // Read the request body as a string
             using (StreamReader reader = new StreamReader(Request.Body))
             {
-                var body = await reader.ReadToEndAsync();
+                string body = await reader.ReadToEndAsync();
                 // Print the body to the console
                 Console.WriteLine("Received JSON Body: " + body);
             }

@@ -4,6 +4,9 @@ namespace FoosballProLeague.Webserver.Service
 {
     public interface IHomePageService
     {
-        Task<List<UserModel>> GetUsers();
+        Task<Dictionary<string, List<UserModel>>> GetLeaderboards();
+        public Task<List<MatchHistoryModel>> GetMatchHistoryByUserId(int userId);
+
+        public Task<MatchModel> GetActiveMatch();
     }
 }

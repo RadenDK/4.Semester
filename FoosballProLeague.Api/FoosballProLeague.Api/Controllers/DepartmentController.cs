@@ -1,32 +1,35 @@
-using FoosballProLeague.Api.BusinessLogic;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FoosballProLeague.Api.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-[ApiKeyAuthorize]
-public class DepartmentController : Controller
+namespace FoosballProLeague.Api.Controllers
 {
-    private IDepartmentLogic _departmentLogic;
-    
-    public DepartmentController(IDepartmentLogic departmentLogic)
+
+
+    [ApiController]
+    [Route("api/[controller]")]
+    [ApiKeyAuthorize]
+    public class DepartmentController : Controller
     {
-        _departmentLogic = departmentLogic;
-    }
-    
-    [HttpGet]
-    public IActionResult GetDepartments()
-    {
-        try
+        private IDepartmentLogic _departmentLogic;
+
+        public DepartmentController(IDepartmentLogic departmentLogic)
         {
-            List<DepartmentModel> departments = _departmentLogic.GetDepartments();
-            return Ok(departments);
+            _departmentLogic = departmentLogic;
         }
-        catch (Exception ex)
+
+        [HttpGet]
+        public IActionResult GetDepartments()
         {
-            return BadRequest("Something went wrong during retrieval");
+            try
+            {
+                List<DepartmentModel> departments = _departmentLogic.GetDepartments();
+                return Ok(departments);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Something went wrong during retrieval");
+            }
         }
     }
 }

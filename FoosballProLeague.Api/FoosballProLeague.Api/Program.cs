@@ -1,25 +1,36 @@
 using System.Threading.RateLimiting;
 using AspNetCoreRateLimit;
 using FoosballProLeague.Api.BusinessLogic;
+using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.DatabaseAccess;
+using FoosballProLeague.Api.DatabaseAccess.Interfaces;
+using FoosballProLeague.Api.Hubs;
 using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddScoped<ICompanyLogic, CompanyLogic>();
-builder.Services.AddScoped<ICompanyDatabaseAccessor, CompanyDatabaseAccessor>();
+builder.Services.AddSignalR();
 
-builder.Services.AddScoped<IUserLogic, UserLogic>();
-builder.Services.AddScoped<IUserDatabaseAccessor, UserDatabaseAccessor>();
+// All is added as singleton instead of scoped because matchlogic caches data in forms of pending match teams
+// Because of this, we want to make sure that the same instance is used for all requests
+// If it were scoped, it would be created for each request, and the cache would be empty for each request
+builder.Services.AddSingleton<ICompanyLogic, CompanyLogic>();
+builder.Services.AddSingleton<ICompanyDatabaseAccessor, CompanyDatabaseAccessor>();
 
-builder.Services.AddScoped<IDepartmentLogic, DepartmentLogic>();
-builder.Services.AddScoped<IDepartmentDatabaseAccessor, DepartmentDatabaseAccessor>();
-builder.Services.AddScoped<IMatchLogic, MatchLogic>();
-builder.Services.AddScoped<IMatchDatabaseAccessor, MatchDatabaseAccessor>();
+builder.Services.AddSingleton<IUserLogic, UserLogic>();
+builder.Services.AddSingleton<IUserDatabaseAccessor, UserDatabaseAccessor>();
 
-builder.Services.AddScoped<ITokenLogic, TokenLogic>();
+builder.Services.AddSingleton<IDepartmentLogic, DepartmentLogic>();
+builder.Services.AddSingleton<IDepartmentDatabaseAccessor, DepartmentDatabaseAccessor>();
+
+builder.Services.AddSingleton<IMatchLogic, MatchLogic>();
+builder.Services.AddSingleton<IMatchDatabaseAccessor, MatchDatabaseAccessor>();
+
+builder.Services.AddSingleton<ITeamDatabaseAccessor, TeamDatabaseAccessor>();
+
+builder.Services.AddSingleton<ITokenLogic, TokenLogic>();
 
 // Add Rate limiting services
 builder.Services.AddRateLimiter(options =>
@@ -34,8 +45,17 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
-
-
+//cors
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", builder =>
+    {
+        builder.AllowAnyMethod()
+               .AllowAnyHeader()
+               .SetIsOriginAllowed(origin => true) // Allows all origins
+               .AllowCredentials();
+    });
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -52,7 +72,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("CorsPolicy");
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -62,5 +82,9 @@ app.UseRateLimiter();
 app.MapControllers().RequireRateLimiting("RatePolicy");
 
 app.MapControllers();
+
+// Map the SignalR hub
+app.MapHub<HomepageHub>("/homepageHub");
+
 
 app.Run();
