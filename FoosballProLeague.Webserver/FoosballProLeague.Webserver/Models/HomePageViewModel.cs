@@ -8,6 +8,7 @@ public class HomePageViewModel
     public int PageNumber { get; set; }
     public int PageSize { get; set; }
     public int TotalUserCount { get; set; }
+    public string? FullName { get; set; }
 }
 
 public class MatchHistoryViewModel

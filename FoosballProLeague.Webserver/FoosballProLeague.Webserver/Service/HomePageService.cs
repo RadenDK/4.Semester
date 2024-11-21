@@ -1,4 +1,5 @@
 ﻿using FoosballProLeague.Webserver.Models;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
 namespace FoosballProLeague.Webserver.Service
@@ -35,6 +36,10 @@ namespace FoosballProLeague.Webserver.Service
                 string responseBody = await response.Content.ReadAsStringAsync();
                 
                 return JsonSerializer.Deserialize<List<MatchHistoryModel>>(responseBody);
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return null;
             }
             else
             {

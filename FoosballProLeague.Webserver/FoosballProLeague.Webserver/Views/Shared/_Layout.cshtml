@@ -1,3 +1,4 @@
+@model FoosballProLeague.Webserver.Models.HomePageViewModel
 @{
     Layout = null;
 }
@@ -20,7 +21,7 @@
                 <span class="elo">Elo2v2: elo</span>
             </div>
             <div class="profile">
-                <span class="name">name</span>
+                <span class="name">@Model.FullName</span>
                 <div class="profile-dropdown">
                     <a class="profile-icon" id="profileIcon"><i class="fa-solid fa-user"></i></a>
                     <div class="dropdown-menu" id="dropdownMenu">
