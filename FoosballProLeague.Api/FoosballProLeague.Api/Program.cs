@@ -4,6 +4,7 @@ using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.DatabaseAccess;
 using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 using FoosballProLeague.Api.Hubs;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +43,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+// Configure Kestrel to listen on all IPs (required for Docker)
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(5001);  // Listen on all interfaces, necessary for Docker
+});
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
