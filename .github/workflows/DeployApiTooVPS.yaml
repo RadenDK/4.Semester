@@ -82,7 +82,7 @@ jobs:
             docker load -i /root/foosballproleague-api.tar
             docker run -d -p 5001:5001 \
             --name foosballproleague-api-container \
-            -e ConnectionStrings__DatabaseConnection="${{ secrets.DATABASE_CONNECTION }}" \
+            -e ConnectionStrings__DatabaseConnection="${{ secrets.DATABASE_CONNECTION_STRING }}" \
             -e ApiKey="${{ secrets.X_API_KEY }}" \
             -e Jwt__SigningKey="${{ secrets.JWT_SIGNING_KEY }}" \
             foosballproleague-api:latest
