@@ -2,11 +2,6 @@
 
 @{
     Layout = "_Layout";
-    var mode = ViewBag.Mode as string ?? "1v1";
-    var pageNumber = ViewBag.PageNumber as int? ?? 1;
-    var pageSize = ViewBag.PageSize as int? ?? 10;
-    var totalUserCount = ViewBag.TotalUserCount as int? ?? 0;
-    var totalPages = (int)Math.Ceiling((double)totalUserCount / pageSize);
 }
 
 <!DOCTYPE html>
@@ -29,8 +24,8 @@
         <div class="leaderboard">
             <div class="leaderboard-header">
                 <h2>Leaderboard</h2>
-                <a href="@Url.Action("GetUsers1v1", "HomePage", new { pageNumber = 1, pageSize = pageSize })" class="elo-button @(mode == "1v1" ? "active" : "")" data-mode="1v1">1v1</a>
-                <a href="@Url.Action("GetUsers2v2", "HomePage", new { pageNumber = 1, pageSize = pageSize })" class="elo-button @(mode == "2v2" ? "active" : "")" data-mode="2v2">2v2</a>
+                <a href="@Url.Action("GetUsers1v1", "HomePage", new { pageNumber = 1, pageSize = Model.PageSize })" class="elo-button @(Model.Mode == "1v1" ? "active" : "")" data-mode="1v1">1v1</a>
+                <a href="@Url.Action("GetUsers2v2", "HomePage", new { pageNumber = 1, pageSize = Model.PageSize })" class="elo-button @(Model.Mode == "2v2" ? "active" : "")" data-mode="2v2">2v2</a>
             </div>
             <table>
                 <thead>
@@ -41,14 +36,14 @@
                 </tr>
                 </thead>
                 <tbody id="leaderboardBody">
-                @if (Model.Users.Count > 0)
+                @if (Model.Users != null && Model.Users.Count > 0)
                 {
                     for (int i = 0; i < Model.Users.Count; i++)
                     {
                         <tr>
-                            <td>@((pageNumber - 1) * pageSize + i + 1)</td>
+                            <td>@((Model.PageNumber - 1) * Model.PageSize + i + 1)</td>
                             <td>@Model.Users[i].FirstName @Model.Users[i].LastName</td>
-                            <td>@(mode == "1v1" ? Model.Users[i].Elo1v1 : Model.Users[i].Elo2v2)</td>
+                            <td>@(Model.Mode == "1v1" ? Model.Users[i].Elo1v1 : Model.Users[i].Elo2v2)</td>
                         </tr>
                     }
                 }
@@ -71,20 +66,31 @@
             <section class="ongoing-match-section">
                 <div class="ongoing-match">
                     <h2>Ongoing match</h2>
-                    <div class="match-info">
-                        <div class="match-time"></div>
-                        <div class="match-team">
-                            <span class="team-red">Team Red</span>
+                    @if (Model.ActiveMatch != null)
+                    {
+                        <div class="match-info">
+                            <div class="match-time">@Model.ActiveMatch?.StartTime.ToString("HH:mm:ss")</div>
+                            <div class="match-team">
+                                <span class="team-red">Team Red</span>
+                                <p>@Model.ActiveMatch?.RedTeamUser1</p>
+                                <p>@Model.ActiveMatch?.RedTeamUser2</p>
+                            </div>
+                            <div class="match-score">
+                                <span class="score">@Model.ActiveMatch?.RedTeamScore</span>
+                                <span class="dash"> - </span>
+                                <span class="score">@Model.ActiveMatch?.BlueTeamScore</span>
+                            </div>
+                            <div class="match-team">
+                                <span class="team-blue">Team Blue</span>
+                                <p>@Model.ActiveMatch.BlueTeamUser1</p>
+                                <p>@Model.ActiveMatch.BlueTeamUser2</p>
+                            </div>
                         </div>
-                        <div class="match-score">
-                            <span class="score"></span>
-                            <span class="dash"> - </span>
-                            <span class="score"></span>
-                        </div>
-                        <div class="match-team">
-                            <span class="team-blue">Team Blue</span>
-                        </div>
-                    </div>
+                    }
+                    else
+                    {
+                        <div>No ongoing match</div>
+                    }
                 </div>
             </section>
             <section class="match-history-section">
