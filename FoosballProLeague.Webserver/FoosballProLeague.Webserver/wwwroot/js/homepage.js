@@ -3,7 +3,7 @@
         this.apiUrl = apiUrl;
         this.leaderboardData = initialLeaderboardData;
         this.homepageConnection = new signalR.HubConnectionBuilder()
-            .withUrl(`${this.apiUrl}homepagehub`, {
+            .withUrl(`${this.apiUrl}homepageHub`, {
                 skipNegotiation: true,
                 transport: signalR.HttpTransportType.WebSockets,
                 withCredentials: true
