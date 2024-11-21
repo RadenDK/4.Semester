@@ -162,8 +162,9 @@ FROM
         LEFT JOIN users u3 ON blue_team.player1_id = u3.id
         LEFT JOIN users u4 ON blue_team.player2_id = u4.id
 WHERE
-    red_team.player1_id = @userId OR red_team.player2_id = @userId
-    OR blue_team.player1_id = @userId OR blue_team.player2_id = @userId";
+    (red_team.player1_id = @userId OR red_team.player2_id = @userId
+    OR blue_team.player1_id = @userId OR blue_team.player2_id = @userId)
+    AND fm.end_time IS NOT NULL";
 
             using (IDbConnection connection = GetConnection())
             {

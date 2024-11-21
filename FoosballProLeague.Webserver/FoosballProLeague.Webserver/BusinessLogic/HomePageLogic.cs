@@ -51,12 +51,10 @@ namespace FoosballProLeague.Webserver.BusinessLogic
             return await _homePageService.GetMatchHistoryByUserId(userId);
         }
 
-        public async Task<HomePageViewModel> GetUsersAndMatchHistory(string mode)
+        public async Task<HomePageViewModel> GetUsersAndMatchHistory(string mode, int pageNumber, int pageSize)
         {
             try
             {
-                int pageNumber = 1;
-                int pageSize = 10;
                 List<UserModel> users = await GetLeaderboards(mode, pageNumber, pageSize);
                 UserModel user = GetUserFromJWT();
                 List<MatchHistoryViewModel> matchHistory = null;
@@ -88,12 +86,19 @@ namespace FoosballProLeague.Webserver.BusinessLogic
                     }
                 }
 
+                MatchViewModel activeMatch = await GetActiveMatch();
+                
                 HomePageViewModel viewModel = new HomePageViewModel
                 {
                     Users = users,
                     MatchHistory = matchHistory,
                     Mode = mode,
-                    FullName = $"{user.FirstName} {user.LastName}"
+                    FullName = $"{user.FirstName} {user.LastName}",
+                    LoggedInUserId = user.Id,
+                    TotalUserCount = users.Count,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    ActiveMatch = activeMatch ?? new MatchViewModel(),
                 };
                 return viewModel;
             }
@@ -161,6 +166,26 @@ namespace FoosballProLeague.Webserver.BusinessLogic
             {
                 return $"{(int)(timeSpan.TotalDays / 365)} years ago";
             }
+        }
+
+        private async Task<MatchViewModel> GetActiveMatch()
+        {
+            MatchModel match = await _homePageService.GetActiveMatch();
+
+            if (match == null)
+            {
+                return null;
+            }
+            return new MatchViewModel
+            {
+                RedTeamUser1 = match.RedTeam.User1.FirstName,
+                RedTeamUser2 = match.RedTeam?.User2?.FirstName,
+                BlueTeamUser1 = match.BlueTeam.User1.FirstName,
+                BlueTeamUser2 = match.BlueTeam?.User2?.FirstName,
+                RedTeamScore = match.TeamRedScore,
+                BlueTeamScore = match.TeamBlueScore,
+                StartTime = match.StartTime
+            };
         }
     }
 }

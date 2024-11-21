@@ -34,18 +34,8 @@ namespace FoosballProLeague.Api.BusinessLogic
 
         public MatchModel GetActiveMatch()
         {
-            List<MatchModel> allMatches = _matchDatabaseAccessor.GetAllMatches();
-            MatchModel activeMatch = new MatchModel();
+            MatchModel activeMatch = _matchDatabaseAccessor.GetActiveMatchByTableId(1);
 
-            foreach (MatchModel match in allMatches)
-            {
-                if (match.EndTime == null)
-                {
-                    match.RedTeam = _teamDatabaseAccessor.GetTeamById(match.RedTeam.Id);
-                    match.BlueTeam = _teamDatabaseAccessor.GetTeamById(match.BlueTeam.Id);
-                    activeMatch = match;
-                }
-            }
             return activeMatch;
         }
 

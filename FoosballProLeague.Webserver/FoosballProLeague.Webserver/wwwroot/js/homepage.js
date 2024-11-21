@@ -1,6 +1,7 @@
 ﻿class FoosballProLeague {
-    constructor(apiUrl) {
+    constructor(apiUrl, initialLeaderboardData) {
         this.apiUrl = apiUrl;
+        this.leaderboardData = initialLeaderboardData;
         this.homepageConnection = new signalR.HubConnectionBuilder()
             .withUrl(`${this.apiUrl}homepagehub`, {
                 transport: signalR.HttpTransportType.WebSockets,
@@ -20,8 +21,6 @@
         this.updateMatchInfoFromStorage();
         this.updateMatchTimeFromStorage();
         this.initializeEventListeners();
-        this.fetchLeaderboard(this.currentMode, this.currentPageNumber); // fetch initial leaderboard
-        this.fetchActiveMatch(); // Fetch all matches upon initialization
     }
 
     initializeEventListeners() {
@@ -46,6 +45,24 @@
             this.updateActiveButton();
             this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
         });
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            const matchTimeElement = document.querySelector(".match-time");
+            if (matchTimeElement){
+                const startTime = new Date(matchTimeElement.getAttribute("data-start-time"));
+                this.updateOngoingTime(matchTimeElement, startTime);
+                setInterval(() => this.updateOngoingTime(matchTimeElement, startTime), 1000);
+            }
+        });
+    }
+    
+    updateOngoingTime(element, startTime){
+        const now = new Date();
+        const diff = now - startTime;
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60)) / 1000);
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        element.textContent = '${hours}h ${minutes}m ${seconds}s';
     }
 
     updateActiveButton() {
@@ -92,123 +109,30 @@
         if (!pageNumber) {
             pageNumber = this.currentPageNumber; // Use currentPageNumber if pageNumber is not provided
         }
-        const url = `/api/User?mode=${mode}&pageNumber=${pageNumber}&pageSize=${this.pageSize}`;
 
         try {
-            const response = await fetch(url);
+            const response = await fetch(`/web/user?mode=${mode}&pageNumber=${pageNumber}&pageSize=${this.pageSize}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
-            this.leaderboardData = data.users;
-            this.updateLeaderboard(pageNumber);
-            this.updatePaginationControls(data.totalUserCount, this.pageSize, pageNumber);
+            const paginatedData = data.users;
+            const totalItems = data.totalUserCount;
+
+            this.updateLeaderboard(paginatedData, pageNumber);
+            this.updatePaginationControls(totalItems, this.pageSize, pageNumber);
         } catch (error) {
             console.error('Error fetching leaderboard:', error);
         }
     }
 
-    async fetchActiveMatch() {
-        const url = `${this.apiUrl}GetActiveMatch`;
-        console.log('Fetching active matches from URL:', url); // Log the URL for debugging
-
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const match = await response.json();
-            if (match) {
-                const newestMatch = match; // Assuming the endpoint returns the newest match first
-
-                const redTeamUsers = [
-                    {
-                        firstName: newestMatch.redTeam.user1.firstName,
-                        lastName: newestMatch.redTeam.user1.lastName
-                    },
-                    newestMatch.redTeam.user2 ? {
-                        firstName: newestMatch.redTeam.user2.firstName,
-                        lastName: newestMatch.redTeam.user2.lastName
-                    } : null
-                ];
-
-                const blueTeamUsers = [
-                    {
-                        firstName: newestMatch.blueTeam.user1.firstName,
-                        lastName: newestMatch.blueTeam.user1.lastName
-                    },
-                    newestMatch.blueTeam.user2 ? {
-                        firstName: newestMatch.blueTeam.user2.firstName,
-                        lastName: newestMatch.blueTeam.user2.lastName
-                    } : null
-                ];
-
-                this.updateOngoingMatches(newestMatch, redTeamUsers, blueTeamUsers);
-            } else {
-                this.updateOngoingMatches(null, [], []);
-            }
-        } catch (error) {
-            console.error('Error fetching active matches:', error);
-        }
-    }
-
-    updateOngoingMatches(match, redTeamUsers, blueTeamUsers) {
-        const ongoingMatchContainer = document.querySelector('.ongoing-match');
-        const matchTimeElement = ongoingMatchContainer.querySelector('.match-time');
-        const redScoreElement = ongoingMatchContainer.querySelector('.match-score .score:nth-child(1)');
-        const blueScoreElement = ongoingMatchContainer.querySelector('.match-score .score:nth-child(3)');
-
-        if (!match) {
-            matchTimeElement.textContent = '';
-            this.updateTeamInfo('.team-red', null);
-            this.updateTeamInfo('.team-blue', null);
-            redScoreElement.textContent = '0';
-            blueScoreElement.textContent = '0';
-            if (this.matchTimer) {
-                clearInterval(this.matchTimer);
-                this.matchTimer = null;
-            }
-            return;
-        }
-
-        const startTime = new Date(match.startTime);
-        const now = new Date();
-        const elapsedTime = Math.floor((now - startTime) / 1000);
-        const minutes = Math.floor(elapsedTime / 60);
-        const seconds = elapsedTime % 60;
-
-        matchTimeElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-        // Update team information using the existing method
-        this.updateTeamInfo('.team-red', { user1: redTeamUsers[0], user2: redTeamUsers[1] });
-        this.updateTeamInfo('.team-blue', { user1: blueTeamUsers[0], user2: blueTeamUsers[1] });
-
-        redScoreElement.textContent = match.teamRedScore;
-        blueScoreElement.textContent = match.teamBlueScore;
-
-        if (this.matchTimer) {
-            clearInterval(this.matchTimer);
-        }
-
-        this.matchTimer = setInterval(() => {
-            const now = new Date();
-            const elapsedTime = Math.floor((now - startTime) / 1000);
-            const minutes = Math.floor(elapsedTime / 60);
-            const seconds = elapsedTime % 60;
-            matchTimeElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }, 1000);
-    }
-
-    updateLeaderboard(pageNumber = 1) {
+    updateLeaderboard(paginatedData, pageNumber = 1) {
         this.currentPageNumber = pageNumber;
         const leaderboardBody = document.querySelector('#leaderboardBody');
         leaderboardBody.innerHTML = '';
 
-        const paginatedLeaderboard = this.leaderboardData.slice(0, this.pageSize);
-
-        paginatedLeaderboard.forEach((player, index) => {
+        paginatedData.forEach((player, index) => {
             const rank = (pageNumber - 1) * this.pageSize + index + 1;
             const elo = this.currentMode === '1v1' ? player.elo1v1 : player.elo2v2;
             const row = `
@@ -220,8 +144,6 @@
         `;
             leaderboardBody.innerHTML += row;
         });
-
-        this.updatePaginationControls(this.leaderboardData.length, this.pageSize, pageNumber);
     }
 
     updatePaginationControls(totalItems, pageSize, pageNumber) {
@@ -258,7 +180,7 @@
         this.currentPageNumber -= 1; // Update currentPageNumber
         const url = `/HomePage/${this.currentMode}?pageNumber=${this.currentPageNumber}`;
         window.history.pushState({ path: url }, '', url); // Update the URL
-        this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
+        this.fetchLeaderboard(this.currentMode, this.currentPageNumber).wait();
     }
 
     handleNextPageClick(event) {
@@ -266,7 +188,7 @@
         this.currentPageNumber += 1; // Update currentPageNumber
         const url = `/HomePage/${this.currentMode}?pageNumber=${this.currentPageNumber}`;
         window.history.pushState({ path: url }, '', url); // Update the URL
-        this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
+        this.fetchLeaderboard(this.currentMode, this.currentPageNumber).wait();
     }
 
     handleMatchStart(isMatchStart, teamRed, teamBlue, redScore, blueScore) {
@@ -395,6 +317,5 @@ fetch('/config/url')
         const foosballProLeague = new FoosballProLeague(apiUrl);
         const initialMode = sessionStorage.getItem('selectedLeaderboard') || '1v1'; // default mode
         foosballProLeague.fetchLeaderboard(initialMode); // fetch initial leaderboard with correct mode
-        foosballProLeague.fetchActiveMatch(); // Fetch all matches upon initialization
     })
     .catch(error => console.error('Error fetching configuration:', error));
