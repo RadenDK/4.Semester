@@ -94,7 +94,6 @@ namespace FoosballProLeague.Webserver.BusinessLogic
                     MatchHistory = matchHistory,
                     Mode = mode,
                     FullName = $"{user.FirstName} {user.LastName}",
-                    LoggedInUserId = user.Id,
                     TotalUserCount = users.Count,
                     PageNumber = pageNumber,
                     PageSize = pageSize,
