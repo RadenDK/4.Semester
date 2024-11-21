@@ -15,12 +15,6 @@ html, body {
     background-color: #6c49eb;
 }
 
-.profile-info .elo {
-    padding: 0 10px;
-    font-size: 20px;
-    font-weight: bold;
-}
-
 .profile {
     display: flex;
     align-items: center;
