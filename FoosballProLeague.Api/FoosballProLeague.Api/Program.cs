@@ -1,91 +1,70 @@
 using System.Threading.RateLimiting;
-using AspNetCoreRateLimit;
 using FoosballProLeague.Api.BusinessLogic;
 using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.DatabaseAccess;
 using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 using FoosballProLeague.Api.Hubs;
-using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the container
 builder.Services.AddControllers();
 
-// All is added as singleton instead of scoped because matchlogic caches data in forms of pending match teams
-// Because of this, we want to make sure that the same instance is used for all requests
-// If it were scoped, it would be created for each request, and the cache would be empty for each request
+// Register all services as singletons to maintain shared state
 builder.Services.AddSingleton<ICompanyLogic, CompanyLogic>();
 builder.Services.AddSingleton<ICompanyDatabaseAccessor, CompanyDatabaseAccessor>();
-
 builder.Services.AddSingleton<IUserLogic, UserLogic>();
 builder.Services.AddSingleton<IUserDatabaseAccessor, UserDatabaseAccessor>();
-
 builder.Services.AddSingleton<IDepartmentLogic, DepartmentLogic>();
 builder.Services.AddSingleton<IDepartmentDatabaseAccessor, DepartmentDatabaseAccessor>();
-
 builder.Services.AddSingleton<IMatchLogic, MatchLogic>();
 builder.Services.AddSingleton<IMatchDatabaseAccessor, MatchDatabaseAccessor>();
-
 builder.Services.AddSingleton<ITeamDatabaseAccessor, TeamDatabaseAccessor>();
-
 builder.Services.AddSingleton<ITokenLogic, TokenLogic>();
 
-// Add Rate limiting services
-builder.Services.AddRateLimiter(options =>
-{
-    options.AddFixedWindowLimiter("RatePolicy", confic =>
-    
-    {
-        confic.Window = TimeSpan.FromMinutes(1);
-        confic.PermitLimit = 100;
-        confic.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        confic.QueueLimit = 1;
-    });
-});
+// Add SignalR support
+builder.Services.AddSignalR();
 
-//cors
+// Add CORS to allow everything for simplicity
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", builder =>
     {
         builder.AllowAnyMethod()
                .AllowAnyHeader()
-               .SetIsOriginAllowed(origin => true) // Allows all origins
+               .AllowAnyOrigin() // Allow all origins
                .AllowCredentials();
     });
 });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Disable rate limiting for simplicity
+// Note: Rate limiting is not added to ensure all requests, including SignalR, are processed without restrictions
+
+// Add Swagger for API documentation
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSignalR();
-
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+// Use CORS
 app.UseCors("CorsPolicy");
 
-//app.UseHttpsRedirection();
+// Remove HTTPS redirection for simplicity
+// app.UseHttpsRedirection();
 
-app.UseAuthentication();
 app.UseAuthorization();
 
-// Use rate limiting middleware
-app.UseRateLimiter();
-app.MapControllers().RequireRateLimiting("RatePolicy");
-
-// Map the SignalR hub
-
+// Map SignalR hub
 app.MapHub<HomepageHub>("/homepageHub");
 
+// Map controllers
+app.MapControllers();
 
 app.Run();
