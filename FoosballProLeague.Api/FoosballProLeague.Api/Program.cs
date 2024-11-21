@@ -81,8 +81,6 @@ app.UseAuthorization();
 app.UseRateLimiter();
 app.MapControllers().RequireRateLimiting("RatePolicy");
 
-app.MapControllers();
-
 // Map the SignalR hub
 app.MapHub<HomepageHub>("/homepageHub");
 
