@@ -177,10 +177,10 @@ namespace FoosballProLeague.Webserver.BusinessLogic
             }
             return new MatchViewModel
             {
-                RedTeamUser1 = match.RedTeam.User1.FirstName,
-                RedTeamUser2 = match.RedTeam?.User2?.FirstName,
-                BlueTeamUser1 = match.BlueTeam.User1.FirstName,
-                BlueTeamUser2 = match.BlueTeam?.User2?.FirstName,
+                RedTeamUser1 = $"{match.RedTeam.User1.FirstName} {match.RedTeam.User1.LastName}",
+                RedTeamUser2 = $"{match.RedTeam?.User2?.FirstName} {match.RedTeam?.User2?.LastName}",
+                BlueTeamUser1 = $"{match.BlueTeam.User1.FirstName} {match.BlueTeam.User1.LastName}",
+                BlueTeamUser2 = $"{match.BlueTeam?.User2?.FirstName} {match.BlueTeam?.User2?.LastName}",
                 RedTeamScore = match.TeamRedScore,
                 BlueTeamScore = match.TeamBlueScore,
                 StartTime = match.StartTime

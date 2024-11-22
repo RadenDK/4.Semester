@@ -73,9 +73,12 @@
                                 @Model.ActiveMatch?.StartTime.ToString("HH:mm:ss")
                             </div>
                             <div class="match-team">
-                                <span class="team-red">Team Red</span>
-                                <p>@Model.ActiveMatch?.RedTeamUser1</p>
-                                <p>@Model.ActiveMatch?.RedTeamUser2</p>
+                                <div class="team-red">
+                                    <span class="team-red-text">Team Red</span>
+                                    <span class="user1">@Model.ActiveMatch?.RedTeamUser1</span>
+                                    <span class="user2">@Model.ActiveMatch?.RedTeamUser2</span>
+                                </div>
+                                
                             </div>
                             <div class="match-score">
                                 <span class="score">@Model.ActiveMatch?.RedTeamScore</span>
@@ -83,9 +86,11 @@
                                 <span class="score">@Model.ActiveMatch?.BlueTeamScore</span>
                             </div>
                             <div class="match-team">
-                                <span class="team-blue">Team Blue</span>
-                                <p>@Model.ActiveMatch.BlueTeamUser1</p>
-                                <p>@Model.ActiveMatch.BlueTeamUser2</p>
+                                <div class="team-blue">
+                                    <span class="team-blue-text">Team blue</span>
+                                    <span class="user1">@Model.ActiveMatch.BlueTeamUser1</span>
+                                    <span class="user2">@Model.ActiveMatch.BlueTeamUser2</span>
+                                </div>
                             </div>
                         </div>
                     }

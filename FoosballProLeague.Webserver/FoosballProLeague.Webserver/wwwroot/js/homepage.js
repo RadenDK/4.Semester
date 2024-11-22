@@ -236,18 +236,16 @@
     }
     updateTeamInfo(selector, team) {
         const teamContainer = document.querySelector(selector);
-        const teamName = selector.includes('red') ? 'Red Team' : 'Blue Team';
-        teamContainer.innerHTML = `<span class="${selector.slice(1)}">${teamName}</span>`;
+       
+        let user1 = teamContainer.querySelector(".user1");
+        let user2 = teamContainer.querySelector(".user2");
 
-        if (team && team.user1) {
-            const userElement = document.createElement("p");
-            userElement.textContent = `${team.user1.firstName} ${team.user1.lastName}`;
-            teamContainer.appendChild(userElement);
+        if (team && team.user1 && user1) {
+            user1.textContent = `${team.user1.firstName} ${team.user1.lastName}`;
+            
         }
-        if (team && team.user2) {
-            const userElement = document.createElement("p");
-            userElement.textContent = `${team.user2.firstName} ${team.user2.lastName}`;
-            teamContainer.appendChild(userElement);
+        if (team && team.user2 && user2) {
+            user2.textContent = `${team.user2.firstName}`;
         }
     }
 
@@ -272,10 +270,12 @@
             }
             document.querySelector(".match-time").textContent = "";
 
-            this.updateTeamInfo(".team-red", null);
-            this.updateTeamInfo(".team-blue", null);
-            document.querySelector(".match-score .score:nth-child(1)").textContent = "0";
-            document.querySelector(".match-score .score:nth-child(3)").textContent = "0";
+            document.querySelector(".team-red").textContent = "";
+            document.querySelector(".team-blue").textContent = "";
+            document.querySelector(".dash").textContent = "";
+
+            document.querySelector(".match-score .score:nth-child(1)").textContent = "";
+            document.querySelector(".match-score .score:nth-child(3)").textContent = "";
 
             this.currentMatch = null;
             sessionStorage.removeItem('currentMatch');
