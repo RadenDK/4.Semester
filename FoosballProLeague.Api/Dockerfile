@@ -14,10 +14,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build-env /app/out .
 
-# Expose port 5001 for the api
+# Expose port 5001 for the API
 EXPOSE 5001
 
-# Set the environment variable for the port
+# Set environment variables for the port
 ENV ASPNETCORE_URLS=http://+:5001
 
 # Set the entry point to run the API
