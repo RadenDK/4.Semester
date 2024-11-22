@@ -270,9 +270,10 @@
             }
             document.querySelector(".match-time").textContent = "";
 
-            document.querySelector(".team-red").textContent = "";
-            document.querySelector(".team-blue").textContent = "";
-            document.querySelector(".dash").textContent = "";
+            document.querySelector(".team-red .user1").textContent = "";
+            document.querySelector(".team-red .user2").textContent = "";
+            document.querySelector(".team-blue .user1").textContent = "";
+            document.querySelector(".team-blue .user2").textContent = "";
 
             document.querySelector(".match-score .score:nth-child(1)").textContent = "";
             document.querySelector(".match-score .score:nth-child(3)").textContent = "";
