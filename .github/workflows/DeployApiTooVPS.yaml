@@ -53,7 +53,8 @@ jobs:
         uses: docker/setup-buildx-action@v1
 
       - name: Build Docker Image
-        run: docker build -t foosballproleague-api:latest ./FoosballProLeague.Api
+        run: docker build --no-cache -t foosballproleague-api:latest ./FoosballProLeague.Api
+
 
       - name: Save Docker image as tar file
         run: docker save foosballproleague-api:latest -o foosballproleague-api.tar
@@ -79,6 +80,7 @@ jobs:
           script: |
             docker stop foosballproleague-api-container || true
             docker rm foosballproleague-api-container || true
+            docker image prune -f
             docker load -i /root/foosballproleague-api.tar
             docker run -d -p 5001:5001 \
             --name foosballproleague-api-container \
