@@ -271,13 +271,13 @@ namespace FoosballProLeague.Api.BusinessLogic
 
                 _matchDatabaseAccessor.EndMatch(activeMatch.Id);
 
+                NotifyMatchStartOrEnd(activeMatch.TableId, false).Wait();
+
                 if (activeMatch.ValidEloMatch)
                 {
                     _userLogic.UpdateTeamElo(activeMatch);
                 }
             }
-
-            NotifyMatchStartOrEnd(activeMatch.TableId, false).Wait();
 
             // If no expection happend we assume that everything went okay
             return true;
