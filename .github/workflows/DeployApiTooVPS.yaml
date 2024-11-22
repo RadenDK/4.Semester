@@ -71,15 +71,32 @@ jobs:
           source: "foosballproleague-api.tar"
           target: "/root/foosballproleague-api.tar"
 
-      - name: Debug Docker Images and Containers
+      - name: Debug file transfer and Docker images on VPS
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DIGITAL_OCEAN_IP }}
           username: ${{ secrets.DIGITAL_OCEAN_USER }}
           key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
           script: |
+            # Check if the tar file is present
+            if [ -f /root/foosballproleague-api.tar ]; then
+              echo "Docker image tarball found at /root/foosballproleague-api.tar"
+            else
+              echo "Docker image tarball not found!"
+              exit 1
+            fi
+
+            # List files to verify
+            ls -l /root
+
+            # Debug Docker images before loading
             docker images
-            docker ps -a
+
+            # Try loading the image again
+            docker load -i /root/foosballproleague-api.tar
+
+            # Check if the image is successfully loaded
+            docker images
 
       - name: SSH into DigitalOcean and deploy Docker image
         uses: appleboy/ssh-action@master
@@ -88,24 +105,15 @@ jobs:
           username: ${{ secrets.DIGITAL_OCEAN_USER }}
           key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
           script: |
-            # Ensure any old containers and images are removed
             docker stop foosballproleague-api-container || true
             docker rm foosballproleague-api-container || true
             docker image rm -f foosballproleague-api:latest || true
             docker image prune -f
 
-            # Load the docker image from tar file
-            if [ -f /root/foosballproleague-api.tar ]; then
-              docker load -i /root/foosballproleague-api.tar
-            else
-              echo "Docker image file not found!"
-              exit 1
-            fi
-
-            # Verify the image is loaded
+            # Verify if image is loaded
             docker images
 
-            # Run the container
+            # Run the container if the image exists
             docker run -d -p 5001:5001 \
             --name foosballproleague-api-container \
             -e ConnectionStrings__DatabaseConnection="${{ secrets.DATABASE_CONNECTION_STRING }}" \
