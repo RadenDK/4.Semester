@@ -78,15 +78,17 @@ jobs:
           username: ${{ secrets.DIGITAL_OCEAN_USER }}
           key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
           script: |
-            # Check if the tar file is present
+            # Debugging: Check if the tar file exists and its size
+            echo "Checking if tarball exists and its size"
             if [ -f /root/foosballproleague-api.tar ]; then
               echo "Docker image tarball found at /root/foosballproleague-api.tar"
+              ls -lh /root/foosballproleague-api.tar
             else
               echo "Docker image tarball not found!"
               exit 1
             fi
 
-            # List files to verify
+            # Debugging: List files in the /root directory
             ls -l /root
 
             # Debug Docker images before loading
@@ -95,7 +97,7 @@ jobs:
             # Try loading the image again
             docker load -i /root/foosballproleague-api.tar
 
-            # Check if the image is successfully loaded
+            # Debug Docker images after loading
             docker images
 
       - name: SSH into DigitalOcean and deploy Docker image
