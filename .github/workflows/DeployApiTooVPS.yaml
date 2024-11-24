@@ -39,8 +39,8 @@ jobs:
           }' > FoosballProLeague.Api/FoosballProLeague.Api.Tests/appsettings.test.json
 
       # Uncomment below if you want to run tests
-      #- name: Run tests
-      #  run: dotnet test FoosballProLeague.Api/FoosballProLeague.Api.Tests/FoosballProLeague.Api.Tests.csproj --verbosity normal
+      # - name: Run tests
+      #   run: dotnet test FoosballProLeague.Api/FoosballProLeague.Api.Tests/FoosballProLeague.Api.Tests.csproj --verbosity normal
 
   deploy:
     runs-on: ubuntu-latest
@@ -61,6 +61,21 @@ jobs:
 
       - name: Set permissions for TAR file
         run: chmod 755 foosballproleague-api.tar
+
+      - name: Remove existing tar file on DigitalOcean
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DIGITAL_OCEAN_IP }}
+          username: ${{ secrets.DIGITAL_OCEAN_USER }}
+          key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
+          script: |
+            echo "Checking for existing foosballproleague-api.tar"
+            if [ -f /root/foosballproleague-api.tar ]; then
+              echo "Existing tarball found. Removing it."
+              rm -f /root/foosballproleague-api.tar
+            else
+              echo "No existing tarball found. Proceeding with upload."
+            fi
 
       - name: Copy image to DigitalOcean
         uses: appleboy/scp-action@master
@@ -129,4 +144,3 @@ jobs:
           key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
           script: |
             rm -f /root/foosballproleague-api.tar
-           
