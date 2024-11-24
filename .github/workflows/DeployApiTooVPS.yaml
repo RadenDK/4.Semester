@@ -62,21 +62,6 @@ jobs:
       - name: Set permissions for TAR file
         run: chmod 755 foosballproleague-api.tar
 
-      - name: Remove existing tar file on DigitalOcean
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DIGITAL_OCEAN_IP }}
-          username: ${{ secrets.DIGITAL_OCEAN_USER }}
-          key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
-          script: |
-            echo "Checking for existing foosballproleague-api.tar"
-            if [ -f /root/foosballproleague-api.tar ]; then
-              echo "Existing tarball found. Removing it."
-              rm -f /root/foosballproleague-api.tar
-            else
-              echo "No existing tarball found. Proceeding with upload."
-            fi
-
       - name: Copy image to DigitalOcean
         uses: appleboy/scp-action@master
         with:
@@ -85,6 +70,12 @@ jobs:
           key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
           source: "foosballproleague-api.tar"
           target: "/root/"
+          script_before: |
+            echo "Performing cleanup on the target server..."
+            if [ -f /root/foosballproleague-api.tar ]; then
+              echo "Existing tarball found. Removing it."
+              rm -f /root/foosballproleague-api.tar
+            fi
 
       - name: Debug file transfer and Docker images on VPS
         uses: appleboy/ssh-action@master
