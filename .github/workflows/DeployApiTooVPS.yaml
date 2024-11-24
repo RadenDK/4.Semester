@@ -54,7 +54,7 @@ jobs:
         uses: docker/setup-buildx-action@v1
 
       - name: Build Docker Image
-        run: docker build --no-cache -t foosballproleague-api:latest ./FoosballProLeague.Api
+        run: docker build -t foosballproleague-api:latest ./FoosballProLeague.Api
 
       - name: Save Docker image as tar file
         run: docker save foosballproleague-api:latest -o foosballproleague-api.tar
@@ -69,7 +69,7 @@ jobs:
           username: ${{ secrets.DIGITAL_OCEAN_USER }}
           key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
           source: "foosballproleague-api.tar"
-          target: "/root/foosballproleague-api.tar"
+          target: "/root/"
 
       - name: Debug file transfer and Docker images on VPS
         uses: appleboy/ssh-action@master
@@ -107,13 +107,11 @@ jobs:
           username: ${{ secrets.DIGITAL_OCEAN_USER }}
           key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
           script: |
-            docker stop foosballproleague-api-container || true
-            docker rm foosballproleague-api-container || true
-            docker image rm -f foosballproleague-api:latest || true
-            docker image prune -f
-
-            # Verify if image is loaded
-            docker images
+            docker load -i /root/foosballproleague-api.tar  # Load the Docker image from the tar file
+            docker images  # List available images
+            docker ps -a  # List all containers, even stopped ones
+            docker stop foosballproleague-api-container || true  # Stop any existing container
+            docker rm foosballproleague-api-container || true    # Remove the container if it exists
 
             # Run the container if the image exists
             docker run -d -p 5001:5001 \
@@ -130,6 +128,5 @@ jobs:
           username: ${{ secrets.DIGITAL_OCEAN_USER }}
           key: ${{ secrets.DIGITAL_OCEAN_SSH_KEY }}
           script: |
-            if [ -f /root/foosballproleague-api.tar ]; then
-              rm -f /root/foosballproleague-api.tar
-            fi
+            rm -f /root/foosballproleague-api.tar
+           
