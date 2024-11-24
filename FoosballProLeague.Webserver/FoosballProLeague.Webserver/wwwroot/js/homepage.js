@@ -6,6 +6,7 @@
             .withUrl(`${this.apiUrl}homepageHub`, {
                 skipNegotiation: false,
                 transport: signalR.HttpTransportType.WebSockets,
+                withCredentials: true, // Include credentials
             })
             .configureLogging(signalR.LogLevel.Information)
             .build();
