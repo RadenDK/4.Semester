@@ -3,9 +3,10 @@
         this.apiUrl = apiUrl;
         this.leaderboardData = initialLeaderboardData;
         this.homepageConnection = new signalR.HubConnectionBuilder()
-            .withUrl(`${this.apiUrl}homepagehub`, {
+            .withUrl(`${this.apiUrl}homepageHub`, {
+                skipNegotiation: false,
                 transport: signalR.HttpTransportType.WebSockets,
-                withCredentials: true
+                withCredentials: true, // Include credentials
             })
             .configureLogging(signalR.LogLevel.Information)
             .build();

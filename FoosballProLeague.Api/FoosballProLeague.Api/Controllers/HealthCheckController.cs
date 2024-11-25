@@ -15,8 +15,8 @@ namespace FoosballProLeague.Api.Controllers
         [HttpGet]
         public IActionResult GetHealth()
         {
-            System.Console.WriteLine("API is running");
-            return Ok("API is running");
+            System.Console.WriteLine("Hello, world! API is running");
+            return Ok("Hello, world! API is running");
         }
 
         [HttpGet("counter")]

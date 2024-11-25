@@ -1,11 +1,7 @@
-using AspNetCoreRateLimit;
 using FoosballProLeague.Webserver.BusinessLogic;
 using FoosballProLeague.Webserver.Service;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
