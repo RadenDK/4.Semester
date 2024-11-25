@@ -44,11 +44,6 @@
             this.updateActiveButton();
             this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
         });
-        
-        window.addEventListener("load", () => {
-            this.initializeMatchTimer();
-            this.matchTimer = new Date(sessionStorage.getItem('matchTime'));
-        });
     }
 
     initializeMatchTimer() {
@@ -56,22 +51,28 @@
 
         if (matchTimeElement) {
             const startTimeString = matchTimeElement.getAttribute("data-start-time");
-            const startTime = new Date(startTimeString);
+            const startTime = startTimeString ? new Date(startTimeString) : null;
 
-            if (isNaN(startTime.getTime())) {
+            if (startTime === null) {
+                return;
+            }
+
+            this.matchStartTime = startTime;
+
+            if (isNaN(this.matchStartTime.getTime())) {
                 console.error("Invalid start time:", startTimeString);
                 return;
             }
 
-            this.updateOngoingTime(matchTimeElement, startTime);
-            this.matchTimer = setInterval(() => this.updateOngoingTime(matchTimeElement, startTime), 1000);
+            this.updateOngoingTime(matchTimeElement, this.matchStartTime);
+            this.matchTimer = setInterval(() => this.updateOngoingTime(matchTimeElement, this.matchStartTime), 1000);
         } else {
             if (this.matchTimer) {
                 clearInterval(this.matchTimer);
             }
         }
     }
-    
+
     updateOngoingTime(matchTimeElement, startTime) {
         const now = new Date();
         const elapsedTime = Math.floor((now - startTime) / 1000);
@@ -251,13 +252,13 @@
     }
     updateTeamInfo(selector, team) {
         const teamContainer = document.querySelector(selector);
-       
+
         let user1 = teamContainer.querySelector(".user1");
         let user2 = teamContainer.querySelector(".user2");
 
         if (team && team.user1 && user1) {
             user1.textContent = `${team.user1.firstName} ${team.user1.lastName}`;
-            
+
         }
         if (team && team.user2 && user2) {
             user2.textContent = `${team.user2.firstName}`;
@@ -282,20 +283,20 @@
             this.matchTimer = setInterval(() => this.updateMatchTime(), 1000);
         }
         else {
-            document.querySelector(".match-time").textContent = "";
+            this.initializeMatchTimer();
         }
     }
 
     handleMatchEnd(isMatchStart) {
-            const matchTimeElement = document.querySelector(".match-time");
-            if (matchTimeElement) {
-                matchTimeElement.removeAttribute("data-start-time");
-                matchTimeElement.textContent = "";
-                if (!isMatchStart) {
-                    if (this.matchTimer) {
-                        clearInterval(this.matchTimer);
-                        this.matchTimer = null;
-                    }
+        const matchTimeElement = document.querySelector(".match-time");
+        if (matchTimeElement) {
+            matchTimeElement.removeAttribute("data-start-time");
+            matchTimeElement.textContent = "";
+            if (!isMatchStart) {
+                if (this.matchTimer) {
+                    clearInterval(this.matchTimer);
+                    this.matchTimer = null;
+                }
             }
 
             document.querySelector(".match-time").textContent = "";
@@ -305,8 +306,8 @@
             document.querySelector(".team-blue .user1").textContent = "";
             document.querySelector(".team-blue .user2").textContent = "";
 
-            document.querySelector(".match-score .score:nth-child(1)").textContent = "";
-            document.querySelector(".match-score .score:nth-child(3)").textContent = "";
+            document.querySelector(".match-score .score:nth-child(1)").textContent = "0";
+            document.querySelector(".match-score .score:nth-child(3)").textContent = "0";
 
             this.currentMatch = null;
             sessionStorage.removeItem('currentMatch');

@@ -69,7 +69,7 @@
                     @if (Model.ActiveMatch != null)
                     {
                         <div class="match-info">
-                            <div class="match-time" data-start-time="@Model.ActiveMatch?.StartTime.ToString("o")">
+                            <div class="match-time" data-start-time="@Model.ActiveMatch?.StartTime?.ToString("o")">
                             </div>
                             <div class="match-team">
                                 <div class="team-red">
