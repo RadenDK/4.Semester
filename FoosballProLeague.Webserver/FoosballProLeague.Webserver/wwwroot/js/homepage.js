@@ -14,11 +14,10 @@
         this.matchStartTime = new Date(sessionStorage.getItem('matchStartTime')) || null;
         this.currentPageNumber = 1;
         this.pageSize = 10;
-        this.currentMatch = JSON.parse(sessionStorage.getItem('currentMatch')) || null;
+        this.currentMatch = null;
         this.currentMode = sessionStorage.getItem('selectedLeaderboard') || '1v1'; // default mode
 
         this.initializeConnections();
-        this.updateMatchInfoFromStorage();
         this.updateMatchTimeFromStorage();
         this.initializeEventListeners();
     }
@@ -46,14 +45,31 @@
             this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
         });
         
-        document.addEventListener("DOMContentLoaded", () => {
-            const matchTimeElement = document.querySelector(".match-time");
-            if (matchTimeElement){
-                const startTime = new Date(matchTimeElement.getAttribute("data-start-time"));
-                this.updateOngoingTime(matchTimeElement, startTime);
-                setInterval(() => this.updateOngoingTime(matchTimeElement, startTime), 1000);
-            }
+        window.addEventListener("load", () => {
+            this.initializeMatchTimer();
+            this.matchTimer = new Date(sessionStorage.getItem('matchTime'));
         });
+    }
+
+    initializeMatchTimer() {
+        const matchTimeElement = document.querySelector(".match-time");
+
+        if (matchTimeElement) {
+            const startTimeString = matchTimeElement.getAttribute("data-start-time");
+            const startTime = new Date(startTimeString);
+
+            if (isNaN(startTime.getTime())) {
+                console.error("Invalid start time:", startTimeString);
+                return;
+            }
+
+            this.updateOngoingTime(matchTimeElement, startTime);
+            this.matchTimer = setInterval(() => this.updateOngoingTime(matchTimeElement, startTime), 1000);
+        } else {
+            if (this.matchTimer) {
+                clearInterval(this.matchTimer);
+            }
+        }
     }
     
     updateOngoingTime(matchTimeElement, startTime) {
@@ -62,6 +78,7 @@
         const minutes = Math.floor(elapsedTime / 60);
         const seconds = elapsedTime % 60;
         matchTimeElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
     }
 
     updateActiveButton() {
@@ -207,7 +224,6 @@
         }
 
         this.currentMatch = { teamRed, teamBlue, redScore, blueScore };
-        sessionStorage.setItem('currentMatch', JSON.stringify(this.currentMatch));
         this.updateMatchInfo(teamRed, teamBlue, redScore, blueScore);
     }
 
@@ -261,11 +277,25 @@
         document.querySelector(".match-time").textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
 
+    updateMatchTimeFromStorage() {
+        if (this.currentMatch && this.matchStartTime && !isNaN(this.matchStartTime.getTime())) {
+            this.matchTimer = setInterval(() => this.updateMatchTime(), 1000);
+        }
+        else {
+            document.querySelector(".match-time").textContent = "";
+        }
+    }
+
     handleMatchEnd(isMatchStart) {
-        if (!isMatchStart) {
-            if (this.matchTimer) {
-                clearInterval(this.matchTimer);
-                this.matchTimer = null;
+            const matchTimeElement = document.querySelector(".match-time");
+            if (matchTimeElement) {
+                matchTimeElement.removeAttribute("data-start-time");
+                matchTimeElement.textContent = "";
+                if (!isMatchStart) {
+                    if (this.matchTimer) {
+                        clearInterval(this.matchTimer);
+                        this.matchTimer = null;
+                    }
             }
 
             document.querySelector(".match-time").textContent = "";
@@ -281,25 +311,6 @@
             this.currentMatch = null;
             sessionStorage.removeItem('currentMatch');
             sessionStorage.removeItem('matchStartTime');
-        }
-    }
-
-    updateMatchInfoFromStorage() {
-        if (this.currentMatch) {
-            this.updateMatchInfo(
-                this.currentMatch.teamRed,
-                this.currentMatch.teamBlue,
-                this.currentMatch.redScore,
-                this.currentMatch.blueScore
-            );
-        }
-    }
-
-    updateMatchTimeFromStorage() {
-        if (this.currentMatch && this.matchStartTime && !isNaN(this.matchStartTime.getTime())) {
-            this.matchTimer = setInterval(() => this.updateMatchTime(), 1000);
-        } else {
-            document.querySelector(".match-time").textContent = "";
         }
     }
 }
