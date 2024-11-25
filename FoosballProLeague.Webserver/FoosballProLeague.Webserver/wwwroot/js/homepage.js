@@ -56,13 +56,12 @@
         });
     }
     
-    updateOngoingTime(element, startTime){
+    updateOngoingTime(matchTimeElement, startTime) {
         const now = new Date();
-        const diff = now - startTime;
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60)) / 1000);
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        element.textContent = '${hours}h ${minutes}m ${seconds}s';
+        const elapsedTime = Math.floor((now - startTime) / 1000);
+        const minutes = Math.floor(elapsedTime / 60);
+        const seconds = elapsedTime % 60;
+        matchTimeElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
 
     updateActiveButton() {
@@ -268,6 +267,7 @@
                 clearInterval(this.matchTimer);
                 this.matchTimer = null;
             }
+
             document.querySelector(".match-time").textContent = "";
 
             document.querySelector(".team-red .user1").textContent = "";
