@@ -312,6 +312,8 @@
             this.currentMatch = null;
             sessionStorage.removeItem('currentMatch');
             sessionStorage.removeItem('matchStartTime');
+
+            this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
         }
     }
 }
