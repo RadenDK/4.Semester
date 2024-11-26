@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-    # paths:
-    #   - 'FoosballProLeague.Api/**'
+     paths:
+       - 'FoosballProLeague.Api/**'
 
 jobs:
   build-and-test:
@@ -38,9 +38,8 @@ jobs:
             }
           }' > FoosballProLeague.Api/FoosballProLeague.Api.Tests/appsettings.test.json
 
-      # Uncomment below if you want to run tests
-      # - name: Run tests
-      #   run: dotnet test FoosballProLeague.Api/FoosballProLeague.Api.Tests/FoosballProLeague.Api.Tests.csproj --verbosity normal
+       - name: Run tests
+         run: dotnet test FoosballProLeague.Api/FoosballProLeague.Api.Tests/FoosballProLeague.Api.Tests.csproj --verbosity normal
 
   deploy:
     runs-on: ubuntu-latest

@@ -4,8 +4,8 @@ on:
   push:
     branches:
         - main
-    #paths:
-    #  - 'FoosballProLeague.Webserver/**'  # Only trigger when the Webserver code changes
+    paths:
+      - 'FoosballProLeague.Webserver/**'  # Only trigger when the Webserver code changes
       
 jobs:
   build:
