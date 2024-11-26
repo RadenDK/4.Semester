@@ -1,4 +1,6 @@
 ﻿class FoosballProLeague {
+    // Initializes the FoosballProLeague class with API URL, leaderboard data, and default state.
+    // Sets up SignalR connection, match tracking, and event listeners.
     constructor(apiUrl, initialLeaderboardData) {
         this.apiUrl = apiUrl;
         this.leaderboardData = initialLeaderboardData;
@@ -11,7 +13,7 @@
             .build();
 
         this.matchTimer = null;
-        this.matchStartTime = new Date(sessionStorage.getItem('matchStartTime')) || null;
+        this.matchStartTime = new Date(sessionStorage.getItem('matchStartTime')) || null; // Match start time from storage.
         this.currentPageNumber = 1;
         this.pageSize = 10;
         this.currentMatch = null;
@@ -22,6 +24,7 @@
         this.initializeEventListeners();
     }
 
+    // Attaches event listeners for leaderboard mode selection (1v1 or 2v2).
     initializeEventListeners() {
         document.querySelector('.elo-button[data-mode="2v2"]').addEventListener('click', (event) => {
             event.preventDefault();
@@ -46,6 +49,7 @@
         });
     }
 
+    // Initializes the match timer based on stored start time and updates the UI every second.
     initializeMatchTimer() {
         const matchTimeElement = document.querySelector(".match-time");
 
@@ -73,6 +77,7 @@
         }
     }
 
+    // Updates the ongoing match time displayed in the UI based on the start time.
     updateOngoingTime(matchTimeElement, startTime) {
         const now = new Date();
         const elapsedTime = Math.floor((now - startTime) / 1000);
@@ -82,6 +87,7 @@
 
     }
 
+    // Updates the visual state of the leaderboard mode buttons.
     updateActiveButton() {
         document.querySelectorAll('.elo-button').forEach(button => {
             button.classList.remove('active');
@@ -89,6 +95,7 @@
         document.querySelector(`.elo-button[data-mode="${this.currentMode}"]`).classList.add('active');
     }
 
+    // Sets up SignalR connection handlers for receiving real-time updates.
     async initializeConnections() {
         this.homepageConnection.on("ReceiveLeaderboardUpdate", (leaderboard) => {
             this.leaderboardData = leaderboard;
@@ -112,6 +119,7 @@
         await this.startConnection(this.homepageConnection);
     }
 
+    // Establishes or re-establishes a SignalR connection.
     async startConnection(connection) {
         try {
             await connection.start();
@@ -122,6 +130,7 @@
         }
     }
 
+    // Fetches leaderboard data from the server for the specified mode and page number.
     async fetchLeaderboard(mode, pageNumber) {
         if (!pageNumber) {
             pageNumber = this.currentPageNumber; // Use currentPageNumber if pageNumber is not provided
@@ -144,6 +153,7 @@
         }
     }
 
+    // Updates the leaderboard table in the UI with new data.
     updateLeaderboard(paginatedData, pageNumber = 1) {
         this.currentPageNumber = pageNumber;
         const leaderboardBody = document.querySelector('#leaderboardBody');
@@ -163,6 +173,7 @@
         });
     }
 
+    // Updates the pagination controls based on the total items and current page.
     updatePaginationControls(totalItems, pageSize, pageNumber) {
         const paginationContainer = document.querySelector('.pagination');
         paginationContainer.innerHTML = '';
@@ -192,6 +203,7 @@
         }
     }
 
+    // Handles the click event for the "Previous" page button and fetches the previous page of the leaderboard.
     handlePreviousPageClick(event) {
         event.preventDefault();
         this.currentPageNumber -= 1; // Update currentPageNumber
@@ -200,6 +212,7 @@
         this.fetchLeaderboard(this.currentMode, this.currentPageNumber).wait();
     }
 
+    // Handles the click event for the "Next" page button and fetches the next page of the leaderboard.
     handleNextPageClick(event) {
         event.preventDefault();
         this.currentPageNumber += 1; // Update currentPageNumber
@@ -208,6 +221,7 @@
         this.fetchLeaderboard(this.currentMode, this.currentPageNumber).wait();
     }
 
+    // Handles the start of a new match, displaying the teams and score.
     handleMatchStart(isMatchStart, teamRed, teamBlue, redScore, blueScore) {
         console.log("ReceiveMatchStart called with data:", { isMatchStart, teamRed, teamBlue, redScore, blueScore });
 
@@ -228,6 +242,7 @@
         this.updateMatchInfo(teamRed, teamBlue, redScore, blueScore);
     }
 
+    // Updates the match score in real-time.
     updateMatchInfo(teamRed, teamBlue, redScore, blueScore) {
         this.updateTeamInfo(".team-red", teamRed);
         this.updateTeamInfo(".team-blue", teamBlue);
@@ -250,6 +265,8 @@
             this.handleMatchEnd(false);
         }
     }
+
+    // Updates the team information in the UI
     updateTeamInfo(selector, team) {
         const teamContainer = document.querySelector(selector);
 
@@ -265,6 +282,7 @@
         }
     }
 
+    // Updates the match time on the UI, showing elapsed time since the match started
     updateMatchTime() {
         if (!this.matchStartTime) {
             document.querySelector(".match-time").textContent = "";
@@ -278,6 +296,7 @@
         document.querySelector(".match-time").textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
 
+    // Updates the match timer from storage if the match has started
     updateMatchTimeFromStorage() {
         if (this.currentMatch && this.matchStartTime && !isNaN(this.matchStartTime.getTime())) {
             this.matchTimer = setInterval(() => this.updateMatchTime(), 1000);
@@ -287,6 +306,7 @@
         }
     }
 
+    // Handles the end of a match, resetting match data and displaying the final score.
     handleMatchEnd(isMatchStart) {
         const matchTimeElement = document.querySelector(".match-time");
         if (matchTimeElement) {
