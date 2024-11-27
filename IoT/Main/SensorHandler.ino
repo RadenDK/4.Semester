@@ -12,7 +12,7 @@ namespace sensorHandler {
 
     void initializeSensors() {
         for (int i = 0; i < numSensors; i++) {
-            pinMode(sensorPins[i], INPUT_PULLDOWN);  // Enable internal pull-down resistor
+            pinMode(sensorPins[i], INPUT_PULLUP);  // Enable internal pull-up resistor / register if sensorstate is LOW
         }
         LedHandler::initializeLed();         // Initialize the LED
         Serial.println("Sensors and LED initialized.");
@@ -24,7 +24,7 @@ namespace sensorHandler {
         for (int i = 0; i < numSensors; i++) {
             int sensorState = digitalRead(sensorPins[i]);
 
-            if (sensorState == HIGH && (currentTime - lastTriggerTimes[i] >= debounceDelay)) {
+            if (sensorState == LOW && (currentTime - lastTriggerTimes[i] >= debounceDelay)) {
                 lastTriggerTimes[i] = currentTime;
                 Serial.print("Sensor on pin ");
                 Serial.print(sensorPins[i]);
