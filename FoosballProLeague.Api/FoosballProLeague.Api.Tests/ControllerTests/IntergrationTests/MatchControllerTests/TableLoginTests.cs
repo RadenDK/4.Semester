@@ -20,9 +20,9 @@ namespace FoosballProLeague.Api.Tests
     public class TableLoginTests : DatabaseTestBase
     {
 
-        // Test: Login when the table is empty with one player
+        // Test: Login when the table is empty with one user
         [Fact]
-        public void Login_WhenTableIsEmpty_ShouldRegisterOnePlayer()
+        public void Login_WhenTableIsEmpty_ShouldRegisterOneUser()
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1)");
@@ -60,7 +60,7 @@ namespace FoosballProLeague.Api.Tests
 
         // Test: Multiple logins on a table that was initially empty
         [Fact]
-        public void Login_MultiplePlayersOnEmptyTable_ShouldRegisterMultiplePlayers()
+        public void Login_MultipleUsersOnEmptyTable_ShouldRegisterMultipleUsers()
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3), (4)");
@@ -105,9 +105,9 @@ namespace FoosballProLeague.Api.Tests
             Assert.True(football_table.First().ActiveMatchId == null);
         }
 
-        // Test: Login on full team (a team with two players)
+        // Test: Login on full team (a team with two users)
         [Fact]
-        public void Login_WhenTeamIsFull_ShouldNotAllowAdditionalPlayers()
+        public void Login_WhenTeamIsFull_ShouldNotAllowAdditionalUsers()
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3)");
@@ -129,9 +129,9 @@ namespace FoosballProLeague.Api.Tests
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
-            SUT.LoginOnTable(mockTableLoginRequest1); // First player logs in on the red side
-            SUT.LoginOnTable(mockTableLoginRequest2); // Second player logs in on the red side
-            IActionResult result = SUT.LoginOnTable(mockTableLoginRequest3); // Third player tries to log in on the red side
+            SUT.LoginOnTable(mockTableLoginRequest1); // First user logs in on the red side
+            SUT.LoginOnTable(mockTableLoginRequest2); // Second user logs in on the red side
+            IActionResult result = SUT.LoginOnTable(mockTableLoginRequest3); // Third user tries to log in on the red side
 
             // Assert
 
@@ -149,9 +149,9 @@ namespace FoosballProLeague.Api.Tests
 
         }
 
-        // Test: Login on full table (both teams have two players)
+        // Test: Login on full table (both teams have two users)
         [Fact]
-        public void Login_WhenTableIsFull_ShouldNotAllowAdditionalPlayers()
+        public void Login_WhenTableIsFull_ShouldNotAllowAdditionalUsers()
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3), (4), (5), (6)");
@@ -177,12 +177,12 @@ namespace FoosballProLeague.Api.Tests
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
-            SUT.LoginOnTable(mockTableLoginRequest1); // First red player
-            SUT.LoginOnTable(mockTableLoginRequest2); // Second red player
-            SUT.LoginOnTable(mockTableLoginRequest3); // First blue player
-            SUT.LoginOnTable(mockTableLoginRequest4); // Second blue player
-            IActionResult result1 = SUT.LoginOnTable(mockTableLoginRequest5); // Third red player attempts to log in
-            IActionResult result2 = SUT.LoginOnTable(mockTableLoginRequest6); // Third blue player attempts to log in
+            SUT.LoginOnTable(mockTableLoginRequest1); // First red user
+            SUT.LoginOnTable(mockTableLoginRequest2); // Second red user
+            SUT.LoginOnTable(mockTableLoginRequest3); // First blue user
+            SUT.LoginOnTable(mockTableLoginRequest4); // Second blue user
+            IActionResult result1 = SUT.LoginOnTable(mockTableLoginRequest5); // Third red user attempts to log in
+            IActionResult result2 = SUT.LoginOnTable(mockTableLoginRequest6); // Third blue user attempts to log in
 
 
             // Assert
@@ -208,7 +208,7 @@ namespace FoosballProLeague.Api.Tests
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id, first_name, last_name) VALUES (1, 'firstname1', 'lastname1'), (2, 'firstname2', 'lastname2'), (3, 'firstname3', 'lastname3')");
-            _dbHelper.InsertData("INSERT INTO teams (player1_id) VALUES (1), (2)");
+            _dbHelper.InsertData("INSERT INTO teams (user1_id) VALUES (1), (2)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id) VALUES (1, 1, 1, 2)"); // Active match
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
@@ -227,7 +227,7 @@ namespace FoosballProLeague.Api.Tests
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
-            IActionResult result = SUT.LoginOnTable(mockTableLoginRequest); // Player tries to log in during an active match
+            IActionResult result = SUT.LoginOnTable(mockTableLoginRequest); // User tries to log in during an active match
 
             // Assert
             Assert.IsType<OkObjectResult>(result); // Expect the login to succeed since there is room on the red team
@@ -253,9 +253,9 @@ namespace FoosballProLeague.Api.Tests
             TeamDbModel thirdTeam = dbTeams.Where(t => t.Id == 3).FirstOrDefault();
 
             // There should be added an user to red team
-            Assert.True(firstTeam.Player1Id == 1 && firstTeam.Player2Id == null);
-            Assert.True(secondTeam.Player1Id == 2 && secondTeam.Player2Id == null);
-            Assert.True(thirdTeam.Player1Id == 1 && thirdTeam.Player2Id == 3);
+            Assert.True(firstTeam.User1Id == 1 && firstTeam.User2Id == null);
+            Assert.True(secondTeam.User1Id == 2 && secondTeam.User2Id == null);
+            Assert.True(thirdTeam.User1Id == 1 && thirdTeam.User2Id == 3);
         }
 
         // Test: Login on table with an active match and full team
@@ -264,7 +264,7 @@ namespace FoosballProLeague.Api.Tests
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3), (4), (5)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id, player2_id) VALUES (1, 1, 2), (2, 3, 4)"); // Red and Blue teams are full
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id, user2_id) VALUES (1, 1, 2), (2, 3, 4)"); // Red and Blue teams are full
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id) VALUES (1, 1, 1, 2)"); // Active match
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
@@ -283,7 +283,7 @@ namespace FoosballProLeague.Api.Tests
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
-            IActionResult result = SUT.LoginOnTable(mockTableLoginRequest); // Player tries to log in during an active match
+            IActionResult result = SUT.LoginOnTable(mockTableLoginRequest); // User tries to log in during an active match
 
             // Assert
 
@@ -303,14 +303,14 @@ namespace FoosballProLeague.Api.Tests
             Assert.True(football_table.First().ActiveMatchId == 1);
         }
 
-        // Test: Existing team should be reused if players are the same
+        // Test: Existing team should be reused if users are the same
         [Fact]
         public void RegisterGoal_WhenPreviousTeamExists_ShouldReuseExistingTeamId()
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3)");
-            _dbHelper.InsertData("INSERT INTO teams (player1_id) VALUES (1), (2)");
-            _dbHelper.InsertData("INSERT INTO teams (player1_id, player2_id) VALUES (1, 3)");
+            _dbHelper.InsertData("INSERT INTO teams (user1_id) VALUES (1), (2)");
+            _dbHelper.InsertData("INSERT INTO teams (user1_id, user2_id) VALUES (1, 3)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id) VALUES (1, 1, 1, 2)"); // Active match
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
@@ -329,7 +329,7 @@ namespace FoosballProLeague.Api.Tests
             MatchController SUT = new MatchController(matchLogic);
 
             // Act
-            IActionResult result = SUT.LoginOnTable(mockTableLoginRequest); // Player tries to log in during an active match
+            IActionResult result = SUT.LoginOnTable(mockTableLoginRequest); // User tries to log in during an active match
 
             // Assert
             Assert.IsType<OkObjectResult>(result); // Expect the login to succeed since there is room on the red team

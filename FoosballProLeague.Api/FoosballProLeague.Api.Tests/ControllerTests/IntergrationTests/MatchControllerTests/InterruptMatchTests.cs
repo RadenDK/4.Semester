@@ -20,7 +20,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2)");
-            _dbHelper.InsertData("INSERT INTO teams (player1_id) VALUES (1), (2)"); // Existing teams for the match
+            _dbHelper.InsertData("INSERT INTO teams (user1_id) VALUES (1), (2)"); // Existing teams for the match
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (table_id, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, 2, 5, 3)"); // Active match
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
