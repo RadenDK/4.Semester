@@ -183,26 +183,34 @@ body {
 
 .match-team .team-red {
     text-align: center;
-    font-size: 25px;
-    font-weight: 1000;
-    color: #f24a4a;
-    display: block; 
+    display: flex; 
+    flex-direction: column;
     margin-bottom: 20px; 
 }
 
-.match-team .team-blue {
-    text-align: center;
-    font-size: 25px;
-    font-weight: 1000;
-    color: #1164f8;
-    display: block; 
-    margin-bottom: 20px; 
-}
+    .match-team .team-red .team-red-text {
+        font-size: 25px;
+        font-weight: 1000;
+        color: #f24a4a;
+    }
 
-.match-team .team-red p,
-.match-team .team-blue p {
+    .match-team .team-blue {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+
+    .match-team .team-blue .team-blue-text {
+        font-size: 25px;
+        font-weight: 1000;
+        color: #1164f8;
+    }
+
+
+.match-team .user1, .match-team .user2 {
     text-align: center;
-    font-size: 20px; !important;
+    font-size: 20px !important;
     font-weight: 750;
 }
 
