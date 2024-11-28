@@ -45,3 +45,11 @@ appsettings*.json
 
 ## Ignore Visual Studio Launch Settings
 **/launchSettings.json
+
+## Ignore Cursor files
+.cursorignore
+.cursorrules
+
+## Ignore VSCode settings
+settings.json
+.vscode/*

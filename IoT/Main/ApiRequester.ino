@@ -16,14 +16,16 @@ namespace ApiRequester {
             String companyId = ConfigMode::getCompanyId();
             String departmentId = ConfigMode::getDepartmentId();
             String side = ConfigMode::getSide();
+            String apiKey = ConfigMode::getApiKey();
 
             // Prepare the request
-            String url = "https://api.foosballproleague.live/test";
+            String url = "https://api.foosballproleague.live/RegisterGoal";
             http.begin(url);
             http.addHeader("Content-Type", "application/json");
+            http.addHeader("X-Api-Key", apiKey);
 
             // Create the JSON payload
-            String jsonPayload = "{\"tableId\":\"" + tableId + "\", \"companyId\":\"" + companyId + "\", \"departmentId\":\"" + departmentId + "\", \"side\":\"" + side + "\"}";
+            String jsonPayload = "{\"tableId\":" + tableId + ", \"side\":\"" + side + "\"}";
 
             Serial.println("Sending RegisterGoal HTTP POST request with payload:");
             Serial.println(jsonPayload);
@@ -31,8 +33,7 @@ namespace ApiRequester {
             int httpResponseCode = http.POST(jsonPayload);
 
             if (httpResponseCode > 0) {
-                String response = http.getString();
-                Serial.println("Response: " + response);
+                Serial.println("HTTP Request sent");
             } else {
                 Serial.println("Error: Failed to send POST request. HTTP response code: " + String(httpResponseCode));
             }
@@ -49,23 +50,21 @@ namespace ApiRequester {
 
             // Retrieve necessary data using ConfigMode getter functions
             String tableId = ConfigMode::getTableId();
+            String  apiKey = ConfigMode::getApiKey();
 
             // Prepare the request
-            String url = "https://api.foosballproleague.live/test";
+            String url = "https://api.foosballproleague.live/InterruptMatch?tableId=" + tableId;
             http.begin(url);
             http.addHeader("Content-Type", "application/json");
+            http.addHeader("X-Api-Key", apiKey);
 
-            // Create the JSON payload
-            String jsonPayload = "{\"tableId\":\"" + tableId + "\"}";
-
-            Serial.println("Sending InterruptMatch HTTP POST request with payload:");
-            Serial.println(jsonPayload);
-
-            int httpResponseCode = http.POST(jsonPayload);
+            Serial.println("Sending InterruptMatch HTTP POST for tableId: " + tableId);
+            
+            int httpResponseCode = http.POST(""); // Empty string because we dont need to include any json payload. But Method just include a string
 
             if (httpResponseCode > 0) {
-                String response = http.getString();
-                Serial.println("Response: " + response);
+                Serial.println("HTTP Request sent");
+
             } else {
                 Serial.println("Error: Failed to send POST request. HTTP response code: " + String(httpResponseCode));
             }
@@ -82,23 +81,20 @@ namespace ApiRequester {
 
             // Retrieve necessary data using ConfigMode getter functions
             String tableId = ConfigMode::getTableId();
+             String  apiKey = ConfigMode::getApiKey();
 
             // Prepare the request
-            String url = "https://api.foosballproleague.live/test";
+            String url = "https://api.foosballproleague.live/StartMatch?tableId=" + tableId;
             http.begin(url);
-            http.addHeader("Content-Type", "application/json");
+           
+            http.addHeader("X-Api-Key", apiKey);
 
-            // Create the JSON payload
-            String jsonPayload = "{\"tableId\":\"" + tableId + "\"}";
-
-            Serial.println("Sending StartMatch HTTP POST request with payload:");
-            Serial.println(jsonPayload);
-
-            int httpResponseCode = http.POST(jsonPayload);
+            Serial.println("Sending StartMatch HTTP POST request for tableId: " + tableId);
+            
+            int httpResponseCode = http.POST(""); // Empty string because we dont need to include any json payload. But Method just include a string
 
             if (httpResponseCode > 0) {
-                String response = http.getString();
-                Serial.println("Response: " + response);
+                Serial.println("HTTP Request sent");
             } else {
                 Serial.println("Error: Failed to send POST request. HTTP response code: " + String(httpResponseCode));
             }
@@ -117,11 +113,14 @@ namespace ApiRequester {
             String userId = "exampleUserId";  // Replace with actual method when available
             String tableId = ConfigMode::getTableId();
             String side = ConfigMode::getSide();
+            String  apiKey = ConfigMode::getApiKey();
 
             // Prepare the request
             String url = "https://api.foosballproleague.live/test";
             http.begin(url);
             http.addHeader("Content-Type", "application/json");
+            http.addHeader("X-Api-Key", apiKey);
+            
 
             // Create the JSON payload
             String jsonPayload = "{\"userId\":\"" + userId + "\", \"tableId\":\"" + tableId + "\", \"side\":\"" + side + "\"}";
@@ -132,8 +131,7 @@ namespace ApiRequester {
             int httpResponseCode = http.POST(jsonPayload);
 
             if (httpResponseCode > 0) {
-                String response = http.getString();
-                Serial.println("Response: " + response);
+                Serial.println("HTTP Request sent");
             } else {
                 Serial.println("Error: Failed to send POST request. HTTP response code: " + String(httpResponseCode));
             }

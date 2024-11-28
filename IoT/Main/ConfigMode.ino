@@ -16,6 +16,7 @@ namespace ConfigMode {
     String companyId = "";
     String departmentId = "";
     String side = ""; // Variable to store "Red" or "Blue" side
+    String apiKey = "";
 
     void initializeConfigButton() {
         pinMode(configButtonPin, INPUT_PULLUP); // Initialize GPIO0 with internal pull-up
@@ -38,6 +39,7 @@ namespace ConfigMode {
         companyId = preferences.getString("companyId", "");
         departmentId = preferences.getString("departmentId", "");
         side = preferences.getString("side", "");
+        apiKey = preferences.getString("apiKey", "");
 
         // Print loaded settings for debugging
         Serial.println("Loading saved settings:");
@@ -47,12 +49,13 @@ namespace ConfigMode {
         Serial.print("Company ID: "); Serial.println(companyId);
         Serial.print("Department ID: "); Serial.println(departmentId);
         Serial.print("Side: "); Serial.println(side);
+        Serial.print("apiKey: "); Serial.println(apiKey);
 
         preferences.end();
     }
 
     bool settingsInvalid() {
-        bool invalid = ssid.isEmpty() || wifiPassword.isEmpty() || tableId.isEmpty() || companyId.isEmpty() || departmentId.isEmpty() || side.isEmpty();
+        bool invalid = ssid.isEmpty() || wifiPassword.isEmpty() || tableId.isEmpty() || companyId.isEmpty() || departmentId.isEmpty() || side.isEmpty() || apiKey.isEmpty(); 
 
         if (invalid) {
             Serial.println("Settings are invalid.");
@@ -94,6 +97,9 @@ namespace ConfigMode {
         html += "<option value='Red'" + String((side == "Red") ? " selected" : "") + ">Red</option>";
         html += "<option value='Blue'" + String((side == "Blue") ? " selected" : "") + ">Blue</option>";
         html += "</select><br>";
+        html += "<label for='apiKey'>API Key:</label>";
+        html += "<input type='text' id='apiKey' name='apiKey' value='" + apiKey + "' required><br>";
+
         html += "<input type='submit' value='Save'>";
         html += "</form>";
         html += "</body></html>";
@@ -116,6 +122,7 @@ namespace ConfigMode {
         companyId = server->arg("companyId");
         departmentId = server->arg("departmentId");
         side = server->arg("side");
+        apiKey = server->arg("apiKey");
 
         preferences.putString("ssid", ssid);
         preferences.putString("wifiPassword", wifiPassword);
@@ -123,6 +130,7 @@ namespace ConfigMode {
         preferences.putString("companyId", companyId);
         preferences.putString("departmentId", departmentId);
         preferences.putString("side", side);
+        preferences.putString("apiKey", apiKey);
 
         preferences.end(); // Close preferences before restarting
 
@@ -133,6 +141,7 @@ namespace ConfigMode {
         Serial.print("Company ID: "); Serial.println(companyId);
         Serial.print("Department ID: "); Serial.println(departmentId);
         Serial.print("Side: "); Serial.println(side);
+        Serial.print("apiKey:"); Serial.println(apiKey);
 
         server->send(200, "text/html", "Settings saved! Rebooting...");
         delay(1000);
@@ -253,5 +262,9 @@ namespace ConfigMode {
 
     String getWifiPassword() {
         return wifiPassword;
+    }
+
+    String getApiKey() {
+      return apiKey;
     }
 }

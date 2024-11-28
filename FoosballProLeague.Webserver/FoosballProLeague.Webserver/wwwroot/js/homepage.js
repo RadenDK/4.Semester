@@ -1,4 +1,6 @@
 ﻿class FoosballProLeague {
+    // Initializes the FoosballProLeague class with API URL, leaderboard data, and default state.
+    // Sets up SignalR connection, match tracking, and event listeners.
     constructor(apiUrl, initialLeaderboardData) {
         this.apiUrl = apiUrl;
         this.leaderboardData = initialLeaderboardData;
@@ -12,18 +14,18 @@
             .build();
 
         this.matchTimer = null;
-        this.matchStartTime = new Date(sessionStorage.getItem('matchStartTime')) || null;
+        this.matchStartTime = new Date(sessionStorage.getItem('matchStartTime')) || null; // Match start time from storage.
         this.currentPageNumber = 1;
         this.pageSize = 10;
-        this.currentMatch = JSON.parse(sessionStorage.getItem('currentMatch')) || null;
+        this.currentMatch = null;
         this.currentMode = sessionStorage.getItem('selectedLeaderboard') || '1v1'; // default mode
 
         this.initializeConnections();
-        this.updateMatchInfoFromStorage();
         this.updateMatchTimeFromStorage();
         this.initializeEventListeners();
     }
 
+    // Attaches event listeners for leaderboard mode selection (1v1 or 2v2).
     initializeEventListeners() {
         document.querySelector('.elo-button[data-mode="2v2"]').addEventListener('click', (event) => {
             event.preventDefault();
@@ -46,26 +48,47 @@
             this.updateActiveButton();
             this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
         });
-        
-        document.addEventListener("DOMContentLoaded", () => {
-            const matchTimeElement = document.querySelector(".match-time");
-            if (matchTimeElement){
-                const startTime = new Date(matchTimeElement.getAttribute("data-start-time"));
-                this.updateOngoingTime(matchTimeElement, startTime);
-                setInterval(() => this.updateOngoingTime(matchTimeElement, startTime), 1000);
-            }
-        });
-    }
-    
-    updateOngoingTime(element, startTime){
-        const now = new Date();
-        const diff = now - startTime;
-        const hours = Math.floor(diff / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60)) / 1000);
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        element.textContent = '${hours}h ${minutes}m ${seconds}s';
     }
 
+    // Initializes the match timer based on stored start time and updates the UI every second.
+    initializeMatchTimer() {
+        const matchTimeElement = document.querySelector(".match-time");
+
+        if (matchTimeElement) {
+            const startTimeString = matchTimeElement.getAttribute("data-start-time");
+            const startTime = startTimeString ? new Date(startTimeString) : null;
+
+            if (startTime === null) {
+                return;
+            }
+
+            this.matchStartTime = startTime;
+
+            if (isNaN(this.matchStartTime.getTime())) {
+                console.error("Invalid start time:", startTimeString);
+                return;
+            }
+
+            this.updateOngoingTime(matchTimeElement, this.matchStartTime);
+            this.matchTimer = setInterval(() => this.updateOngoingTime(matchTimeElement, this.matchStartTime), 1000);
+        } else {
+            if (this.matchTimer) {
+                clearInterval(this.matchTimer);
+            }
+        }
+    }
+
+    // Updates the ongoing match time displayed in the UI based on the start time.
+    updateOngoingTime(matchTimeElement, startTime) {
+        const now = new Date();
+        const elapsedTime = Math.floor((now - startTime) / 1000);
+        const minutes = Math.floor(elapsedTime / 60);
+        const seconds = elapsedTime % 60;
+        matchTimeElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+    }
+
+    // Updates the visual state of the leaderboard mode buttons.
     updateActiveButton() {
         document.querySelectorAll('.elo-button').forEach(button => {
             button.classList.remove('active');
@@ -73,6 +96,7 @@
         document.querySelector(`.elo-button[data-mode="${this.currentMode}"]`).classList.add('active');
     }
 
+    // Sets up SignalR connection handlers for receiving real-time updates.
     async initializeConnections() {
         this.homepageConnection.on("ReceiveLeaderboardUpdate", (leaderboard) => {
             this.leaderboardData = leaderboard;
@@ -96,6 +120,7 @@
         await this.startConnection(this.homepageConnection);
     }
 
+    // Establishes or re-establishes a SignalR connection.
     async startConnection(connection) {
         try {
             await connection.start();
@@ -106,6 +131,7 @@
         }
     }
 
+    // Fetches leaderboard data from the server for the specified mode and page number.
     async fetchLeaderboard(mode, pageNumber) {
         if (!pageNumber) {
             pageNumber = this.currentPageNumber; // Use currentPageNumber if pageNumber is not provided
@@ -128,6 +154,7 @@
         }
     }
 
+    // Updates the leaderboard table in the UI with new data.
     updateLeaderboard(paginatedData, pageNumber = 1) {
         this.currentPageNumber = pageNumber;
         const leaderboardBody = document.querySelector('#leaderboardBody');
@@ -147,6 +174,7 @@
         });
     }
 
+    // Updates the pagination controls based on the total items and current page.
     updatePaginationControls(totalItems, pageSize, pageNumber) {
         const paginationContainer = document.querySelector('.pagination');
         paginationContainer.innerHTML = '';
@@ -176,6 +204,7 @@
         }
     }
 
+    // Handles the click event for the "Previous" page button and fetches the previous page of the leaderboard.
     handlePreviousPageClick(event) {
         event.preventDefault();
         this.currentPageNumber -= 1; // Update currentPageNumber
@@ -184,6 +213,7 @@
         this.fetchLeaderboard(this.currentMode, this.currentPageNumber).wait();
     }
 
+    // Handles the click event for the "Next" page button and fetches the next page of the leaderboard.
     handleNextPageClick(event) {
         event.preventDefault();
         this.currentPageNumber += 1; // Update currentPageNumber
@@ -192,6 +222,7 @@
         this.fetchLeaderboard(this.currentMode, this.currentPageNumber).wait();
     }
 
+    // Handles the start of a new match, displaying the teams and score.
     handleMatchStart(isMatchStart, teamRed, teamBlue, redScore, blueScore) {
         console.log("ReceiveMatchStart called with data:", { isMatchStart, teamRed, teamBlue, redScore, blueScore });
 
@@ -209,10 +240,10 @@
         }
 
         this.currentMatch = { teamRed, teamBlue, redScore, blueScore };
-        sessionStorage.setItem('currentMatch', JSON.stringify(this.currentMatch));
         this.updateMatchInfo(teamRed, teamBlue, redScore, blueScore);
     }
 
+    // Updates the match score in real-time.
     updateMatchInfo(teamRed, teamBlue, redScore, blueScore) {
         this.updateTeamInfo(".team-red", teamRed);
         this.updateTeamInfo(".team-blue", teamBlue);
@@ -235,23 +266,24 @@
             this.handleMatchEnd(false);
         }
     }
+
+    // Updates the team information in the UI
     updateTeamInfo(selector, team) {
         const teamContainer = document.querySelector(selector);
-        const teamName = selector.includes('red') ? 'Red Team' : 'Blue Team';
-        teamContainer.innerHTML = `<span class="${selector.slice(1)}">${teamName}</span>`;
 
-        if (team && team.user1) {
-            const userElement = document.createElement("p");
-            userElement.textContent = `${team.user1.firstName} ${team.user1.lastName}`;
-            teamContainer.appendChild(userElement);
+        let user1 = teamContainer.querySelector(".user1");
+        let user2 = teamContainer.querySelector(".user2");
+
+        if (team && team.user1 && user1) {
+            user1.textContent = `${team.user1.firstName} ${team.user1.lastName}`;
+
         }
-        if (team && team.user2) {
-            const userElement = document.createElement("p");
-            userElement.textContent = `${team.user2.firstName} ${team.user2.lastName}`;
-            teamContainer.appendChild(userElement);
+        if (team && team.user2 && user2) {
+            user2.textContent = `${team.user2.firstName}`;
         }
     }
 
+    // Updates the match time on the UI, showing elapsed time since the match started
     updateMatchTime() {
         if (!this.matchStartTime) {
             document.querySelector(".match-time").textContent = "";
@@ -265,41 +297,44 @@
         document.querySelector(".match-time").textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
 
+    // Updates the match timer from storage if the match has started
+    updateMatchTimeFromStorage() {
+        if (this.currentMatch && this.matchStartTime && !isNaN(this.matchStartTime.getTime())) {
+            this.matchTimer = setInterval(() => this.updateMatchTime(), 1000);
+        }
+        else {
+            this.initializeMatchTimer();
+        }
+    }
+
+    // Handles the end of a match, resetting match data and displaying the final score.
     handleMatchEnd(isMatchStart) {
-        if (!isMatchStart) {
-            if (this.matchTimer) {
-                clearInterval(this.matchTimer);
-                this.matchTimer = null;
+        const matchTimeElement = document.querySelector(".match-time");
+        if (matchTimeElement) {
+            matchTimeElement.removeAttribute("data-start-time");
+            matchTimeElement.textContent = "";
+            if (!isMatchStart) {
+                if (this.matchTimer) {
+                    clearInterval(this.matchTimer);
+                    this.matchTimer = null;
+                }
             }
+
             document.querySelector(".match-time").textContent = "";
 
-            this.updateTeamInfo(".team-red", null);
-            this.updateTeamInfo(".team-blue", null);
+            document.querySelector(".team-red .user1").textContent = "";
+            document.querySelector(".team-red .user2").textContent = "";
+            document.querySelector(".team-blue .user1").textContent = "";
+            document.querySelector(".team-blue .user2").textContent = "";
+
             document.querySelector(".match-score .score:nth-child(1)").textContent = "0";
             document.querySelector(".match-score .score:nth-child(3)").textContent = "0";
 
             this.currentMatch = null;
             sessionStorage.removeItem('currentMatch');
             sessionStorage.removeItem('matchStartTime');
-        }
-    }
 
-    updateMatchInfoFromStorage() {
-        if (this.currentMatch) {
-            this.updateMatchInfo(
-                this.currentMatch.teamRed,
-                this.currentMatch.teamBlue,
-                this.currentMatch.redScore,
-                this.currentMatch.blueScore
-            );
-        }
-    }
-
-    updateMatchTimeFromStorage() {
-        if (this.currentMatch && this.matchStartTime && !isNaN(this.matchStartTime.getTime())) {
-            this.matchTimer = setInterval(() => this.updateMatchTime(), 1000);
-        } else {
-            document.querySelector(".match-time").textContent = "";
+            this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
         }
     }
 }

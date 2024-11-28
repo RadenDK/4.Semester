@@ -16,7 +16,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
     public class CompleteGameTests : DatabaseTestBase
     {
         [Fact]
-        public void Test1vs1MatchFinishes_2vs2Matchfinshes_1vs1WithSamePlayersFromFirstMatchShouldBeAbleToStart()
+        public void Test1vs1MatchFinishes_2vs2Matchfinshes_1vs1WithSameUsersFromFirstMatchShouldBeAbleToStart()
         {
             // Arrange
 

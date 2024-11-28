@@ -21,7 +21,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.UserCont
             // Arrange
             int userId = 1;
             _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 1000, 1000), (2, 1000, 1000), (3, 1000, 1000), (4, 1000, 1000)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id, player2_id) VALUES (1, 1, 2), (2, 3, 4)");
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id, user2_id) VALUES (1, 1, 2), (2, 3, 4)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, start_time, end_time, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, '2024-11-18 01:05:49.460277', '2024-11-18 08:55:53.233263', 1, 2, 9, 0)");
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");

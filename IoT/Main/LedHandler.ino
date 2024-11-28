@@ -1,14 +1,20 @@
+#include <Adafruit_NeoPixel.h>  // Include the NeoPixel library
 #include "LedHandler.h"
 
 namespace LedHandler {
   int ledState = LOW;  // Current state of the LED (HIGH or LOW)
   unsigned long previousMillis = 0;  // Last time the LED was updated
-  const int ledPin = 2;  // Define the LED pin (same as sensorHandler)
+  const int ledPin = 38;  // Pin connected to the onboard RGB LED
+  const int numPixels = 1;  // Number of LEDs (1 for the onboard LED)
   bool shouldFlash = false;  // Toggle to control whether the LED should flash
 
+  Adafruit_NeoPixel pixels(numPixels, ledPin, NEO_GRB + NEO_KHZ800);
+
   void initializeLed() {
-    pinMode(ledPin, OUTPUT);  // Set the LED pin as an output
-    digitalWrite(ledPin, LOW);  // Ensure the LED starts off
+    pixels.begin();  // Initialize the NeoPixel
+    pixels.setBrightness(50);  // Set global brightness to 20% (adjust as needed)
+    pixels.setPixelColor(0, pixels.Color(0, 0, 0));  // Ensure the LED starts off (black)
+    pixels.show();
   }
 
   // This function is called repeatedly during config mode to manage flashing
@@ -27,7 +33,8 @@ namespace LedHandler {
   // Function to stop the flashing
   void disableFlashing() {
     shouldFlash = false;
-    digitalWrite(ledPin, LOW);  // Turn off the LED when flashing stops
+    pixels.setPixelColor(0, pixels.Color(0, 0, 0));  // Turn off the LED
+    pixels.show();
     Serial.println("LED flashing disabled.");
   }
 
@@ -41,17 +48,21 @@ namespace LedHandler {
       // Toggle the LED state
       if (ledState == LOW) {
         ledState = HIGH;
+        pixels.setPixelColor(0, pixels.Color(100, 100, 100));  // Dim white (RGB: 100, 100, 100)
       } else {
         ledState = LOW;
+        pixels.setPixelColor(0, pixels.Color(0, 0, 0));  // Turn the LED off
       }
 
-      digitalWrite(ledPin, ledState);  // Update the LED with the new state
+      pixels.show();  // Send the updated color to the LED
     }
   }
 
   void shortFlash() {
-    digitalWrite(ledPin, HIGH);  // Turn the LED on
+    pixels.setPixelColor(0, pixels.Color(0, 128, 0));  // Dim green (RGB: 0, 128, 0)
+    pixels.show();
     delay(100);  // Delay for 100ms (this is a short flash)
-    digitalWrite(ledPin, LOW);  // Turn the LED off
+    pixels.setPixelColor(0, pixels.Color(0, 0, 0));  // Turn the LED off
+    pixels.show();
   }
 }

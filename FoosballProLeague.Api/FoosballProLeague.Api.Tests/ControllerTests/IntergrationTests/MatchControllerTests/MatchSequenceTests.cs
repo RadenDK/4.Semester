@@ -8,11 +8,6 @@ using FoosballProLeague.Api.Models.RequestModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchControllerTests
 {
@@ -21,7 +16,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
     {
 
         [Fact]
-        public void PlayersLogin_StartAMatch_ScoreSomeGoalsUntillTheMatchIsOver_ShouldReturnSuccessAllTheWay()
+        public void UsersLogin_StartAMatch_ScoreSomeGoalsUntillTheMatchIsOver_ShouldReturnSuccessAllTheWay()
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 500, 500), (2, 500, 500);");
@@ -80,7 +75,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         }
 
         [Fact]
-        public void PlayersLoginPlayAMatchTillItsOverThenTriesToLoginAndPlayAgain_ShouldReturnSuccess()
+        public void UsersLoginPlayAMatchTillItsOverThenTriesToLoginAndPlayAgain_ShouldReturnSuccess()
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 500, 500), (2, 500, 500);");

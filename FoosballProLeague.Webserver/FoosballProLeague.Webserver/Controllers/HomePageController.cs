@@ -30,6 +30,7 @@ namespace FoosballProLeague.Webserver.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError(string.Empty, "Could not load leaderboard or match history");
+                var x = new MatchViewModel();
                 return View("HomePage", new HomePageViewModel { Users = new List<UserModel>(), MatchHistory = new List<MatchHistoryViewModel>(), ActiveMatch = new MatchViewModel()});
             }
         }

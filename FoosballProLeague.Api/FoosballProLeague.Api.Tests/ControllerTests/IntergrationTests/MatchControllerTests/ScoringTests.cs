@@ -20,7 +20,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
     {
         // Test: Goal registered on table with no active match should return BadRequest
         [Fact]
-        public void GoalScored_WithNoPlayersLoggedIn_ShouldReturnBadRequest()
+        public void GoalScored_WithNoUsersLoggedIn_ShouldReturnBadRequest()
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
@@ -60,7 +60,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id) VALUES (1, 1), (2, 2)");
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id) VALUES (1, 1), (2, 2)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, 1, 2, 4, 0)"); // Active match where red has scored 4 goals and blue 0
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
 
@@ -100,7 +100,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id) VALUES (1, 1), (2, 2)");
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id) VALUES (1, 1), (2, 2)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, 1, 2, 4, 0)"); // Active match where red has scored 4 goals and blue 0
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
@@ -135,15 +135,15 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         }
 
 
-        // Test: Goal scored with uneven teams (1 player on one side, 2 on the other) should still be registered
+        // Test: Goal scored with uneven teams (1 user on one side, 2 on the other) should still be registered
         [Fact]
         public void GoalScored_WithUnbalancedTeams_ShouldRegisterGoalCorrectly()
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id) VALUES (1, 1)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id, player2_id) VALUES (2, 2, 3)"); // Blue team has 2 players
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id) VALUES (1, 1)");
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id, user2_id) VALUES (2, 2, 3)"); // Blue team has 2 users
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, 1, 2, 0, 0)"); // Active match where red has scored 0 goals and blue 0
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
 
@@ -183,7 +183,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id) VALUES (1, 1), (2, 2)");
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id) VALUES (1, 1), (2, 2)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, 1, 2, 0, 0)"); // Active match where red has scored 0 goals and blue 0
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
@@ -241,7 +241,7 @@ IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id) VALUES (1, 1), (2, 2)");
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id) VALUES (1, 1), (2, 2)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, 1, 2, 9, 0)"); // Active match where red has scored 9 goals and blue 0
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
@@ -282,7 +282,7 @@ IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2)");
-            _dbHelper.InsertData("INSERT INTO teams (player1_id) VALUES (1), (2)");
+            _dbHelper.InsertData("INSERT INTO teams (user1_id) VALUES (1), (2)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (table_id, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, 2, 9, 0)");
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");

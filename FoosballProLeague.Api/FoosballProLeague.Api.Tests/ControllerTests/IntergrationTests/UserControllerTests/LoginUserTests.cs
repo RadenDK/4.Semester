@@ -1,17 +1,14 @@
-﻿using Xunit;
-using FoosballProLeague.Api.Controllers;
-using FoosballProLeague.Api.Models;
-using FoosballProLeague.Api.BusinessLogic;
-using FoosballProLeague.Api.DatabaseAccess;
-using bc = BCrypt.Net.BCrypt;
-using Microsoft.AspNetCore.Mvc;
-
-using FoosballProLeague.Api.DatabaseAccess.Interfaces;
+﻿using FoosballProLeague.Api.BusinessLogic;
 using FoosballProLeague.Api.BusinessLogic.Interfaces;
-using System.Collections.Generic;
+using FoosballProLeague.Api.Controllers;
+using FoosballProLeague.Api.DatabaseAccess;
+using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 using FoosballProLeague.Api.Hubs;
+using FoosballProLeague.Api.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Moq;
+using bc = BCrypt.Net.BCrypt;
 
 
 namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserControllerTests

@@ -22,7 +22,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 1000, 1000), (2, 1000, 1000), (3, 1000, 1000), (4, 1000, 1000)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id, player2_id) VALUES (1, 1, 2), (2, 3, 4)");
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id, user2_id) VALUES (1, 1, 2), (2, 3, 4)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score, valid_elo_match) VALUES (1, 1, 1, 2, 9, 0, true)");
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
@@ -64,7 +64,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 1200, 0), (2, 800, 0)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id) VALUES (1, 1), (2, 2)");
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id) VALUES (1, 1), (2, 2)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score, valid_elo_match) VALUES (1, 1, 1, 2, 0, 9, true)");
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
@@ -102,7 +102,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             double expectedScore = 1.0 / (1.0 + Math.Pow(10, (1200 - 800) / 400.0));
             int expectedEloGain = (int)(kFactor * (1 - expectedScore));
 
-            // Ensure the ELO gain for the lower ELO player is significant
+            // Ensure the ELO gain for the lower ELO user is significant
             int eloGain = user2.Elo1v1 - 800;
             Assert.True(expectedEloGain == eloGain);
         }
@@ -112,7 +112,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 800, 0), (2, 1200, 0)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id) VALUES (1, 1), (2, 2)");
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id) VALUES (1, 1), (2, 2)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score, valid_elo_match) VALUES (1, 1, 1, 2, 0, 9, true)");
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
@@ -151,7 +151,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             double expectedScore = 1.0 / (1.0 + Math.Pow(10, (800 - 1200) / 400.0));
             int expectedEloGain = (int)(kFactor * (1 - expectedScore));
 
-            // Ensure the ELO gain for the lower ELO player is significant
+            // Ensure the ELO gain for the lower ELO user is significant
             int eloGain = user2.Elo1v1 - 1200;
             Assert.True(expectedEloGain == eloGain);
         }
@@ -161,7 +161,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 0, 1200), (2, 0, 1200), (3, 0, 800), (4, 0, 800)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id, player2_id) VALUES (1, 1, 2), (2, 3, 4)");
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id, user2_id) VALUES (1, 1, 2), (2, 3, 4)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score, valid_elo_match) VALUES (1, 1, 1, 2, 0, 9, true)");
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
@@ -203,7 +203,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             double expectedScore = 1.0 / (1.0 + Math.Pow(10, (1200 - 800) / 400.0));
             int expectedEloGain = (int)(kFactor * (1 - expectedScore));
 
-            // Ensure the ELO gain for the lower ELO player is significant
+            // Ensure the ELO gain for the lower ELO user is significant
             int eloGain = ((user3.Elo2v2 + user4.Elo2v2) / 2) - 800;
             Assert.True(expectedEloGain == eloGain);
         }
@@ -213,7 +213,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 0, 1200), (2, 0, 1200), (3, 0, 800), (4, 0, 800)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id, player2_id) VALUES (1, 1, 2), (2, 3, 4)");
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id, user2_id) VALUES (1, 1, 2), (2, 3, 4)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score, valid_elo_match) VALUES (1, 1, 1, 2, 9, 0, true)");
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
@@ -255,7 +255,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             double expectedScore = 1.0 / (1.0 + Math.Pow(10, (800 - 1200) / 400.0));
             int expectedEloGain = (int)(kFactor * (1 - expectedScore));
 
-            // Ensure the ELO gain for the lower ELO player is significant
+            // Ensure the ELO gain for the lower ELO user is significant
             int eloGain = ((user1.Elo2v2 + user2.Elo2v2) / 2) - 1200;
             Assert.True(expectedEloGain == eloGain);
         }
@@ -265,7 +265,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 1000, 1000), (2, 1000, 1000), (3, 1000, 1000)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id, player2_id) VALUES (1, 1, 2), (2, 3, NULL)");
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id, user2_id) VALUES (1, 1, 2), (2, 3, NULL)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, 1, 2, 9, 0)");
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
@@ -303,11 +303,11 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         }
 
         [Fact]
-        public void EloCalculation_PlayerJoins1v1MidMatchMakingIt2v1_ShouldNotUpdateElo()
+        public void EloCalculation_UserJoins1v1MidMatchMakingIt2v1_ShouldNotUpdateElo()
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 1000, 1000), (2, 1000, 1000), (3, 1000, 1000)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id) VALUES (1, 1), (2, 2)");
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id) VALUES (1, 1), (2, 2)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, 1, 2, 9, 0)");
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
@@ -325,10 +325,10 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
 
             MatchController SUT = new MatchController(matchLogic);
 
-            // Simulate player joining mid-match
-            TableLoginRequest mockTableLoginRequestPlayer3 = new TableLoginRequest
+            // Simulate user joining mid-match
+            TableLoginRequest mockTableLoginRequestUser3 = new TableLoginRequest
             { UserId = 3, TableId = mockTableId, Side = "red" };
-            SUT.LoginOnTable(mockTableLoginRequestPlayer3);
+            SUT.LoginOnTable(mockTableLoginRequestUser3);
 
             // Act
             IActionResult result = SUT.RegisterGoal(mockRegisterGoalRequestRedSide);
@@ -348,11 +348,11 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         }
 
         [Fact]
-        public void EloCalculation_PlayerJoins2v1MidMatchMakingIt2v2_ShouldNotUpdateElo()
+        public void EloCalculation_UserJoins2v1MidMatchMakingIt2v2_ShouldNotUpdateElo()
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 1000, 1000), (2, 1000, 1000), (3, 1000, 1000), (4, 1000, 1000)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id, player2_id) VALUES (1, 1, 3), (2, 2, null)");
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id, user2_id) VALUES (1, 1, 3), (2, 2, null)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, 1, 2, 9, 0)");
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
@@ -370,10 +370,10 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
 
             MatchController SUT = new MatchController(matchLogic);
 
-            // Simulate player joining mid-match
-            TableLoginRequest mockTableLoginRequestPlayer4 = new TableLoginRequest
+            // Simulate user joining mid-match
+            TableLoginRequest mockTableLoginRequestUser4 = new TableLoginRequest
             { UserId = 4, TableId = mockTableId, Side = "blue" };
-            SUT.LoginOnTable(mockTableLoginRequestPlayer4);
+            SUT.LoginOnTable(mockTableLoginRequestUser4);
 
             // Act
             IActionResult result = SUT.RegisterGoal(mockRegisterGoalRequestRedSide);
@@ -399,8 +399,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 1000, 1000), (2, 1000, 1000), (3, 1000, 1000), (4, 1000, 1000)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id, player2_id) VALUES (1, 1, null), (2, 2, null)");
-            _dbHelper.InsertData("INSERT INTO teams (id, player1_id, player2_id) VALUES (3, 1, 3), (4, 2, 4)");
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id, user2_id) VALUES (1, 1, null), (2, 2, null)");
+            _dbHelper.InsertData("INSERT INTO teams (id, user1_id, user2_id) VALUES (3, 1, 3), (4, 2, 4)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id, team_red_score, team_blue_score ) VALUES (1, 1, 1, 2, 9, 0)");
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
@@ -419,15 +419,15 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
 
             MatchController SUT = new MatchController(matchLogic);
 
-            // Simulate players joining mid-match
-            TableLoginRequest mockTableLoginRequestPlayer3 = new TableLoginRequest
+            // Simulate users joining mid-match
+            TableLoginRequest mockTableLoginRequestUser3 = new TableLoginRequest
 
             { UserId = 3, TableId = mockTableId, Side = "red" };
-            TableLoginRequest mockTableLoginRequestPlayer4 = new TableLoginRequest
+            TableLoginRequest mockTableLoginRequestUser4 = new TableLoginRequest
             { UserId = 4, TableId = mockTableId, Side = "blue" };
 
-            SUT.LoginOnTable(mockTableLoginRequestPlayer3);
-            SUT.LoginOnTable(mockTableLoginRequestPlayer4);
+            SUT.LoginOnTable(mockTableLoginRequestUser3);
+            SUT.LoginOnTable(mockTableLoginRequestUser4);
 
 
             // Act
@@ -450,11 +450,11 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         }
 
         [Fact]
-        public void EloCalculation_EdgeCaseWhereTwoPlayersFromPrevious2v1GameTryToMakeNewTeam_ShouldReturnSucces()
+        public void EloCalculation_EdgeCaseWhereTwoUsersFromPrevious2v1GameTryToMakeNewTeam_ShouldReturnSucces()
         {
             // Arrange
             _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 1000, 1000), (2, 1000, 1000), (3, 1000, 1000)");
-            _dbHelper.InsertData("INSERT INTO teams (player1_id, player2_id) VALUES (1, 3), (2, null)");
+            _dbHelper.InsertData("INSERT INTO teams (user1_id, user2_id) VALUES (1, 3), (2, null)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (table_id, red_team_id, blue_team_id, team_red_score, team_blue_score) VALUES (1, 1, 2, 9, 0)");
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
@@ -492,8 +492,8 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             TeamDbModel dbTeamRed = dbTeams.First(t => t.Id == 3);
             TeamDbModel dbTeamBlue = dbTeams.First(t => t.Id == 2);
 
-            Assert.True(dbTeamRed.Player1Id == 1 && dbTeamRed.Player2Id == null);
-            Assert.True(dbTeamBlue.Player1Id == 2 && dbTeamBlue.Player2Id == null);
+            Assert.True(dbTeamRed.User1Id == 1 && dbTeamRed.User2Id == null);
+            Assert.True(dbTeamBlue.User1Id == 2 && dbTeamBlue.User2Id == null);
         }
     }
 }

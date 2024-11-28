@@ -44,10 +44,10 @@ namespace FoosballProLeague.Api.DatabaseAccess
             }
 
             // Get user 1 which should be garentied to exist
-            UserModel user1 = _userDatabaseAccessor.GetUserById(teamDb.Player1Id);
+            UserModel user1 = _userDatabaseAccessor.GetUserById(teamDb.User1Id);
 
             // Get user 2 if it exists
-            UserModel user2 = teamDb.Player2Id.HasValue ? _userDatabaseAccessor.GetUserById(teamDb.Player2Id.Value) : null;
+            UserModel user2 = teamDb.User2Id.HasValue ? _userDatabaseAccessor.GetUserById(teamDb.User2Id.Value) : null;
 
             // Map the teamDb to a TeamModel
             TeamModel team = new TeamModel
@@ -79,21 +79,21 @@ namespace FoosballProLeague.Api.DatabaseAccess
                 query = @"
                     SELECT id
                     FROM teams
-                    WHERE (player1_id = @Player1Id AND player2_id IS NULL);";
+                    WHERE (user1_id = @User1Id AND user2_id IS NULL);";
             }
             else
             {
                 query = @"
                     SELECT id
                     FROM teams
-                    WHERE (player1_id = @Player1Id AND player2_id = @Player2Id)
-                       OR (player1_id = @Player2Id AND player2_id = @Player1Id);";
+                    WHERE (user1_id = @User1Id AND user2_id = @User2Id)
+                       OR (user1_id = @User2Id AND user2_id = @User1Id);";
             }
 
             using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-                int? teamId = connection.QuerySingleOrDefault<int?>(query, new { Player1Id = playerIds[0], Player2Id = playerIds[1] });
+                int? teamId = connection.QuerySingleOrDefault<int?>(query, new { User1Id = playerIds[0], User2Id = playerIds[1] });
 
                 // If the teamId is not null, get the team
                 if (teamId.HasValue)
@@ -106,14 +106,14 @@ namespace FoosballProLeague.Api.DatabaseAccess
             }
         }
 
-        public TeamModel CreateTeam(List<int?> playerIds)
+        public TeamModel CreateTeam(List<int?> userIds)
         {
-            string query = "INSERT INTO teams (player1_id, player2_id) VALUES (@Player1Id, @Player2Id) RETURNING id";
+            string query = "INSERT INTO teams (user1_id, user2_id) VALUES (@User1Id, @User2Id) RETURNING id";
 
             using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-                int teamId = connection.QuerySingle<int>(query, new { Player1Id = playerIds[0], Player2Id = playerIds[1] });
+                int teamId = connection.QuerySingle<int>(query, new { User1Id = userIds[0], User2Id = userIds[1] });
 
                 TeamModel newTeam = GetTeamById(teamId, connection);
 

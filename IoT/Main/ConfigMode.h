@@ -26,6 +26,7 @@ namespace ConfigMode {
     String getSide();
     String getSsid();
     String getWifiPassword();
+    String getApiKey();
 }
 
 #endif // CONFIG_MODE_H

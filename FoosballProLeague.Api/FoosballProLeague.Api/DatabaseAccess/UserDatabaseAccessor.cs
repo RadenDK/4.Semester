@@ -126,8 +126,8 @@ SELECT
 
     -- Red Team Details
     red_team.id AS Id,
-    red_team.player1_id AS RedUser1Id,
-    red_team.player2_id AS RedUser2Id,
+    red_team.user1_id AS RedUser1Id,
+    red_team.user2_id AS RedUser2Id,
     u1.id AS RedUser1Id,
     u1.first_name,
     u1.last_name,
@@ -141,8 +141,8 @@ SELECT
 
     -- Blue Team Details
     blue_team.id AS Id,
-    blue_team.player1_id AS BlueUser1Id,
-    blue_team.player2_id AS BlueUser2Id,
+    blue_team.user1_id AS BlueUser1Id,
+    blue_team.user2_id AS BlueUser2Id,
     u3.id AS BlueUser1Id,
     u3.first_name,
     u3.last_name,
@@ -156,14 +156,14 @@ SELECT
 FROM
     foosball_matches fm
         JOIN teams AS red_team ON fm.red_team_id = red_team.id
-        LEFT JOIN users u1 ON red_team.player1_id = u1.id
-        LEFT JOIN users u2 ON red_team.player2_id = u2.id
+        LEFT JOIN users u1 ON red_team.user1_id = u1.id
+        LEFT JOIN users u2 ON red_team.user2_id = u2.id
         JOIN teams AS blue_team ON fm.blue_team_id = blue_team.id
-        LEFT JOIN users u3 ON blue_team.player1_id = u3.id
-        LEFT JOIN users u4 ON blue_team.player2_id = u4.id
+        LEFT JOIN users u3 ON blue_team.user1_id = u3.id
+        LEFT JOIN users u4 ON blue_team.user2_id = u4.id
 WHERE
-    (red_team.player1_id = @userId OR red_team.player2_id = @userId
-    OR blue_team.player1_id = @userId OR blue_team.player2_id = @userId)
+    (red_team.user1_id = @userId OR red_team.user2_id = @userId
+    OR blue_team.user1_id = @userId OR blue_team.user2_id = @userId)
     AND fm.end_time IS NOT NULL";
 
             using (IDbConnection connection = GetConnection())
