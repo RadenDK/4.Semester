@@ -19,13 +19,13 @@ namespace ApiRequester {
             String apiKey = ConfigMode::getApiKey();
 
             // Prepare the request
-            String url = "https://api.foosballproleague.live/test";
+            String url = "https://api.foosballproleague.live/RegisterGoal";
             http.begin(url);
             http.addHeader("Content-Type", "application/json");
             http.addHeader("X-Api-Key", apiKey);
 
             // Create the JSON payload
-            String jsonPayload = "{\"tableId\":\"" + tableId + "\", \"companyId\":\"" + companyId + "\", \"departmentId\":\"" + departmentId + "\", \"side\":\"" + side + "\"}";
+            String jsonPayload = "{\"tableId\":" + tableId + ", \"side\":\"" + side + "\"}";
 
             Serial.println("Sending RegisterGoal HTTP POST request with payload:");
             Serial.println(jsonPayload);
@@ -33,8 +33,7 @@ namespace ApiRequester {
             int httpResponseCode = http.POST(jsonPayload);
 
             if (httpResponseCode > 0) {
-                String response = http.getString();
-                Serial.println("Response: " + response);
+                Serial.println("HTTP Request sent");
             } else {
                 Serial.println("Error: Failed to send POST request. HTTP response code: " + String(httpResponseCode));
             }
@@ -59,16 +58,13 @@ namespace ApiRequester {
             http.addHeader("Content-Type", "application/json");
             http.addHeader("X-Api-Key", apiKey);
 
-          
-
             Serial.println("Sending InterruptMatch HTTP POST for tableId: " + tableId);
             
-
             int httpResponseCode = http.POST(""); // Empty string because we dont need to include any json payload. But Method just include a string
 
             if (httpResponseCode > 0) {
-                String response = http.getString();
-                Serial.println("Response: " + response);
+                Serial.println("HTTP Request sent");
+
             } else {
                 Serial.println("Error: Failed to send POST request. HTTP response code: " + String(httpResponseCode));
             }
@@ -93,16 +89,12 @@ namespace ApiRequester {
            
             http.addHeader("X-Api-Key", apiKey);
 
-            
-
             Serial.println("Sending StartMatch HTTP POST request for tableId: " + tableId);
             
-
             int httpResponseCode = http.POST(""); // Empty string because we dont need to include any json payload. But Method just include a string
 
             if (httpResponseCode > 0) {
-                String response = http.getString();
-                Serial.println("Response: " + response);
+                Serial.println("HTTP Request sent");
             } else {
                 Serial.println("Error: Failed to send POST request. HTTP response code: " + String(httpResponseCode));
             }
@@ -139,8 +131,7 @@ namespace ApiRequester {
             int httpResponseCode = http.POST(jsonPayload);
 
             if (httpResponseCode > 0) {
-                String response = http.getString();
-                Serial.println("Response: " + response);
+                Serial.println("HTTP Request sent");
             } else {
                 Serial.println("Error: Failed to send POST request. HTTP response code: " + String(httpResponseCode));
             }
