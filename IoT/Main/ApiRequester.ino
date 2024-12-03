@@ -105,12 +105,11 @@ namespace ApiRequester {
         }
     }
 
-    void sendLoginOnTable() {
+    void sendLoginOnTable(String userId) {
         if (WiFi.status() == WL_CONNECTED) {
             HTTPClient http;
 
             // Placeholder for userId since it's not retrieved from ConfigMode yet
-            String userId = "exampleUserId";  // Replace with actual method when available
             String tableId = ConfigMode::getTableId();
             String side = ConfigMode::getSide();
             String  apiKey = ConfigMode::getApiKey();
