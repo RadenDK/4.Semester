@@ -1,6 +1,6 @@
 ﻿using FoosballProLeague.Webserver.Models;
 
-namespace FoosballProLeague.Webserver.BusinessLogic
+namespace FoosballProLeague.Webserver.BusinessLogic.Interfaces
 {
     public interface IHomePageLogic
     {

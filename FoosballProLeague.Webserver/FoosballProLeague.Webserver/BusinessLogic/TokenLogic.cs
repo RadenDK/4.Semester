@@ -1,4 +1,5 @@
-﻿using FoosballProLeague.Webserver.Service;
+﻿using FoosballProLeague.Webserver.BusinessLogic.Interfaces;
+using FoosballProLeague.Webserver.Service.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
