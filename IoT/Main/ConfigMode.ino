@@ -94,8 +94,8 @@ namespace ConfigMode {
         html += "<input type='text' id='departmentId' name='departmentId' value='" + departmentId + "' required><br>";
         html += "<label for='side'>Side:</label>";
         html += "<select id='side' name='side'>";
-        html += "<option value='Red'" + String((side == "Red") ? " selected" : "") + ">Red</option>";
-        html += "<option value='Blue'" + String((side == "Blue") ? " selected" : "") + ">Blue</option>";
+        html += "<option value='red'" + String((side == "red") ? " selected" : "") + ">red</option>";
+        html += "<option value='blue'" + String((side == "blue") ? " selected" : "") + ">blue</option>";
         html += "</select><br>";
         html += "<label for='apiKey'>API Key:</label>";
         html += "<input type='text' id='apiKey' name='apiKey' value='" + apiKey + "' required><br>";

@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const profileIconElement = profileIcon.querySelector('i');
 
     profileIcon.addEventListener('click', function (event) {
-        console.log('Profile icon clicked');
         event.stopPropagation();
         const isVisible = dropdownMenu.classList.contains('show');
         if (isVisible) {
