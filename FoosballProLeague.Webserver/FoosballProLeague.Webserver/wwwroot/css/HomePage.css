@@ -1,19 +1,44 @@
-﻿
+/* CSS Variables for consistent theming */
+:root {
+    /* Color palette */
+    --primary-color: #0b1424;
+    --secondary-color: #0b1b38;
+    --accent-color: #6c49eb;
+    --text-color: #ffffff;
+    --red-team-color: #f24a4a;
+    --blue-team-color: #1164f8;
+    
+   
+    
+    /* Typography */
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+   
+}
 
+/* Base styles and resets */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Global Styles */
 html, body {
     width: 100%;
     height: 100vh;
     margin: 0;
     padding: 0;
+    overflow: hidden;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    background-color: #0b1424;
-    color: #fff;
+    font-family: var(--font-family);
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    line-height: 1.6;
 }
 
-/*styling of scrollbar*/
+/* Styling of scrollbar*/
 ::-webkit-scrollbar {
     width: 10px;
 }
@@ -23,32 +48,34 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #6c49eb;
+    background: var(--accent-color);
     border-radius: 10px;
 }
 
-
-/*styling of container*/
+/* Main container layout */
 .main {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     width: 100%;
+    height: 100vh;
     gap: 20px;
     padding: 20px;
+    box-sizing: border-box;
 }
 
-/*styling of leaderboard*/
+/* Styling of leaderboard*/
 .leaderboard-section, .match-section {
    width: 100%;
 }
 
 .leaderboard {
-    background-color: #0b1b38;
+    background-color: var(--secondary-color);
     box-shadow: 0 0 15px 0 rgb(0, 0, 0, 0.5);
     padding: 40px;
     border-radius: 10px;
-    height: 100%;
+    height: 90vh;
     width: 100%;
+    box-sizing: border-box;
     overflow-y: auto;
 }
 
@@ -67,94 +94,139 @@ body {
 
 .elo-button {
     margin-bottom: 15px;
-    background-color: #0b1b38;
-    border: 3px solid #6c49eb;
+    background-color: var(--secondary-color);
+    border: 3px solid var(--accent-color);
     border-radius: 20px;
     padding: 5px 20px;
     font-size: 15px;
     font-weight: bold;
     text-decoration: none;
-    color: #fff;
+    color: var(--text-color);
     cursor: pointer;
     transition: background-color 0.5s ease;
 }
 
     .elo-button:hover {
-        background-color: #6c49eb;
+        background-color: var(--accent-color);
     }
 
     .elo-button.active {
-        background-color: #6c49eb;
-        color: #fff;
+        background-color: var(--accent-color);
+        color: var(--text-color);
     }
 
 .leaderboard table {
     width: 100%;
-    overflow: scroll;
     border-collapse: collapse;
 }
 
-    .leaderboard table thead {
-        display: table-header-group;
-        background-color: #6c49eb;
-        border-radius: 10px;
+.leaderboard table thead {
+    display: table-header-group;
+    background-color: var(--accent-color);
+    border-radius: 10px;
+}
+
+.leaderboard table thead tr {
+    display: table-row;
+}
+
+.leaderboard table thead th {
+    text-align: left;
+    padding: 10px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.leaderboard table thead th:first-child {
+    text-align: center;
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
+}
+
+.leaderboard table thead th:last-child {
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+}
+
+.leaderboard td:nth-child(2) {
+    width: auto;
+    max-width: 300px; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.leaderboard table tbody {
+    display: table-row-group;
+}
+
+.leaderboard table tbody tr {
+    display: table-row;
+}
+
+.leaderboard table tbody td {
+    text-align: left;
+    padding: 10px;
+    font-size: 20px;
+}
+
+    .leaderboard table tbody td:first-child {
+        text-align: center;
+        font-weight: bold;
     }
 
+/* Name truncation styles - base class */
+.truncate-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    max-width: 100%;
+}
 
-        .leaderboard table thead tr {
-            display: table-row;
-        }
+/* Leaderboard specific */
+.leaderboard td:nth-child(2) {
+    width: auto;
+    max-width: 300px; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
-        .leaderboard table thead th {
-            text-align: left;
-            padding: 10px;
-            font-size: 20px;
-            font-weight: bold;
-        }
+/* Ongoing match specific */
+.team-red .user1, 
+.team-red .user2,
+.team-blue .user1, 
+.team-blue .user2 {
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}
 
-            .leaderboard table thead th:first-child {
-                text-align: center;
-            }
+/* Match history specific */
+.team-red-user1, 
+.team-red-user2,
+.team-blue-user1, 
+.team-blue-user2 {
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    padding: 0px 5px;
+}
 
-            .leaderboard table thead th:first-child {
-                border-top-left-radius: 30px;
-                border-bottom-left-radius: 30px;
-            }
-
-            .leaderboard table thead th:last-child {
-                border-top-right-radius: 30px;
-                border-bottom-right-radius: 30px;
-            }
-
-    .leaderboard table tbody {
-            display: table-row-group;
-    }
-
-        .leaderboard table tbody tr {
-            display: table-row;
-        }
-
-        .leaderboard table tbody td {
-            text-align: left;
-            padding: 10px;
-            font-size: 20px;
-        }
-
-            .leaderboard table tbody td:first-child {
-                text-align: center;
-                font-weight: bold;
-            }
-
-
-/*styling of ongoing match*/
+/* Styling of ongoing match*/
 
 .ongoing-match {
-    background-color: #0b1b38;
+    background-color: var(--secondary-color);
     box-shadow: 0 0 15px 0 rgb(0, 0, 0, 0.5);
     padding: 40px;
     border-radius: 10px;
     margin-bottom: 30px;
-    height: 50vh;
+    height: auto;
     width: 100%;
 }
 
@@ -168,182 +240,277 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.match-time {
-    font-size: 20px;
-    font-weight: bold;
+    background-color: var(--primary-color);
+    padding: 20px;
+    border: 3px solid var(--accent-color);
+    border-radius: 20px;
 }
 
 .match-team {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    flex: 1;
+    min-width: 0;
 }
 
-.match-team .team-red {
-    text-align: center;
-    display: flex; 
+/* Base team styles */
+.team-red, .team-blue {
+    display: flex;
     flex-direction: column;
-    margin-bottom: 20px; 
-}
-
-    .match-team .team-red .team-red-text {
-        font-size: 25px;
-        font-weight: 1000;
-        color: #f24a4a;
-    }
-
-    .match-team .team-blue {
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 20px;
-    }
-
-    .match-team .team-blue .team-blue-text {
-        font-size: 25px;
-        font-weight: 1000;
-        color: #1164f8;
-    }
-
-
-.match-team .user1, .match-team .user2 {
-    text-align: center;
-    font-size: 20px !important;
-    font-weight: 750;
-}
-
-    .match-score .dash {
-        font-size: 20px;
-        color: #fff;
-        font-weight: bold;
-    }
-
-    .match-score .score {
-        font-size: 20px;
-        color: #6c49eb;
-        font-weight: bold;
-    }
-
-    /* Styling of match history */
-.match-history-section {
-    margin-top: 30px;
-}
-
-.match-history {
-    background-color: #0b1b38;
-    box-shadow: 0 0 15px 0 rgb(0, 0, 0, 0.5);
-    padding: 40px;
-    border-radius: 10px;
-    height: 50vh;
     width: 100%;
-    overflow-y: auto;
 }
 
-    .match-history h2 {
-        margin-bottom: 20px;
-        font-size: 30px;
-        font-weight: bold;
-    }
-    
-    .match-history table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-    
-    .match-history table tr{
-        border: 3px solid #6c49eb;
-        border-radius: 20px;
-        background-color: #0b1424;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 15px ;
-        display: flex;
-        font-size: 20px;
-        margin-bottom: 20px;
-    }
-    
-    .match-history table tbody .team-red{
-        display: flex;
-        flex-direction: column;
-        font-size: 20px;
-    }
+.team-red .user1, 
+.team-red .user2,
+.team-blue .user1, 
+.team-blue .user2 {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: auto;
+    max-width: 100%;
+}
 
-    .match-history table .versus {
-        font-weight: bold;
-        text-align: center;
-        padding: 0 10px;
-        position: relative;
-    }
+.team-red-text, .team-blue-text {
+    font-size: 25px;
+    font-weight: 1000;
+    width: auto;
+    max-width: 100%;
+}
 
-    .match-history table .versus::after {
-        content: "___";
-        position: absolute;
-        bottom: -5px; /* Adjust the position as needed */
-        left: 50%;
-        transform: translateX(-50%);
-        color: #6c49eb;
-    }
+.team-red-text {
+    color: var(--red-team-color);
+    text-align: left;
+}
 
-    .match-history table tbody .team-blue{
-        display: flex;
-        flex-direction: column;
-        font-size: 20px;
-    }
+.team-blue-text {
+    color: var(--blue-team-color);
+    text-align: right;
+}
+
+.team-red .user1,
+.team-red .user2 {
+    font-size: 20px;
+    font-weight: 750;
+    color: var(--red-team-color);
+    text-align: left;
+}
+
+.team-blue .user1,
+.team-blue .user2 {
+    font-size: 20px;
+    font-weight: 750;
+    color: var(--blue-team-color);
+    text-align: right;
+}
+
+.match-score {
+    display: block;
+    text-align: center;
+    white-space: nowrap;
+    min-width: fit-content;
     
-    .match-history table tbody .team-red-score {
-        color: #ff4c4c;
-        font-weight: bold;
-        font-size: 20px;
-    }
-    
-    .match-history table tbody .team-blue-score {
-        color: #4c6cff;
-        font-weight: bold;
-        font-size: 20px;
-    }
+}
 
-    .match-history .history-item {
-        font-size: 20px;
-        display: flex;
-        justify-content: space-between;
-        background-color: #0b1424;
-        padding: 10px;
-        border: 3px solid #6c49eb;
-        border-radius: 20px;
-    }
+.match-score .score {
+    display: inline-block;
 
-.pagination {
+}
+.match-score .dash {
+    display: inline-block;    
+    font-size: 27px;
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.match-time {
+    flex: 0 1 auto;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    min-width: 100px;
+    width: 100px;
+    color: var(--accent-color);
+}
+
+.match-score .score {
+    font-size: 27px;
+    color: var(--accent-color);
+    font-weight: 900;
+}
+
+.match-score .score-container {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+
+    /* Styling of match history */
+.match-history-section h2 {
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.match-history {
+    background-color: var(--secondary-color);
+    box-shadow: 0 0 15px 0 rgb(0, 0, 0, 0.5);
+    padding: 0px 40px;
+    border-radius: 10px;
+    height: 61.5vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+}
+
+.match-history h2 {
+    padding: 40px 0px 10px 0px;
+    font-size: 30px;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    background-color: var(--secondary-color);
+    z-index: 1;
+}
+
+.match-history-content {
+    flex: 1;
+    margin-right: -20px;
+    padding-right: 20px;
+}
+
+    /* Scrollbar styling for match history */
+    .match-history::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .match-history::-webkit-scrollbar-track {
+        background: var(--primary-color);
+        border-radius: 4px;
+        margin: 5px;
+    }
+
+    .match-history::-webkit-scrollbar-thumb {
+        background: var(--accent-color);
+        border-radius: 4px;
+    }
+
+.match-history-content table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+    
+.match-history-content table tr{
+    border: 3px solid var(--accent-color);
+    border-radius: 20px;
+    background-color: var(--primary-color);
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px ;
+    display: flex;
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+    
+.match-history-content table tbody .team-red,
+.match-history-content table tbody .team-blue {
+    display: flex;
+    flex-direction: column;
+    font-size: 20px;
+    max-width: 200px;
+    width: 200px;
+}
+
+.match-history-content table tbody .team-red .user1,
+.match-history-content table tbody .team-red .user2,
+.match-history-content table tbody .team-blue .user1,
+.match-history-content table tbody .team-blue .user2 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.match-history-content table .versus {
+    font-weight: bold;
+    text-align: center;
+    padding: 0 10px;
+    position: relative;
+}
+
+.match-history-content table .versus::after {
+    content: "___";
+    position: absolute;
+    bottom: -5px; /* Adjust the position as needed */
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--accent-color);
+}
+
+.match-history-content table tbody .team-blue{
+    display: flex;
+    flex-direction: column;
+    font-size: 20px;
+}
+    
+.match-history-content table tbody .team-red-score {
+    color: var(--red-team-color);
+    font-weight: bold;
+    font-size: 20px;
+}
+    
+.match-history-content table tbody .team-blue-score {
+    color: var(--blue-team-color);
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.match-history .history-item {
+    font-size: 20px;
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--primary-color);
+    padding: 10px;
+    border: 3px solid var(--accent-color);
+    border-radius: 20px;
+}
+
+.pagination {
     margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
 }
 
 .pagination a {
-    margin: 0 5px;
-    padding: 8px 16px;
-    background-color: #6c49eb;
-    color: #fff;
+    color: var(--text-color);
     text-decoration: none;
+    padding: 8px 16px;
     border-radius: 25px;
+    background-color: var(--accent-color);
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-.pagination a:hover {
+.pagination a:not(.disabled):hover {
     background-color: #4a36c4;
     transform: scale(1.1);
 }
 
 .pagination a.disabled {
-    background-color: #ccc;
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #4a4a4a;
     pointer-events: none;
+    transform: none;
 }
 
 .pagination span {
-    margin: 0 5px;
+    color: var(--text-color);
     font-size: 18px;
 }
-

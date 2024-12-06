@@ -10,11 +10,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FoosballProLeague</title>
-    <a href="#"><link rel="icon" href="/favicon.ico" type="image/x-icon"></a>    <link rel="stylesheet" href="~/css/HomePage.css">
+    <link rel="icon" href="~/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="~/css/HomePage.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js" integrity="sha512-7SRCYIJtR6F8ocwW7UxW6wGKqbSyqREDbfCORCbGLatU0iugBLwyOXpzhkPyHIFdBO0K2VCu57fvP2Twgx1o2A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="~/js/homepage.js"></script>
-    <link rel="stylesheet" href="~/css/HomePage.css">
-
 
 </head>
 <body>
@@ -41,7 +40,7 @@
                     {
                         <tr>
                             <td>@((Model.PageNumber - 1) * Model.PageSize + i + 1)</td>
-                            <td>@Model.Users[i].FirstName @Model.Users[i].LastName </td>
+                            <td class="truncate-name">@Model.Users[i].FirstName @Model.Users[i].LastName</td>
                             <td>@(Model.Mode == "1v1" ? Model.Users[i].Elo1v1 : Model.Users[i].Elo2v2)</td>
                         </tr>
                     }
@@ -68,13 +67,12 @@
                     @if (Model.ActiveMatch != null)
                     {
                         <div class="match-info">
-                            <div class="match-time" data-start-time="@Model.ActiveMatch?.StartTime?.ToString("o")">
-                            </div>
+                            
                             <div class="match-team">
                                 <div class="team-red">
-                                    <span class="team-red-text">Team Red</span>
-                                    <span class="user1">@Model.ActiveMatch?.RedTeamUser1</span>
-                                    <span class="user2">@Model.ActiveMatch?.RedTeamUser2</span>
+                                    <span class="team-red-text">Red Team</span>
+                                    <span class="user1 truncate-name">@Model.ActiveMatch?.RedTeamUser1</span>
+                                    <span class="user2 truncate-name">@Model.ActiveMatch?.RedTeamUser2</span>
                                 </div>
                                 
                             </div>
@@ -82,12 +80,15 @@
                                 <span class="score">@Model.ActiveMatch?.RedTeamScore</span>
                                 <span class="dash"> - </span>
                                 <span class="score">@Model.ActiveMatch?.BlueTeamScore</span>
+                                 <div class="match-time" data-start-time="@Model.ActiveMatch?.StartTime?.ToString("o")">
                             </div>
+                            </div>
+                             
                             <div class="match-team">
                                 <div class="team-blue">
-                                    <span class="team-blue-text">Team blue</span>
-                                    <span class="user1">@Model.ActiveMatch.BlueTeamUser1</span>
-                                    <span class="user2">@Model.ActiveMatch.BlueTeamUser2</span>
+                                    <span class="team-blue-text">Blue Team</span>
+                                    <span class="user1 truncate-name">@Model.ActiveMatch.BlueTeamUser1</span>
+                                    <span class="user2 truncate-name">@Model.ActiveMatch.BlueTeamUser2</span>
                                 </div>
                             </div>
                         </div>
@@ -101,6 +102,7 @@
             <section class="match-history-section">
                 <div class="match-history">
                     <h2>Match history</h2>
+                    <div class="match-history-content">
                     @if (Model.MatchHistory != null)
                     {
                         <table>
@@ -109,13 +111,13 @@
                             {
                                 <tr>
                                     <td class="team-red">
-                                        <span class="team-red-user1"> @match.RedTeamUser1 </span> 
-                                        <span class="team-red-user2"> @if (!string.IsNullOrEmpty(match.RedTeamUser2)) { @match.RedTeamUser2 } </span>
+                                        <span class="team-red-user1 truncate-name">@match.RedTeamUser1</span> 
+                                        <span class="team-red-user2 truncate-name">@if (!string.IsNullOrEmpty(match.RedTeamUser2)) { @match.RedTeamUser2 }</span>
                                     </td>
                                     <td class="versus">VS</td>
                                     <td class="team-blue">
-                                        <span class="team-blue-user1"> @match.BlueTeamUser1 </span>
-                                        <span class="team-blue-user2">@if (!string.IsNullOrEmpty(match.BlueTeamUser2)) { @match.BlueTeamUser2 } </span>
+                                        <span class="team-blue-user1 truncate-name">@match.BlueTeamUser1</span>
+                                        <span class="team-blue-user2 truncate-name">@if (!string.IsNullOrEmpty(match.BlueTeamUser2)) { @match.BlueTeamUser2 }</span>
                                     </td>
                                     <td>
                                         @match.TimeAgo
@@ -134,6 +136,7 @@
                             <span>No played matches available</span>
                         </div>
                     }
+                    </div>
                 </div>
             </section>
         </section>
