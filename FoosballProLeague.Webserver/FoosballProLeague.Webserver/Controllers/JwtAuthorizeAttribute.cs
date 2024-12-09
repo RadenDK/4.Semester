@@ -1,4 +1,4 @@
-﻿using FoosballProLeague.Webserver.BusinessLogic;
+﻿using FoosballProLeague.Webserver.BusinessLogic.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;

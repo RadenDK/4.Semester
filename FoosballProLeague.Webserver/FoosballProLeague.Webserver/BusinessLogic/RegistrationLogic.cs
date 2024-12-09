@@ -1,5 +1,6 @@
+using FoosballProLeague.Webserver.BusinessLogic.Interfaces;
 using FoosballProLeague.Webserver.Models;
-using FoosballProLeague.Webserver.Service;
+using FoosballProLeague.Webserver.Service.Interfaces;
 
 namespace FoosballProLeague.Webserver.BusinessLogic;
 

@@ -1,5 +1,6 @@
-﻿using FoosballProLeague.Webserver.Models;
-using FoosballProLeague.Webserver.Service;
+﻿using FoosballProLeague.Webserver.BusinessLogic.Interfaces;
+using FoosballProLeague.Webserver.Models;
+using FoosballProLeague.Webserver.Service.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;

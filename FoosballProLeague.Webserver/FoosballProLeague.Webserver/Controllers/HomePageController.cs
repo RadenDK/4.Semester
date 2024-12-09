@@ -1,9 +1,9 @@
-﻿using FoosballProLeague.Webserver.BusinessLogic;
-using FoosballProLeague.Webserver.Models;
+﻿using FoosballProLeague.Webserver.Models;
 using Microsoft.AspNetCore.Authorization;
 using FoosballProLeague.Webserver.Service;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using FoosballProLeague.Webserver.BusinessLogic.Interfaces;
 
 namespace FoosballProLeague.Webserver.Controllers
 {

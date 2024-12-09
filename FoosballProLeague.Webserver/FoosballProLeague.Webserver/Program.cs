@@ -1,5 +1,7 @@
 using FoosballProLeague.Webserver.BusinessLogic;
+using FoosballProLeague.Webserver.BusinessLogic.Interfaces;
 using FoosballProLeague.Webserver.Service;
+using FoosballProLeague.Webserver.Service.Interfaces;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 
