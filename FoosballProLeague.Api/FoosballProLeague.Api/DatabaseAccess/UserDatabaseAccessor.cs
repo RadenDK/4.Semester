@@ -36,7 +36,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         {
             UserModel user = null;
 
-            string query = "SELECT * FROM Users WHERE email = @Email";
+            string query = "SELECT * FROM Users WHERE LOWER(email) = LOWER(@Email)";
 
             using (IDbConnection connection = GetConnection())
             {
