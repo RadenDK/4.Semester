@@ -5,6 +5,10 @@ using FoosballProLeague.Api.Models.FoosballModels;
 using bc = BCrypt.Net.BCrypt;
 using Microsoft.AspNetCore.SignalR;
 using FoosballProLeague.Api.Hubs;
+using System.Net.Mail;
+using System.Net;
+using SendGrid.Helpers.Mail;
+using SendGrid;
 
 namespace FoosballProLeague.Api.BusinessLogic
 {
@@ -197,5 +201,75 @@ namespace FoosballProLeague.Api.BusinessLogic
         {
             return _userDatabaseAccessor.GetMatchHistoryByUserId(userId);
         }
+
+
+        //Updating the users password by their Email
+        public async Task<bool> ResetPassword(string email, string newPassword)
+        {
+            // Hash the new password
+            string hashedPassword = bc.HashPassword(newPassword);
+
+            // Update the password in the database
+            return _userDatabaseAccessor.UpdatePasswordByEmail(email, hashedPassword);
+        }
+
+        // Sending an email 
+        public async Task SendPasswordResetEmail(string toEmail)
+        {
+            try
+            {
+                // Generate a token
+                string token = GenerateToken(toEmail);
+
+                // Construct the password reset link
+                string resetLink = $"https://yourdomain.com/reset-password?email={Uri.EscapeDataString(toEmail)}&token={Uri.EscapeDataString(token)}";
+
+                string subject = "Password Reset Request";
+                string body = $@"
+                <html>
+                <body>
+                    <p>Dear User,</p>
+                    <p>We received a request to reset your password. Please click the link below to reset your password:</p>
+                    <p><a href=""{resetLink}"">Reset Password</a></p>
+                    <p>If you did not request a password reset, please ignore this email.</p>
+                    <p>Best regards,<br/>The Team</p>
+                </body>
+                </html>";
+
+                // Read the SendGrid API key from appsettings.json
+                string apiKey = _configuration["SendGrid:ApiKey"];
+                var client = new SendGridClient(apiKey);
+                var from = new EmailAddress("no-reply@yourdomain.com", "Foosball Pro League");
+                var to = new EmailAddress(toEmail);
+                var msg = MailHelper.CreateSingleEmail(from, to, subject, null, body);
+                msg.SetClickTracking(false, false); // Disable click tracking
+
+                var response = await client.SendEmailAsync(msg);
+                if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new Exception($"Failed to send email: {response.StatusCode}");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"An error occurred while sending the email: {ex.Message}");
+                throw;
+            }
+        }
+
+        private string GenerateToken(string email)
+        {
+            using (var rng = new System.Security.Cryptography.RNGCryptoServiceProvider())
+            {
+                byte[] tokenData = new byte[32];
+                rng.GetBytes(tokenData);
+                string token = Convert.ToBase64String(tokenData);
+                return token;
+            }
+        }
     }
+
+
+}
 }

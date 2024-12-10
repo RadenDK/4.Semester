@@ -16,5 +16,7 @@ namespace FoosballProLeague.Api.BusinessLogic.Interfaces
         public UserModel GetUserById(int userId);
         public void UpdateTeamElo(MatchModel match);
         public List<MatchHistoryModel> GetMatchHistoryByUserId(int userId);
+        public Task ResetPassword(string email, string newPassword);
+        public void SendPasswordResetEmail(string toEmail);
     }
 }
