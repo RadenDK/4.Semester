@@ -10,5 +10,6 @@ namespace FoosballProLeague.Api.DatabaseAccess.Interfaces
         public bool CreateUser(UserRegistrationModel newUserWithHashedPassword);
         public bool UpdateUserElo(int userId, int elo, bool is1v1);
         public List<MatchHistoryModel> GetMatchHistoryByUserId(int userId);
+        public bool UpdatePasswordByEmail(string email, string password);
     }
 }

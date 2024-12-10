@@ -189,5 +189,22 @@ WHERE
                 return matches.ToList();
             }
         }
+
+        public bool UpdatePasswordByEmail(string email, string password)
+        {
+            bool rowsAffected = false;
+
+            string query = "UPDATE users SET password = @password WHERE email = @Email";
+            
+
+            using (IDbConnection connection = GetConnection())
+            {
+                connection.Open();
+                int affectedRows = connection.Execute(query, new { Email = email, password });
+                rowsAffected = affectedRows > 0;
+            }
+
+            return rowsAffected;
+        }
     }
 }
