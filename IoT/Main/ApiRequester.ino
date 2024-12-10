@@ -120,7 +120,7 @@ namespace ApiRequester {
             http.begin(url);
             http.addHeader("Content-Type", "application/json");
             http.addHeader("X-Api-Key", apiKey);
-            
+            http.addHeader("IdPlayerLogin")
 
             // Create the JSON payload
             String jsonPayload = "{\"userId\":\"" + userId + "\", \"tableId\":\"" + tableId + "\", \"side\":\"" + side + "\"}";
