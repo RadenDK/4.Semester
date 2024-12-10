@@ -15,11 +15,13 @@ namespace FoosballProLeague.Api.BusinessLogic
     {
         private readonly IUserDatabaseAccessor _userDatabaseAccessor;
         private readonly IHubContext<HomepageHub> _hubContext;
+        private readonly IConfiguration _configuration;
 
-        public UserLogic(IUserDatabaseAccessor userDatabaseAccessor, IHubContext<HomepageHub> hubContext)
+        public UserLogic(IUserDatabaseAccessor userDatabaseAccessor, IHubContext<HomepageHub> hubContext, IConfiguration configuration)
         {
             _userDatabaseAccessor = userDatabaseAccessor;
             _hubContext = hubContext;
+            _configuration = configuration;
         }
 
         // method to create user for registration
@@ -212,7 +214,7 @@ namespace FoosballProLeague.Api.BusinessLogic
         }
 
         // Sending an email 
-        public void SendPasswordResetEmail(string toEmail)
+        public async Task SendPasswordResetEmail(string toEmail)
         {
             try
             {
@@ -220,36 +222,47 @@ namespace FoosballProLeague.Api.BusinessLogic
                 string token = GenerateToken(toEmail);
 
                 // Construct the password reset link
-                string resetLink = $"http://localhost:5001/reset-password?email={Uri.EscapeDataString(toEmail)}&token={Uri.EscapeDataString(token)}";
+                string resetLink = $"https://localhost:5101/reset-password?email={Uri.EscapeDataString(toEmail)}&token={Uri.EscapeDataString(token)}";
 
                 string subject = "Password Reset Request";
                 string body = $@"
-            <html>
-            <body>
-                <p>Dear User,</p>
-                <p>We received a request to reset your password. Please click the link below to reset your password:</p>
-                <p><a href=""{resetLink}"">Reset Password</a></p>
-                <p>If you did not request a password reset, please ignore this email.</p>
-                <p>Best regards,<br/>The Team</p>
-            </body>
-            </html>";
+        <html>
+        <body>
+            <p>Dear User,</p>
+            <p>We received a request to reset your password. Please click the link below to reset your password:</p>
+            <p><a href=""{resetLink}"">Reset Password</a></p>
+            <p>If you did not request a password reset, please ignore this email.</p>
+            <p>Best regards,<br/>The Team</p>
+        </body>
+        </html>";
+
+                // Validate configuration values
+                string smtpEmail = _configuration["Smtp:Email"];
+                string smtpHost = _configuration["Smtp:Host"];
+                string smtpPassword = _configuration["Smtp:Password"];
+                if (string.IsNullOrEmpty(smtpEmail) || string.IsNullOrEmpty(smtpHost) || string.IsNullOrEmpty(smtpPassword))
+                {
+                    throw new InvalidOperationException("SMTP configuration is missing or invalid.");
+                }
 
                 // Set up mail message
                 MailMessage mail = new MailMessage();
-                mail.From = new MailAddress("foosballproleague@gmail.com");
+                mail.From = new MailAddress(smtpEmail, "Foosball Pro League");
                 mail.To.Add(toEmail);
                 mail.Subject = subject;
                 mail.Body = body;
                 mail.IsBodyHtml = true; // Enable HTML content
 
                 // Set up SMTP client
-                SmtpClient smtpClient = new SmtpClient("smtp.gmail.com");
-                smtpClient.Port = 587;
-                smtpClient.Credentials = new NetworkCredential("foosballproleague@gmail.com", "gqiv hnod uffw xxfc");
-                smtpClient.EnableSsl = true;
+                SmtpClient smtpClient = new SmtpClient(smtpHost)
+                {
+                    Port = int.Parse(_configuration["Smtp:Port"]),
+                    Credentials = new NetworkCredential(smtpEmail, smtpPassword),
+                    EnableSsl = true
+                };
 
-                // Send email
-                smtpClient.Send(mail);
+                // Send email asynchronously
+                await smtpClient.SendMailAsync(mail);
             }
             catch (Exception ex)
             {
