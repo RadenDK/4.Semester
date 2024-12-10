@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.SignalR;
 using FoosballProLeague.Api.Hubs;
 using System.Net.Mail;
 using System.Net;
-using SendGrid.Helpers.Mail;
-using SendGrid;
 
 namespace FoosballProLeague.Api.BusinessLogic
 {
@@ -214,7 +212,7 @@ namespace FoosballProLeague.Api.BusinessLogic
         }
 
         // Sending an email 
-        public async Task SendPasswordResetEmail(string toEmail)
+        public void SendPasswordResetEmail(string toEmail)
         {
             try
             {
@@ -222,33 +220,36 @@ namespace FoosballProLeague.Api.BusinessLogic
                 string token = GenerateToken(toEmail);
 
                 // Construct the password reset link
-                string resetLink = $"https://yourdomain.com/reset-password?email={Uri.EscapeDataString(toEmail)}&token={Uri.EscapeDataString(token)}";
+                string resetLink = $"http://localhost:5001/reset-password?email={Uri.EscapeDataString(toEmail)}&token={Uri.EscapeDataString(token)}";
 
                 string subject = "Password Reset Request";
                 string body = $@"
-                <html>
-                <body>
-                    <p>Dear User,</p>
-                    <p>We received a request to reset your password. Please click the link below to reset your password:</p>
-                    <p><a href=""{resetLink}"">Reset Password</a></p>
-                    <p>If you did not request a password reset, please ignore this email.</p>
-                    <p>Best regards,<br/>The Team</p>
-                </body>
-                </html>";
+            <html>
+            <body>
+                <p>Dear User,</p>
+                <p>We received a request to reset your password. Please click the link below to reset your password:</p>
+                <p><a href=""{resetLink}"">Reset Password</a></p>
+                <p>If you did not request a password reset, please ignore this email.</p>
+                <p>Best regards,<br/>The Team</p>
+            </body>
+            </html>";
 
-                // Read the SendGrid API key from appsettings.json
-                string apiKey = _configuration["SendGrid:ApiKey"];
-                var client = new SendGridClient(apiKey);
-                var from = new EmailAddress("no-reply@yourdomain.com", "Foosball Pro League");
-                var to = new EmailAddress(toEmail);
-                var msg = MailHelper.CreateSingleEmail(from, to, subject, null, body);
-                msg.SetClickTracking(false, false); // Disable click tracking
+                // Set up mail message
+                MailMessage mail = new MailMessage();
+                mail.From = new MailAddress("foosballproleague@gmail.com");
+                mail.To.Add(toEmail);
+                mail.Subject = subject;
+                mail.Body = body;
+                mail.IsBodyHtml = true; // Enable HTML content
 
-                var response = await client.SendEmailAsync(msg);
-                if (response.StatusCode != System.Net.HttpStatusCode.OK)
-                {
-                    throw new Exception($"Failed to send email: {response.StatusCode}");
-                }
+                // Set up SMTP client
+                SmtpClient smtpClient = new SmtpClient("smtp.gmail.com");
+                smtpClient.Port = 587;
+                smtpClient.Credentials = new NetworkCredential("foosballproleague@gmail.com", "gqiv hnod uffw xxfc");
+                smtpClient.EnableSsl = true;
+
+                // Send email
+                smtpClient.Send(mail);
             }
             catch (Exception ex)
             {
@@ -258,18 +259,13 @@ namespace FoosballProLeague.Api.BusinessLogic
             }
         }
 
+
         private string GenerateToken(string email)
         {
-            using (var rng = new System.Security.Cryptography.RNGCryptoServiceProvider())
-            {
-                byte[] tokenData = new byte[32];
-                rng.GetBytes(tokenData);
-                string token = Convert.ToBase64String(tokenData);
-                return token;
-            }
+            DateTime expirationTime = DateTime.UtcNow.AddMinutes(30);
+            string tokenData = $"{email}|{expirationTime:o}";
+            string token = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(tokenData));
+            return token;
         }
     }
-
-
-}
 }
