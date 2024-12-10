@@ -29,7 +29,7 @@ namespace FoosballProLeague.Api.BusinessLogic
                 {
                     FirstName = userRegistrationModel.FirstName,
                     LastName = userRegistrationModel.LastName,
-                    Email = userRegistrationModel.Email?.ToLower() ?? string.Empty, // Store email in lowercase, with a default value if empty
+                    Email = userRegistrationModel.Email.ToLower(), // Store email in lowercase, with a default value if empty
                     Password = bc.HashPassword(userRegistrationModel.Password),
                     DepartmentId = userRegistrationModel.DepartmentId,
                     CompanyId = userRegistrationModel.CompanyId,
