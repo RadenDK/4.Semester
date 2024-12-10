@@ -144,5 +144,61 @@ namespace FoosballProLeague.Api.Controllers
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
+
+        [HttpGet("user")]
+        public IActionResult GetUserByEmail(string email)
+        {
+            try
+            {
+                _userLogic.GetUserByEmail(email);
+                if (email == null)
+                {
+                    return NotFound("No match user found for the provided user email");
+                }
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "An error occurred while processing your request of finding user by email.");
+            }
+        }
+
+        [HttpPost("send-email")]
+        public IActionResult SendEmail([FromQuery] string toEmail)
+        {
+            if (string.IsNullOrEmpty(toEmail))
+            {
+                return BadRequest(new { message = "The toEmail field is required." });
+            }
+
+            try
+            {
+                _userLogic.SendPasswordResetEmail(toEmail);
+                return Ok("Email sent successfully");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while sending the reset password email");
+            }
+        }
+
+        [HttpPut("reset-password")]
+        public async Task<IActionResult> ResetPassword(string email, string newPassword)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _userLogic.ResetPassword(email, newPassword);
+                if (result)
+                {
+                    return Ok("Password reset successfully.");
+                }
+
+                return BadRequest("Error resetting password.");
+            }
+
+            return BadRequest(ModelState);
+        }
     }
 }
