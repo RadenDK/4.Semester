@@ -1,0 +1,47 @@
+﻿@model FoosballProLeague.Webserver.Models.TableLoginModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoosballProLeague - Red Team Login</title>
+    <link rel="stylesheet" href="css/tableLogin.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Red Team Login</h2>
+        <div class="login-form">
+            <div class="login-box">
+                <form id="loginForm" asp-action="AddPlayer" asp-controller="TableLogin" method="post">
+                    <input type="hidden" asp-for="Side" value="Red" />
+                    <input type="number" placeholder="Table ID" id="tableId" asp-for="TableId" required />
+                    <input type="text" placeholder="Email" id="email" asp-for="Email" required />
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="errormessage">
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <p>@error.ErrorMessage</p>
+                            }
+                        </div>
+                    }
+                    <button type="submit" class="login">Add Player</button>
+                </form>
+                <div class="display-users">
+                    <p>Player 1: @(Model.FirstName != null ? $"{Model.FirstName} {Model.LastName}" : "No player")</p>
+                    <p>Player 2: @(Model.Email != null ? $"{Model.FirstName} {Model.LastName}" : "No player")</p>
+                </div>
+                <button type="submit" class="clear">Clear Team</button>
+                <div class="instructions">
+                    <p>To start the game with the made team, press the button on the foosball table.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

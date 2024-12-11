@@ -1,0 +1,93 @@
+﻿/* tableLogin.css */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 20px;
+}
+
+h2 {
+    color: #d9534f; /* Red color for the red team */
+    margin-bottom: 20px;
+}
+
+.login-form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-box {
+    display: flex;
+    flex-direction: column;
+}
+
+input[type="text"],
+input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button.login {
+    background-color: #d9534f; /* Red color for the red team */
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+    button.login:hover {
+        background-color: #c9302c;
+    }
+
+button.clear {
+    background-color: #5bc0de; /* Blue color for the clear button */
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+    button.clear:hover {
+        background-color: #31b0d5;
+    }
+
+.errormessage {
+    color: #d9534f;
+    margin: 10px 0;
+}
+
+.display-users {
+    margin-top: 20px;
+}
+
+    .display-users p {
+        margin: 5px 0;
+    }
+
+.instructions {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #777;
+    text-align: center;
+}
