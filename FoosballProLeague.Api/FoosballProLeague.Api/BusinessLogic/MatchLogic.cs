@@ -58,14 +58,14 @@ namespace FoosballProLeague.Api.BusinessLogic
          * The Method should try to add players to a pending list waiting for a match to start.
          * It should also check if there is an active match at the table and if there is, try to add the player to the active match if there is room.
         */
-        public bool LoginOnTable(TableLoginRequest tableLoginRequest)
+        public UserModel LoginOnTable(TableLoginRequest tableLoginRequest)
         {
             // Check if the userId exists in the database
             UserModel user = _userLogic.GetUserByEmail(tableLoginRequest.Email);
             if (user == null)
             {
                 // The user does not exists so it should not be possible to login on the table
-                return false;
+                return null;
             }
 
             // get the active match at the table, may be null if no match is active
@@ -84,7 +84,7 @@ namespace FoosballProLeague.Api.BusinessLogic
                 // If the table is in the pendingMatchTeams then we try to add the player to the pending match
                 bool addedPlayerToPendingMatch = _pendingMatchTeams[tableLoginRequest.TableId].AddPlayer(tableLoginRequest.Side, user.Id);
 
-                return addedPlayerToPendingMatch;
+                return addedPlayerToPendingMatch ? user : null;
             }
             else
             {
@@ -97,13 +97,13 @@ namespace FoosballProLeague.Api.BusinessLogic
                 {
                     // If there is room we will update the team to include the newly added player
                     // This should also invalidate the elo gain for the match
-                    return AddPlayerToActiveMatchTeam(activeMatch, tableLoginRequest, user.Id);
+                    return AddPlayerToActiveMatchTeam(activeMatch, tableLoginRequest, user.Id) ? user : null;
                 }
 
                 // There is no room on the active match team side then we return false
                 else
                 {
-                    return false;
+                    return null;
                 }
             }
         }
