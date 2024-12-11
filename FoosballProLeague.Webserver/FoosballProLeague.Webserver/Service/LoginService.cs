@@ -18,7 +18,7 @@ public class LoginService : ILoginService
     }
 
     //Service call for login user by calling the HttpClientService
-    // Puts the login data in a object and serializes it
+    //Puts the login data in a object and serializes it
     public async Task<HttpResponseMessage> LoginUser(string email, string password)
     {
         object loginData = new { Email = email, Password = password };
