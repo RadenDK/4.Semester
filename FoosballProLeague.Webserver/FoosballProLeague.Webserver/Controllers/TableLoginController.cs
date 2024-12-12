@@ -10,6 +10,7 @@ using FoosballProLeague.Webserver.BusinessLogic.Interfaces;
 namespace FoosballProLeague.Webserver.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 public class TableLoginController : Controller
 {
@@ -18,24 +19,36 @@ public class TableLoginController : Controller
     public TableLoginController(ITableLoginLogic tableLoginLogic)
     {
         _tableLoginLogic = tableLoginLogic;
-    }   
-
- [HttpPost]
-    public async Task<IActionResult> TableLoginBlueSide([FromBody] TableLoginModel tableLoginModel)
-    {
-        
-        if (tableLoginModel.side == "blue"){
-            return View("TableLoginBlueSide", tableLoginModel)  ;
-        }
-        else if (tableLoginModel.side == "red"){
-            return View("TableLoginRedSide", tableLoginModel);
-        }
-        
     }
-[HttpGet]
-public async Task<IActionResult> TableClearTeam()
-{
-    
-}
 
+    
+
+    [HttpPost("TableLoginRed")]
+    public async Task<IActionResult> TableLogin([FromBody] TableLoginModel tableLoginModel)
+    {
+        if (tableLoginModel == null)
+        {
+            return BadRequest("Invalid login model.");
+        }
+
+        if (tableLoginModel.Side == "blue")
+        {
+            return View("TableLoginBlueSide", tableLoginModel);
+        }
+
+        return View("TableLoginRedSide", tableLoginModel);
+    }
+
+    [HttpGet("ClearTeam")]
+    public async Task<IActionResult> ClearTeam(string side)
+    {
+        await _tableLoginLogic.TableClearTeam();
+
+        if (side == "blue")
+        {
+            return View("TableLoginBlueSide");
+        }
+
+        return View("TableLoginRedSide");
+    }
 }

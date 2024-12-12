@@ -7,5 +7,5 @@ namespace FoosballProLeague.Webserver.BusinessLogic.Interfaces;
 public interface ITableLoginLogic
 {
     Task<HttpResponseMessage> TableLoginUser(TableLoginModel tableLoginModel);
-    Task<HttpResponseMessage> TableClearTeam(int tableID);
+    Task<HttpResponseMessage> TableClearTeam();
 }

@@ -15,16 +15,13 @@ public class TableLoginLogic : ITableLoginLogic
     }
     public async Task<HttpResponseMessage> TableLoginUser(TableLoginModel tableLoginModel)
     {
-         // Deserialize the JSON content to TableLoginModel
-        var tableLoginModel = JsonSerializer.Deserialize<TableLoginModel>(jsonContent);
-
-        // Use the deserialized TableLoginModel
-        return await _tableLoginService.TableLoginUser(tableLoginModel.Email, tableLoginModel.TableID, tableLoginModel.Side);
+        
+        return await _tableLoginService.TableLoginUser(tableLoginModel);
     }
 
 
-    public async Task<HttpResponseMessage> TableClearTeam(int tableID)
+    public async Task<HttpResponseMessage> TableClearTeam()
     {
-        return await _tableLoginService.TableClearTeam(tableID);
+        return await _tableLoginService.TableClearTeam();
     }
 }

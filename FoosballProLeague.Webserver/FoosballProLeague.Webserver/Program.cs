@@ -29,6 +29,10 @@ builder.Services.AddScoped<ILoginLogic, LoginLogic>();
 builder.Services.AddScoped<ITokenLogic, TokenLogic>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
+// TableLogin services
+builder.Services.AddScoped<ITableLoginService, TableLoginService>();
+builder.Services.AddScoped<ITableLoginLogic, TableLoginLogic>();
+
 // Configure Authentication
 builder.Services.AddAuthentication("CookieAuth")
     .AddCookie("CookieAuth", options =>
