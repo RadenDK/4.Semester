@@ -21,9 +21,18 @@ public class TableLoginController : Controller
         _tableLoginLogic = tableLoginLogic;
     }
 
-    
+    [HttpGet("TableLogin")]
+    public async Task<IActionResult> TableLoginIndex(int tableId, string side)
+    {
+        TableLoginModel tableLoginModel = new TableLoginModel
+        {
+            TableId = tableId,
+            Side = side
+        };
+        return View("TableLogin", tableLoginModel);
+    }
 
-    [HttpPost("TableLoginRed")]
+    [HttpPost("TableLogin")]
     public async Task<IActionResult> TableLogin([FromBody] TableLoginModel tableLoginModel)
     {
         if (tableLoginModel == null)
@@ -31,24 +40,16 @@ public class TableLoginController : Controller
             return BadRequest("Invalid login model.");
         }
 
-        if (tableLoginModel.Side == "blue")
-        {
-            return View("TableLoginBlueSide", tableLoginModel);
-        }
+        await _tableLoginLogic.TableLoginUser(tableLoginModel);
 
-        return View("TableLoginRedSide", tableLoginModel);
+        return View("TableLogin", tableLoginModel);
     }
 
-    [HttpGet("ClearTeam")]
-    public async Task<IActionResult> ClearTeam(string side)
+    [HttpGet("RemoveUser")]
+    public async Task<IActionResult> RemoveUser(TableLoginModel tableLoginModel)
     {
-        await _tableLoginLogic.TableClearTeam();
+        await _tableLoginLogic.RemoveUser(tableLoginModel);
 
-        if (side == "blue")
-        {
-            return View("TableLoginBlueSide");
-        }
-
-        return View("TableLoginRedSide");
+        return View("TableLogin", new TableLoginModel());
     }
 }
