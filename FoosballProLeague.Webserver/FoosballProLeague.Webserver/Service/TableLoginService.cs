@@ -27,8 +27,12 @@ public class TableLoginService : ITableLoginService
         return await _httpClientService.PostAsync("api/match/LoginOnTable", content);
     }
 
-    public async Task<HttpResponseMessage> TableClearTeam(){
-        return await _httpClientService.GetAsync("api/match/ClearPendingTeamsCache");
+    public async Task<HttpResponseMessage> RemoveUser(TableLoginModel tableLoginModel){
+
+        TableLoginModel data = new TableLoginModel { Email = tableLoginModel.Email, TableId = tableLoginModel.TableId, Side = tableLoginModel.Side };
+        StringContent content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+
+        return await _httpClientService.PostAsync("api/match/ClearPendingTeamsCache", content);
     }
 }
 
