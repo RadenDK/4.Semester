@@ -6,7 +6,7 @@ namespace FoosballProLeague.Api.BusinessLogic.Interfaces
 {
     public interface IMatchLogic
     {
-        public UserModel LoginOnTable(TableLoginRequest tableLoginRequest);
+        public bool LoginOnTable(TableLoginRequest tableLoginRequest);
 
         public bool StartMatch(int tableId);
 

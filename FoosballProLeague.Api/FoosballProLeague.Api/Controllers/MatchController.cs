@@ -26,10 +26,9 @@ namespace FoosballProLeague.Api.Controllers
         {
             try
             {
-                UserModel user = _matchLogic.LoginOnTable(tableLoginRequest);
-                if (user != null)
+                if (_matchLogic.LoginOnTable(tableLoginRequest))
                 {
-                    return Ok(new { message = "Login on table was successful.", user });
+                    return Ok("Login on table was successful.");
                 }
                 else
                 {
