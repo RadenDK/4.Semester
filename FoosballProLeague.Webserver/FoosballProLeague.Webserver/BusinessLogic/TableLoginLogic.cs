@@ -15,13 +15,12 @@ public class TableLoginLogic : ITableLoginLogic
     }
     public async Task<HttpResponseMessage> TableLoginUser(TableLoginModel tableLoginModel)
     {
-        
         return await _tableLoginService.TableLoginUser(tableLoginModel);
     }
 
 
-    public async Task<HttpResponseMessage> TableClearTeam()
+    public async Task<HttpResponseMessage> RemoveUser(TableLoginModel tableLoginModel)
     {
-        return await _tableLoginService.TableClearTeam();
+        return await _tableLoginService.RemoveUser(tableLoginModel);
     }
 }
