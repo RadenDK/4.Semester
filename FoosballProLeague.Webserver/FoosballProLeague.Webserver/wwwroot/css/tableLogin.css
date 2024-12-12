@@ -15,8 +15,14 @@ body {
     padding: 50px;
 }
 
-h2 {
-    color: #6c49eb;
+.red-team{
+    color: #f24a4a;
+    margin-bottom: 50px;
+    font-weight: bold;
+}
+
+.blue-team{
+    color: #1164f8;
     margin-bottom: 50px;
     font-weight: bold;
 }
