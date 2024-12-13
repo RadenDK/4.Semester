@@ -11,9 +11,9 @@ namespace FoosballProLeague.Api.Models.FoosballModels
 
         public TeamModel BlueTeam { get; set; }
 
-        public int TeamRedScore { get; set; }
+        public int RedTeamScore { get; set; }
 
-        public int TeamBlueScore { get; set; }
+        public int BlueTeamScore { get; set; }
 
         public DateTime StartTime { get; set; }
 

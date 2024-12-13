@@ -31,8 +31,8 @@ namespace FoosballProLeague.Api.DatabaseAccess
 
             // 
             TeamDbModel teamDb = connection.QuerySingleOrDefault<TeamDbModel>(teamQuery, new { TeamId = teamId });
-            
-            
+
+
             if (teamDb == null)
             {
                 if (shouldCloseConnection)
@@ -77,14 +77,14 @@ namespace FoosballProLeague.Api.DatabaseAccess
             if (playerIds.Count() == 1)
             {
                 query = @"
-                    SELECT id
+                    SELECT *
                     FROM teams
                     WHERE (user1_id = @User1Id AND user2_id IS NULL);";
             }
             else
             {
                 query = @"
-                    SELECT id
+                    SELECT *
                     FROM teams
                     WHERE (user1_id = @User1Id AND user2_id = @User2Id)
                        OR (user1_id = @User2Id AND user2_id = @User1Id);";
@@ -104,6 +104,28 @@ namespace FoosballProLeague.Api.DatabaseAccess
 
                 // will be null if the team does not exist
                 return team;
+            }
+        }
+
+        public IEnumerable<int> GetAllTeamIdsUserIsIn(int userId)
+        {
+            string query = @"
+            SELECT *
+            FROM teams
+            WHERE (user1_id = @UserId)
+               OR (user2_id = @UserId);";
+
+            using (NpgsqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                // Fetch the teamDbModels
+                IEnumerable<TeamDbModel> teamDbModels = connection.Query<TeamDbModel>(query, new { UserId = userId });
+
+                // Use LINQ to select the team IDs
+                List<int> teamIds = teamDbModels.Select(team => team.Id).ToList();
+
+                return teamIds;
             }
         }
 

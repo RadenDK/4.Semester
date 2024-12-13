@@ -97,19 +97,6 @@ namespace FoosballProLeague.Api.Controllers
             }
         }
         
-        [HttpGet()]
-        public IActionResult GetAllMatches()
-        {
-            try
-            {
-                List<MatchModel> matches = _matchLogic.GetAllMatches();
-                return Ok(matches);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest("An error occurred: " + ex.Message);
-            }
-        }
         [HttpGet("Active")]
         public IActionResult GetActiveMatch()
         {

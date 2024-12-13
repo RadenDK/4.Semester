@@ -36,7 +36,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         {
             UserModel user = null;
 
-            string query = "SELECT * FROM Users WHERE email = @Email";
+            string query = "SELECT id, first_name, last_name, email, password, elo_1v1, elo_2v2 FROM Users WHERE email = @Email";
 
             using (IDbConnection connection = GetConnection())
             {
@@ -49,7 +49,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         // This method is used to get a user by its id. It will return a UserModel object.
         public UserModel GetUserById(int userId)
         {
-            string userQuery = "SELECT * FROM users WHERE id = @UserId";
+            string userQuery = "SELECT id, first_name, last_name, email, elo_1v1, elo_2v2 FROM users WHERE id = @UserId";
 
             using (IDbConnection connection = GetConnection())
             {

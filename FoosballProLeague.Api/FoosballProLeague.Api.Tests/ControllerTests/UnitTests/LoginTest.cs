@@ -22,12 +22,14 @@ public class LoginTest
             Password = validPassword,
         };
 
-        Mock<IUserLogic> _mockUserLogic = new Mock<IUserLogic>(); ;
-        _mockUserLogic.Setup(logic => logic.LoginUser(validEmail, validPassword)).Returns(true);
+        Mock<IUserLogic> mockUserLogic = new Mock<IUserLogic>(); ;
+        mockUserLogic.Setup(logic => logic.LoginUser(validEmail, validPassword)).Returns(true);
 
-        Mock<ITokenLogic> _mockTokenLogic = new Mock<ITokenLogic>();
+        Mock<ITokenLogic> mockTokenLogic = new Mock<ITokenLogic>();
 
-        UserController SUT = new UserController(_mockUserLogic.Object, _mockTokenLogic.Object);
+        Mock<IMatchLogic> mockMatchLogic = new Mock<IMatchLogic>();
+
+        UserController SUT = new UserController(mockUserLogic.Object, mockTokenLogic.Object, mockMatchLogic.Object);
 
         // Act
         IActionResult result = SUT.LoginUser(mockUser);
@@ -50,12 +52,14 @@ public class LoginTest
             Password = invalidPassword
         };
 
-        Mock<IUserLogic> _mockUserLogic = new Mock<IUserLogic>(); ;
-        _mockUserLogic.Setup(logic => logic.LoginUser(validEmail, invalidPassword)).Returns(false);
+        Mock<IUserLogic> mockUserLogic = new Mock<IUserLogic>(); ;
+        mockUserLogic.Setup(logic => logic.LoginUser(validEmail, invalidPassword)).Returns(false);
 
-        Mock<ITokenLogic> _mockTokenLogic = new Mock<ITokenLogic>();
+        Mock<ITokenLogic> mockTokenLogic = new Mock<ITokenLogic>();
 
-        UserController SUT = new UserController(_mockUserLogic.Object, _mockTokenLogic.Object);
+        Mock<IMatchLogic> mockMatchLogic = new Mock<IMatchLogic>();
+
+        UserController SUT = new UserController(mockUserLogic.Object, mockTokenLogic.Object, mockMatchLogic.Object);
 
         // Act
         IActionResult result = SUT.LoginUser(mockUser);
@@ -78,12 +82,14 @@ public class LoginTest
             Password = validPassword
         };
 
-        Mock<IUserLogic> _mockUserLogic = new Mock<IUserLogic>(); ;
-        _mockUserLogic.Setup(logic => logic.LoginUser(invalidEmail, validPassword)).Returns(false);
+        Mock<IUserLogic> mockUserLogic = new Mock<IUserLogic>(); ;
+        mockUserLogic.Setup(logic => logic.LoginUser(invalidEmail, validPassword)).Returns(false);
 
-        Mock<ITokenLogic> _mockTokenLogic = new Mock<ITokenLogic>();
+        Mock<ITokenLogic> mockTokenLogic = new Mock<ITokenLogic>();
 
-        UserController SUT = new UserController(_mockUserLogic.Object, _mockTokenLogic.Object);
+        Mock<IMatchLogic> mockMatchLogic = new Mock<IMatchLogic>();
+
+        UserController SUT = new UserController(mockUserLogic.Object, mockTokenLogic.Object, mockMatchLogic.Object);
 
         // Act
         IActionResult result = SUT.LoginUser(mockUser);

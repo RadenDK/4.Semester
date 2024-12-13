@@ -8,5 +8,7 @@ namespace FoosballProLeague.Api.DatabaseAccess.Interfaces
         TeamModel GetTeamById(int teamId, NpgsqlConnection? connection = null);
         TeamModel GetTeamIdByUsers(IEnumerable<int> playerIds);
         TeamModel CreateTeam(IEnumerable<int> playerIds);
+
+        IEnumerable<int> GetAllTeamIdsUserIsIn(int userId);
     }
 }

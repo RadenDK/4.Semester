@@ -7,6 +7,7 @@ using FoosballProLeague.Api.Hubs;
 using FoosballProLeague.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using bc = BCrypt.Net.BCrypt;
 
@@ -36,11 +37,18 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserContr
                 Password = nonHashedPassword
             };
 
-            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
-            ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
             Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+
+            IConfiguration configuration = new ConfigurationManager();
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
-            UserController SUT = new UserController(userLogic, tokenLogic);
+            ITokenLogic tokenLogic = new TokenLogic(configuration);
+
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+
+            UserController SUT = new UserController(userLogic, tokenLogic, matchLogic);
 
             // Act: Call the LoginUser method
             IActionResult result = SUT.LoginUser(loginModel);
@@ -66,11 +74,18 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests.UserContr
                 Password = "WrongPassword"
             };
 
-            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
-            ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
             Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+
+            IConfiguration configuration = new ConfigurationManager();
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
-            UserController SUT = new UserController(userLogic, tokenLogic);
+            ITokenLogic tokenLogic = new TokenLogic(configuration);
+
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+
+            UserController SUT = new UserController(userLogic, tokenLogic, matchLogic);
 
             // Act: Call the LoginUser method
             IActionResult result = SUT.LoginUser(loginModel);

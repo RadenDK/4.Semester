@@ -20,12 +20,14 @@ public class CreateUserTest
             Password = "password123"
         };
 
-        Mock<IUserLogic> _mockUserLogic = new Mock<IUserLogic>();
-        _mockUserLogic.Setup(logic => logic.CreateUser(validUser)).Returns(true);
+        Mock<IUserLogic> mockUserLogic = new Mock<IUserLogic>();
+        mockUserLogic.Setup(logic => logic.CreateUser(validUser)).Returns(true);
 
-        Mock<ITokenLogic> _mockTokenLogic = new Mock<ITokenLogic>();
+        Mock<ITokenLogic> mockTokenLogic = new Mock<ITokenLogic>();
 
-        UserController SUT = new UserController(_mockUserLogic.Object, _mockTokenLogic.Object);
+        Mock<IMatchLogic> mockMatchLogic = new Mock<IMatchLogic>();
+
+        UserController SUT = new UserController(mockUserLogic.Object, mockTokenLogic.Object, mockMatchLogic.Object);
 
         // Act
         IActionResult result = SUT.CreateUser(validUser) as OkResult;

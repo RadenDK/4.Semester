@@ -44,8 +44,8 @@ namespace FoosballProLeague.Api.DatabaseAccess
                     TableId = matchDb.TableId,
                     RedTeam = redTeam,
                     BlueTeam = blueTeam,
-                    TeamRedScore = matchDb.TeamRedScore,
-                    TeamBlueScore = matchDb.TeamBlueScore,
+                    RedTeamScore = matchDb.TeamRedScore,
+                    BlueTeamScore = matchDb.TeamBlueScore,
                     StartTime = matchDb.StartTime,
                     EndTime = matchDb.EndTime,
                     ValidEloMatch = matchDb.ValidEloMatch
@@ -55,17 +55,68 @@ namespace FoosballProLeague.Api.DatabaseAccess
             }
         }
 
-        public List<MatchModel> GetAllMatches()
+        public IEnumerable<MatchModel> GetMatchHistoryByUserId(int userId)
         {
-            string query = "SELECT * FROM foosball_matches";
+            List<MatchModel> matchHistory = new List<MatchModel>();
+
+            // Get all team IDs the user is part of
+            IEnumerable<int> teamIdsUserIsIn = _teamDatabaseAccessor.GetAllTeamIdsUserIsIn(userId);
+
+            if (teamIdsUserIsIn == null || !teamIdsUserIsIn.Any())
+            {
+                return matchHistory; // Return empty list if user is not in any teams
+            }
+
+            string matchQuery = @"
+                    SELECT * 
+                    FROM foosball_matches 
+                    WHERE red_team_id = ANY(@TeamIdsUserIsIn) OR blue_team_id = ANY(@TeamIdsUserIsIn);";
 
             using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-                List<MatchModel> matches = connection.Query<MatchModel>(query).ToList();
-                return matches;
+
+                // PostgreSQL uses the ANY() function to match against an array
+                var parameters = new { TeamIdsUserIsIn = teamIdsUserIsIn.ToArray() };
+
+                // Execute the query, passing the team IDs as a parameter
+                IEnumerable<MatchDbModel> matchesDb = connection.Query<MatchDbModel>(
+                    matchQuery,
+                    parameters);
+
+                if (matchesDb == null || !matchesDb.Any())
+                {
+                    return matchHistory; // Return empty list if no matches are found
+                }
+
+                foreach (MatchDbModel matchDb in matchesDb)
+                {
+                    // Retrieve the red and blue teams
+                    TeamModel redTeam = _teamDatabaseAccessor.GetTeamById(matchDb.RedTeamId, connection);
+                    TeamModel blueTeam = _teamDatabaseAccessor.GetTeamById(matchDb.BlueTeamId, connection);
+
+                    // Map the match details
+                    MatchModel match = new MatchModel
+                    {
+                        Id = matchDb.Id,
+                        TableId = matchDb.TableId,
+                        RedTeam = redTeam,
+                        BlueTeam = blueTeam,
+                        RedTeamScore = matchDb.TeamRedScore,
+                        BlueTeamScore = matchDb.TeamBlueScore,
+                        StartTime = matchDb.StartTime,
+                        EndTime = matchDb.EndTime,
+                        ValidEloMatch = matchDb.ValidEloMatch
+                    };
+
+                    matchHistory.Add(match); // Add to the history list
+                }
             }
+
+            return matchHistory;
         }
+
+
 
         // This method is used to get the active match for a table by its id. It will return a MatchModel object with TeamModel and UserModel objects nested inside.
         public MatchModel GetActiveMatchByTableId(int tableId)
@@ -123,7 +174,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
             using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-                int rowsAffected = connection.Execute(query, new { MatchId = match.Id, TeamRedScore = match.TeamRedScore, TeamBlueScore = match.TeamBlueScore });
+                int rowsAffected = connection.Execute(query, new { MatchId = match.Id, TeamRedScore = match.RedTeamScore, TeamBlueScore = match.BlueTeamScore });
                 return rowsAffected > 0;
             }
         }

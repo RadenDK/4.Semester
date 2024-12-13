@@ -3,6 +3,7 @@ using FoosballProLeague.Api.BusinessLogic;
 using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.Controllers;
 using FoosballProLeague.Api.DatabaseAccess;
+using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 using FoosballProLeague.Api.Hubs;
 using FoosballProLeague.Api.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -29,9 +30,14 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.UserCont
             Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
             IConfiguration configuration = new ConfigurationManager();
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
             ITokenLogic tokenLogic = new TokenLogic(configuration);
-            UserController SUT = new UserController(userLogic, tokenLogic);
+
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            UserController SUT = new UserController(userLogic, tokenLogic, matchLogic);
             
             // Act
             IActionResult result = SUT.GetMatchHistoryByUserId(userId);
@@ -56,9 +62,14 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.UserCont
             Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
             IConfiguration configuration = new ConfigurationManager();
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
             ITokenLogic tokenLogic = new TokenLogic(configuration);
-            UserController SUT = new UserController(userLogic, tokenLogic);
+
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            UserController SUT = new UserController(userLogic, tokenLogic, matchLogic);
 
             // Act
             IActionResult result = SUT.GetMatchHistoryByUserId(userId);

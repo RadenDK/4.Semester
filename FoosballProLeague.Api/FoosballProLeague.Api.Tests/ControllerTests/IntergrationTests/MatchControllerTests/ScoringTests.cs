@@ -87,7 +87,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             IEnumerable<MatchLogModel> matchLogs = _dbHelper.ReadData<MatchLogModel>("SELECT * FROM match_logs");
 
             Assert.IsType<OkObjectResult>(result); // Check if the result is an OkResult
-            Assert.True(matches.First().TeamRedScore == 5 && matches.First().TeamBlueScore == 0); // Check if the goal was registered correctly
+            Assert.True(matches.First().RedTeamScore == 5 && matches.First().BlueTeamScore == 0); // Check if the goal was registered correctly
             Assert.True(matches.First().EndTime == null); // Check if the match has not ended
             Assert.True(table.First().ActiveMatchId == matches.First().Id); // Check if the table has the correct active match
             Assert.True(matchLogs.Any(), "A match log should be created when a goal is registered"); // Check if a match log was created
@@ -128,7 +128,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             IEnumerable<MatchLogModel> matchLogs = _dbHelper.ReadData<MatchLogModel>("SELECT * FROM match_logs");
 
             Assert.IsType<OkObjectResult>(result); // Check if the result is an OkResult
-            Assert.True(matches.First().TeamRedScore == 5 && matches.First().TeamBlueScore == 0); // Ensure the goal was registered correctly
+            Assert.True(matches.First().RedTeamScore == 5 && matches.First().BlueTeamScore == 0); // Ensure the goal was registered correctly
             Assert.True(matches.First().EndTime == null); // Ensure the match is still ongoing
             Assert.True(table.First().ActiveMatchId == matches.First().Id); // Check if the table still has the correct active match
             Assert.True(matchLogs.Count() == 1, "There should be exactly one match log created when a goal is registered"); // Check if exactly one match log was created
@@ -171,7 +171,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             IEnumerable<MatchLogModel> matchLogs = _dbHelper.ReadData<MatchLogModel>("SELECT * FROM match_logs");
 
             Assert.IsType<OkObjectResult>(result); // Check if the result is an OkResult
-            Assert.True(matches.First().TeamRedScore == 1 && matches.First().TeamBlueScore == 0); // Ensure the goal was registered correctly
+            Assert.True(matches.First().RedTeamScore == 1 && matches.First().BlueTeamScore == 0); // Ensure the goal was registered correctly
             Assert.True(matches.First().EndTime == null); // Ensure the match has not ended
             Assert.True(table.First().ActiveMatchId == matches.First().Id); // Check if the table still has the correct active match
             Assert.True(matchLogs.Count() == 1, "There should be exactly one match log created when a goal is registered"); // Check if exactly one match log was created
@@ -269,7 +269,7 @@ IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.
             IEnumerable<MatchLogModel> matchLogs = _dbHelper.ReadData<MatchLogModel>("SELECT * FROM match_logs");
 
             Assert.True(matches.First() != null);
-            Assert.True(matches.First().TeamRedScore == 10 && matches.First().TeamBlueScore == 0);
+            Assert.True(matches.First().RedTeamScore == 10 && matches.First().BlueTeamScore == 0);
             Assert.True(matches.First().EndTime.Value.AddSeconds(5) >= DateTime.Now);
             Assert.True(table.First().ActiveMatchId == null);
 
@@ -314,8 +314,8 @@ IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.
             IEnumerable<MatchLogModel> matchLogs = _dbHelper.ReadData<MatchLogModel>("SELECT * FROM match_logs");
 
             Assert.Single(matches);
-            Assert.Equal(10, matches.First().TeamRedScore);
-            Assert.Equal(0, matches.First().TeamBlueScore);
+            Assert.Equal(10, matches.First().RedTeamScore);
+            Assert.Equal(0, matches.First().BlueTeamScore);
             Assert.NotNull(matches.First().EndTime);
             Assert.True(matches.First().EndTime.Value.AddSeconds(5) >= DateTime.Now);
             Assert.Null(table.First().ActiveMatchId);

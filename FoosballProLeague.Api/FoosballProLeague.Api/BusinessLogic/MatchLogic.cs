@@ -23,13 +23,6 @@ namespace FoosballProLeague.Api.BusinessLogic
             _teamDatabaseAccessor = teamDatabaseAccessor;
         }
 
-        //Hjælpemetode til at hente alle kampe, bruges i GetActiveMatches til at loope igennem kampene, finde en uden endTime og tilføje holdene til listen
-        public List<MatchModel> GetAllMatches()
-        {
-            return _matchDatabaseAccessor.GetAllMatches();
-        }
-
-
         public MatchModel GetActiveMatch()
         {
             MatchModel activeMatch = _matchDatabaseAccessor.GetActiveMatchByTableId(1);
@@ -283,12 +276,12 @@ namespace FoosballProLeague.Api.BusinessLogic
         {
             if (registerGoalRequest.Side == "red")
             {
-                activeMatch.TeamRedScore++;
+                activeMatch.RedTeamScore++;
             }
 
             else if (registerGoalRequest.Side == "blue")
             {
-                activeMatch.TeamBlueScore++;
+                activeMatch.BlueTeamScore++;
             }
 
             _matchDatabaseAccessor.UpdateMatchScore(activeMatch);
@@ -296,7 +289,7 @@ namespace FoosballProLeague.Api.BusinessLogic
             NotifyGoalsScored(registerGoalRequest).Wait();
 
             // If the score of either team is 10 then the match is over
-            if (activeMatch.TeamRedScore == 10 || activeMatch.TeamBlueScore == 10)
+            if (activeMatch.RedTeamScore == 10 || activeMatch.BlueTeamScore == 10)
             {
                 // Set the active match at the table to null since the match is over
                 _matchDatabaseAccessor.UpdateTableActiveMatch(registerGoalRequest.TableId, null);
@@ -346,8 +339,8 @@ namespace FoosballProLeague.Api.BusinessLogic
                 TeamModel redTeam = match.RedTeam;
                 TeamModel blueTeam = match.BlueTeam;
 
-                int redScore = match.TeamRedScore;
-                int blueScore = match.TeamBlueScore;
+                int redScore = match.RedTeamScore;
+                int blueScore = match.BlueTeamScore;
 
                 if (_hubContext.Clients != null)
                 {
@@ -364,8 +357,8 @@ namespace FoosballProLeague.Api.BusinessLogic
             TeamModel redTeam = match.RedTeam;
             TeamModel blueTeam = match.BlueTeam;
 
-            int redScore = match.TeamRedScore;
-            int blueScore = match.TeamBlueScore;
+            int redScore = match.RedTeamScore;
+            int blueScore = match.BlueTeamScore;
 
             if (_hubContext.Clients != null)
             {
@@ -380,6 +373,11 @@ namespace FoosballProLeague.Api.BusinessLogic
             {
                 _matchDatabaseAccessor.UpdateLoginRequestStatus(pendingRequest.Id, "removed");
             }
+        }
+
+        public IEnumerable<MatchModel> GetMatchHistoryByUserId(int userId)
+        {
+            return _matchDatabaseAccessor.GetMatchHistoryByUserId(userId);
         }
     }
 }

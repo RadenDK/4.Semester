@@ -25,7 +25,9 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.UnitTests
             Mock<ITokenLogic> mockTokenLogic = new Mock<ITokenLogic>();
             mockUserLogic.Setup(logic => logic.GetLeaderboards()).Throws(new Exception("Test exception"));
 
-            UserController SUT = new UserController(mockUserLogic.Object, mockTokenLogic.Object);
+            Mock<IMatchLogic> mockMatchLogic = new Mock<IMatchLogic>();
+
+            UserController SUT = new UserController(mockUserLogic.Object, mockTokenLogic.Object, mockMatchLogic.Object);
 
             // Act: Call the GetUsers method
             IActionResult result = SUT.GetLeaderboards();

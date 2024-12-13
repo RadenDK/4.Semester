@@ -137,10 +137,10 @@ namespace FoosballProLeague.Api.BusinessLogic
             bool is1v1 = match.RedTeam.User2 == null && match.BlueTeam.User2 == null;
 
             // Update ELO ratings for the Red Team based on the average ELO of the opposing Blue Team
-            UpdateTeamEloForPlayers(match.RedTeam, match.BlueTeam.GetTeamEloAverage(), match.TeamRedScore == 10, is1v1);
+            UpdateTeamEloForPlayers(match.RedTeam, match.BlueTeam.GetTeamEloAverage(), match.RedTeamScore == 10, is1v1);
 
             // Update ELO ratings for the Blue Team based on the average ELO of the opposing Red Team
-            UpdateTeamEloForPlayers(match.BlueTeam, match.RedTeam.GetTeamEloAverage(), match.TeamBlueScore == 10, is1v1);
+            UpdateTeamEloForPlayers(match.BlueTeam, match.RedTeam.GetTeamEloAverage(), match.BlueTeamScore == 10, is1v1);
 
             // Notify clients about the leaderboard update
             try

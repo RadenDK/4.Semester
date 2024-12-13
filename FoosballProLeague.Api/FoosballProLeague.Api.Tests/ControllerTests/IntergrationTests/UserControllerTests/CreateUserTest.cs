@@ -8,6 +8,7 @@ using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 using Moq;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Configuration;
 
 namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
 {
@@ -38,11 +39,15 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
 
             Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
+            IConfiguration configuration = new ConfigurationManager();
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
-            ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
             IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
-            UserController SUT = new UserController(userLogic, tokenLogic);
+            ITokenLogic tokenLogic = new TokenLogic(configuration);
 
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            UserController SUT = new UserController(userLogic, tokenLogic, matchLogic);
             // Act
             IActionResult result = SUT.CreateUser(newUser) as OkResult;
 
@@ -81,10 +86,15 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
 
             Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
+            IConfiguration configuration = new ConfigurationManager();
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
-            ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
             IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
-            UserController SUT = new UserController(userLogic, tokenLogic);
+            ITokenLogic tokenLogic = new TokenLogic(configuration);
+
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            UserController SUT = new UserController(userLogic, tokenLogic, matchLogic);
 
             SUT.ModelState.AddModelError("Email", "Email is required");
 
@@ -124,10 +134,15 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntegrationTests
 
             Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
+            IConfiguration configuration = new ConfigurationManager();
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
-            ITokenLogic tokenLogic = new TokenLogic(_dbHelper.GetConfiguration());
             IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
-            UserController SUT = new UserController(userLogic, tokenLogic);
+            ITokenLogic tokenLogic = new TokenLogic(configuration);
+
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            UserController SUT = new UserController(userLogic, tokenLogic, matchLogic);
 
             // Act
             IActionResult result = SUT.CreateUser(newUser) as BadRequestObjectResult;

@@ -1,5 +1,6 @@
 using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.Models;
+using FoosballProLeague.Api.Models.FoosballModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FoosballProLeague.Api.Controllers
@@ -11,11 +12,13 @@ namespace FoosballProLeague.Api.Controllers
     {
         private IUserLogic _userLogic;
         private ITokenLogic _tokenLogic;
+        private IMatchLogic _matchLogic;
 
-        public UserController(IUserLogic userLogic, ITokenLogic tokenLogic)
+        public UserController(IUserLogic userLogic, ITokenLogic tokenLogic, IMatchLogic matchLogic)
         {
             _userLogic = userLogic;
             _tokenLogic = tokenLogic;
+            _matchLogic = matchLogic;
         }
         
         // method to handle registration of a new user (create user)
@@ -131,6 +134,26 @@ namespace FoosballProLeague.Api.Controllers
             try
             {
                 List<MatchHistoryModel> matchHistory = _userLogic.GetMatchHistoryByUserId(userId);
+                if (matchHistory == null || !matchHistory.Any())
+                {
+                    return NotFound("No match history found for the provided user id");
+                }
+
+                return Ok(matchHistory);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+        }
+
+        [HttpGet("{userId}/match-history-test")]
+        public IActionResult GetMatchHistoryByUserIdTest(int userId)
+        {
+            try
+            {
+                IEnumerable<MatchModel> matchHistory = _matchLogic.GetMatchHistoryByUserId(userId);
                 if (matchHistory == null || !matchHistory.Any())
                 {
                     return NotFound("No match history found for the provided user id");
