@@ -1,11 +1,11 @@
 ﻿using System.Text.Json;
 using FoosballProLeague.Webserver.Models;
-using FoosballProLeague.Webserver.BusinessLogic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using FoosballProLeague.Webserver.BusinessLogic.Interfaces;
 
 namespace FoosballProLeague.Webserver.Controllers;
 

@@ -1,12 +1,12 @@
-﻿namespace FoosballProLeague.Webserver.Service;
+﻿namespace FoosballProLeague.Webserver.Service.Interfaces;
 
 public interface IHttpClientService
 {
     Task<HttpResponseMessage> PostAsync(string url, StringContent content);
 
     Task<HttpResponseMessage> GetAsync(string url);
-    
+
     Task<HttpResponseMessage> PutAsync(string url, StringContent content);
-    
-   void SetAuthorizationHeader(string accessToken);
+
+    void SetAuthorizationHeader(string accessToken);
 }

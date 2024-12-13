@@ -10,7 +10,7 @@ using FoosballProLeague.Api.Models.FoosballModels;
 namespace FoosballProLeague.Api.Controllers
 {
     [ApiController]
-    //[Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiKeyAuthorize]
     public class MatchController : Controller
     {
@@ -41,7 +41,7 @@ namespace FoosballProLeague.Api.Controllers
             }
         }
 
-        [HttpPost("StartMatch")]
+        [HttpPost("{tableId}/Start")]
         public IActionResult StartMatch(int tableId)
         {
             try
@@ -61,7 +61,7 @@ namespace FoosballProLeague.Api.Controllers
             }
         }
 
-        [HttpPost("InterruptMatch")]
+        [HttpPost("{tableId}/Interrupt")]
         public IActionResult InterruptMatch(int tableId)
         {
             try
@@ -97,7 +97,7 @@ namespace FoosballProLeague.Api.Controllers
             }
         }
         
-        [HttpGet("GetAllMatches")]
+        [HttpGet()]
         public IActionResult GetAllMatches()
         {
             try
@@ -110,8 +110,8 @@ namespace FoosballProLeague.Api.Controllers
                 return BadRequest("An error occurred: " + ex.Message);
             }
         }
-        [HttpGet("GetActiveMatch")]
-        public IActionResult GetActiveMatches()
+        [HttpGet("Active")]
+        public IActionResult GetActiveMatch()
         {
             try
             {

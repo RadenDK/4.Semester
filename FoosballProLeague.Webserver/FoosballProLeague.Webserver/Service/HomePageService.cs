@@ -1,4 +1,5 @@
 ﻿using FoosballProLeague.Webserver.Models;
+using FoosballProLeague.Webserver.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
@@ -30,7 +31,7 @@ namespace FoosballProLeague.Webserver.Service
 
         public async Task<MatchModel> GetActiveMatch()
         {
-            HttpResponseMessage response = await _httpClientService.GetAsync("/GetActiveMatch");
+            HttpResponseMessage response = await _httpClientService.GetAsync("/api/Match/Active");
             if (response.IsSuccessStatusCode)
             {
                 string responseBody = await response.Content.ReadAsStringAsync();

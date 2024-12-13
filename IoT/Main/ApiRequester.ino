@@ -19,7 +19,7 @@ namespace ApiRequester {
             String apiKey = ConfigMode::getApiKey();
 
             // Prepare the request
-            String url = "https://api.foosballproleague.live/RegisterGoal";
+            String url = "https://api.foosballproleague.live/api/Match/RegisterGoal";
             http.begin(url);
             http.addHeader("Content-Type", "application/json");
             http.addHeader("X-Api-Key", apiKey);
@@ -53,7 +53,7 @@ namespace ApiRequester {
             String  apiKey = ConfigMode::getApiKey();
 
             // Prepare the request
-            String url = "https://api.foosballproleague.live/InterruptMatch?tableId=" + tableId;
+            String url = "https://api.foosballproleague.live/api/Match/" + tableId + "/Interrupt";
             http.begin(url);
             http.addHeader("Content-Type", "application/json");
             http.addHeader("X-Api-Key", apiKey);
@@ -84,7 +84,7 @@ namespace ApiRequester {
              String  apiKey = ConfigMode::getApiKey();
 
             // Prepare the request
-            String url = "https://api.foosballproleague.live/StartMatch?tableId=" + tableId;
+            String url = "https://api.foosballproleague.live/api/Match/" + tableId + "/Start";
             http.begin(url);
            
             http.addHeader("X-Api-Key", apiKey);

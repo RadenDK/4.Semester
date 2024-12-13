@@ -1,6 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 
-namespace FoosballProLeague.Webserver.BusinessLogic
+namespace FoosballProLeague.Webserver.BusinessLogic.Interfaces
 {
     public interface ITokenLogic
     {

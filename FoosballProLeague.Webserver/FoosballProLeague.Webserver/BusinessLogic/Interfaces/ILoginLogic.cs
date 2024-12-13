@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace FoosballProLeague.Webserver.BusinessLogic;
+namespace FoosballProLeague.Webserver.BusinessLogic.Interfaces;
 
 public interface ILoginLogic
 {

@@ -2,9 +2,9 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using FoosballProLeague.Webserver.Models;
-using FoosballProLeague.Webserver.BusinessLogic;
 using Microsoft.AspNetCore.Authorization;
 using Newtonsoft.Json.Linq;
+using FoosballProLeague.Webserver.BusinessLogic.Interfaces;
 
 namespace FoosballProLeague.Webserver.Controllers
 {

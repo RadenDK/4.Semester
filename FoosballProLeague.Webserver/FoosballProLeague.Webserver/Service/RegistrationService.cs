@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using FoosballProLeague.Webserver.Models;
+using FoosballProLeague.Webserver.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc.Diagnostics;
 
 namespace FoosballProLeague.Webserver.Service;
