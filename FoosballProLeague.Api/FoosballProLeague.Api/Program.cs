@@ -28,6 +28,9 @@ builder.Services.AddSingleton<IDepartmentDatabaseAccessor, DepartmentDatabaseAcc
 builder.Services.AddSingleton<IMatchLogic, MatchLogic>();
 builder.Services.AddSingleton<IMatchDatabaseAccessor, MatchDatabaseAccessor>();
 
+builder.Services.AddSingleton<ITournamentLogic, TournamentLogic>();
+builder.Services.AddSingleton<ITournamentDatabaseAccessor, TournamentDatabaseAccessor>();
+
 builder.Services.AddSingleton<ITeamDatabaseAccessor, TeamDatabaseAccessor>();
 
 builder.Services.AddSingleton<ITokenLogic, TokenLogic>();
