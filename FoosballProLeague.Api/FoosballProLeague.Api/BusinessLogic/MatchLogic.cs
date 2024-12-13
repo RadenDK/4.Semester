@@ -61,7 +61,7 @@ namespace FoosballProLeague.Api.BusinessLogic
         public bool LoginOnTable(TableLoginRequest tableLoginRequest)
         {
             // Check if the userId exists in the database
-            UserModel user = _userLogic.GetUserById(tableLoginRequest.UserId);
+            UserModel user = _userLogic.GetUserByEmail(tableLoginRequest.Email);
             if (user == null)
             {
                 // The user does not exists so it should not be possible to login on the table
@@ -82,7 +82,7 @@ namespace FoosballProLeague.Api.BusinessLogic
                 }
 
                 // If the table is in the pendingMatchTeams then we try to add the player to the pending match
-                bool addedPlayerToPendingMatch = _pendingMatchTeams[tableLoginRequest.TableId].AddPlayer(tableLoginRequest.Side, tableLoginRequest.UserId);
+                bool addedPlayerToPendingMatch = _pendingMatchTeams[tableLoginRequest.TableId].AddPlayer(tableLoginRequest.Side, user.Id);
 
                 return addedPlayerToPendingMatch;
             }
@@ -97,7 +97,7 @@ namespace FoosballProLeague.Api.BusinessLogic
                 {
                     // If there is room we will update the team to include the newly added player
                     // This should also invalidate the elo gain for the match
-                    return AddPlayerToActiveMatchTeam(activeMatch, tableLoginRequest);
+                    return AddPlayerToActiveMatchTeam(activeMatch, tableLoginRequest, user.Id);
                 }
 
                 // There is no room on the active match team side then we return false
@@ -117,12 +117,12 @@ namespace FoosballProLeague.Api.BusinessLogic
             return roomAvailable;
         }
 
-        private bool AddPlayerToActiveMatchTeam(MatchModel activeMatch, TableLoginRequest tableLoginRequest)
+        private bool AddPlayerToActiveMatchTeam(MatchModel activeMatch, TableLoginRequest tableLoginRequest, int userId)
         {
             TeamModel currentTeam = GetTeamBySide(activeMatch, tableLoginRequest.Side);
 
             // This will return a teammodel for either the existing team or creating a new team
-            TeamModel newTeam = GetOrRegisterTeam(new List<int?> { currentTeam.User1.Id, tableLoginRequest.UserId });
+            TeamModel newTeam = GetOrRegisterTeam(new List<int?> { currentTeam.User1.Id, userId });
 
             // Updates the match model to have the new team model
             SetNewTeamBySide(activeMatch, newTeam, tableLoginRequest.Side);
