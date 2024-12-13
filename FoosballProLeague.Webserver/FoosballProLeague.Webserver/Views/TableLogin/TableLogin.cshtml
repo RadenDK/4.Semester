@@ -11,6 +11,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FoosballProLeague - Red Team Login</title>
     <link rel="stylesheet" href="css/tableLogin.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
+    <script src="~/js/tableLogin.js"></script>
 </head>
 <body>
     <div class="login-form">
@@ -43,26 +45,6 @@
                 </div>
             </form>
             <div class="display-users">
-                @if (Model.Email == null)
-                {
-                        <button type="submit" name="user" value="Player 1: " class="user-button">
-                            Player 1:
-                        </button>
-                        <button type="submit" name="user" value="Player 2: " class="user-button">
-                            Player 2:
-                        </button>
-                }
-                else
-                {
-                    <form asp-action="RemoveUser" asp-controller="TableLogin" method="post">
-                        <button type="submit" name="user" value="@Model.FirstName @Model.LastName" class="user-button">
-                            Player 1: @Model.FirstName @Model.LastName
-                        </button>
-                        <button type="submit" name="user" value="@Model.FirstName @Model.LastName" class="user-button">
-                            Player 2: @Model.FirstName @Model.LastName
-                        </button>
-                    </form>
-                }
             </div>
             <button type="submit" class="clear">Remove User</button>
             <div class="instructions">
