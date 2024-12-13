@@ -85,6 +85,7 @@ app.MapControllers();
 
 // Map the SignalR hub
 app.MapHub<HomepageHub>("/homepageHub");
+app.MapHub<TableLoginHub>("/tableLoginHub");
 
 
 app.Run();

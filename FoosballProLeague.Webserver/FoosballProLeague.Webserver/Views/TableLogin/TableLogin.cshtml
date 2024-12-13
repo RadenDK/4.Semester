@@ -1,0 +1,56 @@
+﻿@model FoosballProLeague.Webserver.Models.TableLoginModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoosballProLeague - Red Team Login</title>
+    <link rel="stylesheet" href="css/tableLogin.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
+    <script src="~/js/tableLogin.js"></script>
+</head>
+<body>
+    <div class="login-form">
+        @if (Model.Side == "red")
+        {
+            <h2 class="red-team">Red Team Login</h2>
+        }
+        @if (Model.Side == "blue")
+        {
+            <h2 class="blue-team">Blue Team Login</h2>
+        }
+        <div class="login-box">
+            <form id="loginForm" asp-action="TableLogin" asp-controller="TableLogin" method="post">
+                <input type="hidden" asp-for="TableId" value="@Model.TableId"/>
+                <input type="hidden" asp-for="Side" value="@Model.Side"/>
+                <div class="email-container">
+                    <input type="text" placeholder="Email" id="email" asp-for="Email" required />
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="errormessage">
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <p>@error.ErrorMessage</p>
+                            }
+                        </div>
+                    }
+                </div>
+                <div class="login-button">
+                    <button type="submit" class="login">Join Team</button>
+                </div>
+            </form>
+            <div class="display-users">
+            </div>
+            <button type="submit" class="clear">Remove User</button>
+            <div class="instructions">
+                <p>To start the game, press the button on the foosball table.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
