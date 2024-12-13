@@ -22,7 +22,7 @@ public class TableLoginController : Controller
     }
 
     [HttpGet("TableLogin")]
-    public async Task<IActionResult> TableLoginIndex(int tableId, string side)
+    public IActionResult TableLoginIndex(int tableId, string side)
     {
         TableLoginModel tableLoginModel = new TableLoginModel
         {
@@ -33,7 +33,7 @@ public class TableLoginController : Controller
     }
 
     [HttpPost("TableLogin")]
-    public async Task<IActionResult> TableLogin([FromBody] TableLoginModel tableLoginModel)
+    public async Task<IActionResult> TableLogin(TableLoginModel tableLoginModel)
     {
         if (tableLoginModel == null)
         {
