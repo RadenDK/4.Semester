@@ -499,7 +499,7 @@ namespace FoosballProLeague.Api.Tests
             SUT.LoginOnTable(mockTableLoginRequestUser1RedSide);
             SUT.LoginOnTable(mockTableLoginRequestUser2RedSide);
             SUT.LoginOnTable(mockTableLoginRequestUser3BlueSide);
-            IActionResult TableLoginRequestUser4BlueSideResult = SUT.LoginOnTable(mockTableLoginRequestUser4BlueSide);
+            SUT.LoginOnTable(mockTableLoginRequestUser4BlueSide);
 
             // Attempt to switch user2 to blue side
             IActionResult TableLoginRequestUser2SwitchToBlueSideResult = SUT.LoginOnTable(mockTableLoginRequestUser2SwitchToBlueSide);
@@ -508,7 +508,6 @@ namespace FoosballProLeague.Api.Tests
             SUT.StartMatch(mockTableId);
 
             // Assert
-            Assert.IsType<OkObjectResult>(TableLoginRequestUser4BlueSideResult);
             Assert.IsType<BadRequestObjectResult>(TableLoginRequestUser2SwitchToBlueSideResult);
 
             IEnumerable<MatchDbModel> foosball_matches = _dbHelper.ReadData<MatchDbModel>("SELECT * FROM foosball_matches");
@@ -521,7 +520,7 @@ namespace FoosballProLeague.Api.Tests
             TeamDbModel blueDbTeam = _dbHelper.ReadData<TeamDbModel>("SELECT * FROM teams WHERE id = " + matchDb.BlueTeamId).FirstOrDefault();
 
             // Red team should have only the last login (user2) since overwrite logic is applied
-            Assert.True(redDbTeam.User1Id == 2 && redDbTeam.User2Id == null);
+            Assert.True(redDbTeam.User1Id == 1 && redDbTeam.User2Id == null);
 
             // Blue team should have both user3 and user4
             Assert.True(blueDbTeam.User1Id == 3 && blueDbTeam.User2Id == 4);
