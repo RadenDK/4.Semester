@@ -3,6 +3,7 @@ using FoosballProLeague.Api.Models.FoosballModels;
 using Npgsql;
 using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 using FoosballProLeague.Api.Models.DbModels;
+using FoosballProLeague.Api.Models.RequestModels;
 
 namespace FoosballProLeague.Api.DatabaseAccess
 {
@@ -171,6 +172,57 @@ namespace FoosballProLeague.Api.DatabaseAccess
             {
                 connection.Open();
                 int rowsAffected = connection.Execute(query, new { RedTeamId = match.RedTeam.Id, BlueTeamId = match.BlueTeam.Id, MatchId = match.Id });
+                return rowsAffected > 0;
+            }
+        }
+
+        public List<TableLoginRequest> GetPendingLoginsByTableId(int tableId)
+        {
+            string query = @"
+        SELECT * 
+        FROM table_login_requests 
+        WHERE table_id = @TableId 
+          AND status = 'pending'";
+
+            using (NpgsqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                return connection.Query<TableLoginRequest>(query, new { TableId = tableId }).ToList();
+            }
+        }
+
+        public bool AddLoginRequest(TableLoginRequest loginRequest)
+        {
+            string query = @"
+        INSERT INTO table_login_requests (user_id, table_id, side, status) 
+        VALUES (@UserId, @TableId, @Side, @Status)";
+
+            using (NpgsqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                int rowsAffected = connection.Execute(query, new
+                {
+                    UserId = loginRequest.UserId,
+                    TableId = loginRequest.TableId,
+                    Side = loginRequest.Side,
+                    Status = "pending" // Always pending on insert
+                });
+
+                return rowsAffected > 0;
+            }
+        }
+
+        public bool UpdateLoginRequestStatus(int loginRequestId, string newStatus)
+        {
+            string query = @"
+        UPDATE table_login_requests 
+        SET status = @Status 
+        WHERE id = @LoginRequestId";
+
+            using (NpgsqlConnection connection = GetConnection())
+            {
+                connection.Open();
+                int rowsAffected = connection.Execute(query, new { LoginRequestId = loginRequestId, Status = newStatus });
                 return rowsAffected > 0;
             }
         }
