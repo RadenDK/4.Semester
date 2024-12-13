@@ -1,31 +1,10 @@
-/**
- * FoosballProLeague Class
- * Main class handling the foosball league web application functionality.
- * Manages real-time match updates, leaderboard display, and user interactions.
- */
+
 class FoosballProLeague {
-    /**
-     * Initializes the FoosballProLeague application
-     * @param {string} apiUrl - Base URL for the API endpoints
-     * @param {Object} initialLeaderboardData - Initial leaderboard data from server
-     */
+    // Initializes the FoosballProLeague class with API URL, leaderboard data, and default state.
+    // Sets up SignalR connection, match tracking, and event listeners.
     constructor(apiUrl, initialLeaderboardData) {
-        /**
-         * Base URL for API endpoints
-         * @type {string}
-         */
         this.apiUrl = apiUrl;
-
-        /**
-         * Initial leaderboard data from server
-         * @type {Object}
-         */
         this.leaderboardData = initialLeaderboardData;
-
-        /**
-         * SignalR connection instance for real-time updates
-         * @type {SignalR.HubConnection}
-         */
         this.homepageConnection = new signalR.HubConnectionBuilder()
             .withUrl(`${this.apiUrl}homepageHub`, {
                 skipNegotiation: false,
@@ -35,40 +14,11 @@ class FoosballProLeague {
             .configureLogging(signalR.LogLevel.Information)
             .build();
 
-        /**
-         * Timer for updating match time
-         * @type {number|null}
-         */
         this.matchTimer = null;
-
-        /**
-         * Start time of the current match
-         * @type {Date|null}
-         */
         this.matchStartTime = new Date(sessionStorage.getItem('matchStartTime')) || null;
-
-        /**
-         * Current page number for leaderboard pagination
-         * @type {number}
-         */
         this.currentPageNumber = 1;
-
-        /**
-         * Number of items per page for leaderboard pagination
-         * @type {number}
-         */
         this.pageSize = 10;
-
-        /**
-         * Current match data
-         * @type {Object|null}
-         */
         this.currentMatch = null;
-
-        /**
-         * Current game mode ('1v1' or '2v2')
-         * @type {string}
-         */
         this.currentMode = sessionStorage.getItem('selectedLeaderboard') || '1v1';
 
         // Only initialize connections, don't fetch leaderboard immediately since we have server-side data
@@ -78,9 +28,8 @@ class FoosballProLeague {
         this.updateActiveButton(); // Update the active button state to match current mode
     }
 
-    /**
-     * Attaches event listeners for leaderboard mode selection (1v1 or 2v2).
-     */
+
+    // Attaches event listeners for leaderboard mode selection (1v1 or 2v2).
     initializeEventListeners() {
         // Attach event listeners for mode selection buttons
         document.querySelector('.elo-button[data-mode="2v2"]').addEventListener('click', (event) => {
@@ -106,9 +55,7 @@ class FoosballProLeague {
         });
     }
 
-    /**
-     * Initializes the match timer based on stored start time and updates the UI every second.
-     */
+    // Initializes the match timer based on stored start time and updates the UI every second.
     initializeMatchTimer() {
         const matchTimeElement = document.querySelector(".match-time");
 
@@ -136,11 +83,7 @@ class FoosballProLeague {
         }
     }
 
-    /**
-     * Updates the ongoing match time displayed in the UI based on the start time.
-     * @param {HTMLElement} matchTimeElement - Element displaying the match time
-     * @param {Date} startTime - Start time of the match
-     */
+    // Updates the ongoing match time displayed in the UI based on the start time.
     updateOngoingTime(matchTimeElement, startTime) {
         const now = new Date();
         const elapsedTime = Math.floor((now - startTime) / 1000);
@@ -149,9 +92,7 @@ class FoosballProLeague {
         matchTimeElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
 
-    /**
-     * Updates the visual state of the leaderboard mode buttons.
-     */
+    // Updates the visual state of the leaderboard mode buttons.
     updateActiveButton() {
         document.querySelectorAll('.elo-button').forEach(button => {
             button.classList.remove('active');
@@ -159,9 +100,7 @@ class FoosballProLeague {
         document.querySelector(`.elo-button[data-mode="${this.currentMode}"]`).classList.add('active');
     }
 
-    /**
-     * Sets up SignalR connection handlers for receiving real-time updates.
-     */
+    // Sets up SignalR connection handlers for receiving real-time updates.
     async initializeConnections() {
         this.homepageConnection.on("ReceiveLeaderboardUpdate", (leaderboard) => {
             this.leaderboardData = leaderboard;
@@ -185,10 +124,7 @@ class FoosballProLeague {
         await this.startConnection(this.homepageConnection);
     }
 
-    /**
-     * Establishes or re-establishes a SignalR connection.
-     * @param {SignalR.HubConnection} connection - The SignalR hub connection instance
-     */
+ 
     async startConnection(connection) {
         try {
             await connection.start();
@@ -199,11 +135,8 @@ class FoosballProLeague {
         }
     }
 
-    /**
-     * Fetches leaderboard data from the server for the specified mode and page number.
-     * @param {string} mode - Game mode ('1v1' or '2v2')
-     * @param {number} pageNumber - Page number for pagination
-     */
+
+    // Fetches leaderboard data from the server for the specified mode and page number.
     async fetchLeaderboard(mode, pageNumber) {
         if (!pageNumber) {
             pageNumber = this.currentPageNumber; // Use currentPageNumber if pageNumber is not provided
@@ -226,11 +159,7 @@ class FoosballProLeague {
         }
     }
 
-    /**
-     * Updates the leaderboard table in the UI with new data.
-     * @param {Array} paginatedData - Array of user data for current page
-     * @param {number} pageNumber - Current page number
-     */
+    // Updates the leaderboard table in the UI with new data.
     updateLeaderboard(paginatedData, pageNumber = 1) {
         this.currentPageNumber = pageNumber;
         const leaderboardBody = document.querySelector('#leaderboardBody');
@@ -251,12 +180,7 @@ class FoosballProLeague {
         });
     }
 
-    /**
-     * Updates the pagination controls based on the total items and current page.
-     * @param {number} totalItems - Total number of items in the leaderboard
-     * @param {number} pageSize - Number of items per page
-     * @param {number} pageNumber - Current page number
-     */
+    // Updates the pagination controls based on the total items and current page.
     updatePaginationControls(totalItems, pageSize, pageNumber) {
         const paginationContainer = document.querySelector('.pagination');
         paginationContainer.innerHTML = '';
@@ -286,10 +210,7 @@ class FoosballProLeague {
         }
     }
 
-    /**
-     * Handles the click event for the "Previous" page button and fetches the previous page of the leaderboard.
-     * @param {Event} event - Click event
-     */
+    // Handles the click event for the "Previous" page button and fetches the previous page of the leaderboard.
     handlePreviousPageClick(event) {
         event.preventDefault();
         if (this.currentPageNumber <= 1) return;
@@ -304,10 +225,7 @@ class FoosballProLeague {
         this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
     }
 
-    /**
-     * Handles the click event for the "Next" page button and fetches the next page of the leaderboard.
-     * @param {Event} event - Click event
-     */
+    // Handles the click event for the "Next" page button and fetches the next page of the leaderboard.
     handleNextPageClick(event) {
         event.preventDefault();
         
@@ -321,14 +239,7 @@ class FoosballProLeague {
         this.fetchLeaderboard(this.currentMode, this.currentPageNumber);
     }
 
-    /**
-     * Handles the start of a new match, displaying the teams and score.
-     * @param {boolean} isMatchStart - Whether a match is starting or ending
-     * @param {Object} teamRed - Red team player information
-     * @param {Object} teamBlue - Blue team player information
-     * @param {number} redScore - Current red team score
-     * @param {number} blueScore - Current blue team score
-     */
+    // Handles the start of a new match, displaying the teams and score.
     handleMatchStart(isMatchStart, teamRed, teamBlue, redScore, blueScore) {
         console.log("ReceiveMatchStart called with data:", { isMatchStart, teamRed, teamBlue, redScore, blueScore });
 
@@ -349,13 +260,7 @@ class FoosballProLeague {
         this.updateMatchInfo(teamRed, teamBlue, redScore, blueScore);
     }
 
-    /**
-     * Updates the match score in real-time.
-     * @param {Object} teamRed - Red team player information
-     * @param {Object} teamBlue - Blue team player information
-     * @param {number} redScore - Current red team score
-     * @param {number} blueScore - Current blue team score
-     */
+    // Updates the match score in real-time.
     updateMatchInfo(teamRed, teamBlue, redScore, blueScore) {
         this.updateTeamInfo(".team-red", teamRed);
         this.updateTeamInfo(".team-blue", teamBlue);
@@ -379,11 +284,7 @@ class FoosballProLeague {
         }
     }
 
-    /**
-     * Updates the team information in the UI
-     * @param {string} selector - CSS selector for the team container
-     * @param {Object} team - Team player information
-     */
+    // Updates the team information in the UI
     updateTeamInfo(selector, team) {
         const teamContainer = document.querySelector(selector);
         let user1 = teamContainer.querySelector(".user1");
@@ -399,9 +300,7 @@ class FoosballProLeague {
         }
     }
 
-    /**
-     * Updates the match time on the UI, showing elapsed time since the match started
-     */
+    // Updates the match time on the UI, showing elapsed time since the match started
     updateMatchTime() {
         if (!this.matchStartTime) {
             document.querySelector(".match-time").textContent = "";
@@ -415,9 +314,7 @@ class FoosballProLeague {
         document.querySelector(".match-time").textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
 
-    /**
-     * Updates the match timer from storage if the match has started
-     */
+    // Updates the match timer from storage if the match has started
     updateMatchTimeFromStorage() {
         if (this.currentMatch && this.matchStartTime && !isNaN(this.matchStartTime.getTime())) {
             this.matchTimer = setInterval(() => this.updateMatchTime(), 1000);
@@ -427,10 +324,7 @@ class FoosballProLeague {
         }
     }
 
-    /**
-     * Handles the end of a match, resetting match data and displaying the final score.
-     * @param {boolean} isMatchStart - Whether a match is starting or ending
-     */
+    // Handles the end of a match, resetting match data and displaying the final score.
     handleMatchEnd(isMatchStart) {
         const matchTimeElement = document.querySelector(".match-time");
         if (matchTimeElement) {

@@ -12,14 +12,17 @@ namespace FoosballProLeague.Api.BusinessLogic
     {
         private IMatchDatabaseAccessor _matchDatabaseAccessor;
         private IUserLogic _userLogic;
-        private readonly IHubContext<HomepageHub> _hubContext;
+        private readonly IHubContext<HomepageHub> _homepageHub;
+        private readonly IHubContext<TableLoginHub> _tableLoginHub;
         private ITeamDatabaseAccessor _teamDatabaseAccessor;
 
-        public MatchLogic(IMatchDatabaseAccessor matchDatabaseAccessor, IHubContext<HomepageHub> hubContext, IUserLogic userLogic, ITeamDatabaseAccessor teamDatabaseAccessor)
+        public MatchLogic(IMatchDatabaseAccessor matchDatabaseAccessor, IHubContext<HomepageHub> homepageHub, IHubContext<TableLoginHub> tableLoginHub, IUserLogic userLogic, ITeamDatabaseAccessor teamDatabaseAccessor)
         {
             _userLogic = userLogic;
             _matchDatabaseAccessor = matchDatabaseAccessor;
-            _hubContext = hubContext;
+            _homepageHub = homepageHub;
+            _tableLoginHub = tableLoginHub;
+            _pendingMatchTeams = new Dictionary<int, PendingMatchTeamsModel>();
             _teamDatabaseAccessor = teamDatabaseAccessor;
         }
 
@@ -58,8 +61,9 @@ namespace FoosballProLeague.Api.BusinessLogic
         */
         public bool LoginOnTable(TableLoginRequest tableLoginRequest)
         {
-            // Check if the user is valid
-            if (_userLogic.GetUserById(tableLoginRequest.UserId) == null)
+            // Check if the userId exists in the database
+            UserModel user = _userLogic.GetUserByEmail(tableLoginRequest.Email);
+            if (user == null)
             {
                 return false; // Invalid user, cannot proceed
             }
@@ -150,7 +154,7 @@ namespace FoosballProLeague.Api.BusinessLogic
             return roomAvailable;
         }
 
-        private bool AddPlayerToActiveMatchTeam(MatchModel activeMatch, TableLoginRequest tableLoginRequest)
+        private bool AddPlayerToActiveMatchTeam(MatchModel activeMatch, TableLoginRequest tableLoginRequest, int userId)
         {
             TeamModel currentTeam = GetTeamBySide(activeMatch, tableLoginRequest.Side);
 
@@ -336,9 +340,9 @@ namespace FoosballProLeague.Api.BusinessLogic
 
             if (match == null)
             {
-                if (_hubContext.Clients != null)
+                if (_homepageHub.Clients != null)
                 {
-                    await _hubContext.Clients.All.SendAsync("ReceiveMatchEnd", isMatchStart);
+                    await _homepageHub.Clients.All.SendAsync("ReceiveMatchEnd", isMatchStart);
                 }
             }
             else
@@ -349,9 +353,9 @@ namespace FoosballProLeague.Api.BusinessLogic
                 int redScore = match.TeamRedScore;
                 int blueScore = match.TeamBlueScore;
 
-                if (_hubContext.Clients != null)
+                if (_homepageHub.Clients != null)
                 {
-                    await _hubContext.Clients.All.SendAsync("ReceiveMatchStart", isMatchStart, redTeam, blueTeam, redScore, blueScore);
+                    await _homepageHub.Clients.All.SendAsync("ReceiveMatchStart", isMatchStart, redTeam, blueTeam, redScore, blueScore);
                 }
             }
         }
@@ -367,9 +371,17 @@ namespace FoosballProLeague.Api.BusinessLogic
             int redScore = match.TeamRedScore;
             int blueScore = match.TeamBlueScore;
 
-            if (_hubContext.Clients != null)
+            if (_homepageHub.Clients != null)
             {
-                await _hubContext.Clients.All.SendAsync("ReceiveGoalUpdate", redTeam, blueTeam, redScore, blueScore);
+                await _homepageHub.Clients.All.SendAsync("ReceiveGoalUpdate", redTeam, blueTeam, redScore, blueScore);
+            }
+        }
+
+        private async Task NotifyTableLogin(UserModel user)
+        {
+            if (_tableLoginHub.Clients != null)
+            {
+                await _tableLoginHub.Clients.All.SendAsync("ReceiveTableLogin", user);
             }
         }
 
