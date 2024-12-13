@@ -66,7 +66,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
         }
 
         // This method is used to get the team id for a list of player ids. It will return a TeamModel object with UserModel objects nested inside.
-        public TeamModel GetTeamIdByUsers(List<int?> playerIds)
+        public TeamModel GetTeamIdByUsers(IEnumerable<int> playerIds)
         {
             TeamModel team = null;
 
@@ -74,7 +74,7 @@ namespace FoosballProLeague.Api.DatabaseAccess
 
             // If the playerIds only contain one player, then the team is a single player team and we query for that
             // Else we query for a team with two players
-            if (playerIds.Last() == null)
+            if (playerIds.Count() == 1)
             {
                 query = @"
                     SELECT id
@@ -93,7 +93,8 @@ namespace FoosballProLeague.Api.DatabaseAccess
             using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-                int? teamId = connection.QuerySingleOrDefault<int?>(query, new { User1Id = playerIds[0], User2Id = playerIds[1] });
+
+                int? teamId = connection.QuerySingleOrDefault<int?>(query, new { User1Id = playerIds.First(), User2Id = playerIds.Last() });
 
                 // If the teamId is not null, get the team
                 if (teamId.HasValue)
@@ -106,19 +107,31 @@ namespace FoosballProLeague.Api.DatabaseAccess
             }
         }
 
-        public TeamModel CreateTeam(List<int?> userIds)
+        public TeamModel CreateTeam(IEnumerable<int> userIds)
         {
             string query = "INSERT INTO teams (user1_id, user2_id) VALUES (@User1Id, @User2Id) RETURNING id";
 
             using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-                int teamId = connection.QuerySingle<int>(query, new { User1Id = userIds[0], User2Id = userIds[1] });
+
+                List<int> userIdList = userIds.ToList();
+                int user1Id = userIdList.First();
+                int? user2Id = null;
+
+                if (userIdList.Count > 1)
+                {
+                    user2Id = userIdList[1]; // Set the second user ID if it exists
+                }
+
+                int teamId = connection.QuerySingle<int>(query, new { User1Id = user1Id, User2Id = user2Id });
 
                 TeamModel newTeam = GetTeamById(teamId, connection);
 
                 return newTeam;
             }
         }
+
+
     }
 }
