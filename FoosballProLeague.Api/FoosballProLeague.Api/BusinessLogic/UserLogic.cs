@@ -2,7 +2,7 @@ using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 using FoosballProLeague.Api.Models;
 using FoosballProLeague.Api.Models.FoosballModels;
-using bc = BCrypt.Net.BCrypt;
+using BCryptNet = BCrypt.Net.BCrypt;
 using Microsoft.AspNetCore.SignalR;
 using FoosballProLeague.Api.Hubs;
 
@@ -30,7 +30,7 @@ namespace FoosballProLeague.Api.BusinessLogic
                     FirstName = userRegistrationModel.FirstName,
                     LastName = userRegistrationModel.LastName,
                     Email = userRegistrationModel.Email.ToLower(), // Store email in lowercase, with a default value if empty
-                    Password = bc.HashPassword(userRegistrationModel.Password),
+                    Password = BCryptNet.HashPassword(userRegistrationModel.Password),
                     DepartmentId = userRegistrationModel.DepartmentId,
                     CompanyId = userRegistrationModel.CompanyId,
                     Elo1v1 = 500,
@@ -112,7 +112,7 @@ namespace FoosballProLeague.Api.BusinessLogic
                 return false;
             }
 
-            return bc.Verify(password, user.Password);
+            return BCryptNet.Verify(password, user.Password);
         }
 
         // get all user in a list
