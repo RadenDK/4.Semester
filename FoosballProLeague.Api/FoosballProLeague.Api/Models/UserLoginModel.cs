@@ -3,8 +3,8 @@
     public class UserLoginModel
     {
         //Email as user login
-        public string Email { get; set; }
+        public string? Email { get; set; }
         //Password
-        public string Password { get; set; }
+        public string? Password { get; set; }
     }
 }

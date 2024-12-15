@@ -3,7 +3,7 @@
     public class RegisterGoalRequest
     {
         public int TableId { get; set; }
-        public string Side { get; set; }
+        public string? Side { get; set; }
 
     }
 }
