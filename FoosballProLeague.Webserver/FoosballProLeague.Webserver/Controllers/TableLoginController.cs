@@ -24,36 +24,60 @@ public class TableLoginController : Controller
     [HttpGet("TableLogin/{tableId:int}/{side}")]
     public async Task<IActionResult> TableLoginIndex(int tableId, string side)
     {
-        TableLoginModel tableLoginModel = new TableLoginModel
+        List<TableLoginUserModel> pendingUsers = await _tableLoginLogic.PendingUsers(tableId);
+
+        TableLoginViewModel tableLoginViewModel = new TableLoginViewModel
         {
             TableId = tableId,
-            Side = side
+            Side = side,
+            PendingUsers = pendingUsers
         };
 
-        return View("TableLogin", tableLoginModel);
+        return View("TableLogin", tableLoginViewModel);
     }
 
     [HttpPost("TableLogin/{tableId:int}/{side}")]
-    public async Task<IActionResult> TableLogin(TableLoginModel tableLoginModel, int tableId, string side)
+    public async Task<IActionResult> TableLogin(TableLoginViewModel tableLoginViewModel, int tableId, string side)
     {
-        if (tableLoginModel == null || tableLoginModel.Side != side)
+        if (tableLoginViewModel == null || tableLoginViewModel.Side != side)
         {
             return BadRequest("Invalid login model or side mismatch.");
         }
 
-        tableLoginModel.TableId = tableId;
-        tableLoginModel.Side = side;
+        List<TableLoginUserModel> pendingUsers = await _tableLoginLogic.PendingUsers(tableId);
+        int userCountOnSide = pendingUsers.Count(u => u.Side == side);
 
-        await _tableLoginLogic.TableLoginUser(tableLoginModel);
+        if (userCountOnSide >= 2)
+        {
+            ModelState.AddModelError(string.Empty, "Cannot add more than two users per side.");
+            tableLoginViewModel.PendingUsers = pendingUsers;
+            return View("TableLogin", tableLoginViewModel);
+        }
 
-        return View("TableLogin", tableLoginModel);
+        await _tableLoginLogic.TableLoginUser(tableLoginViewModel);
+        pendingUsers = await _tableLoginLogic.PendingUsers(tableId);
+
+        tableLoginViewModel.TableId = tableId;
+        tableLoginViewModel.Side = side;
+        tableLoginViewModel.PendingUsers = pendingUsers;
+
+        return View("TableLogin", tableLoginViewModel);
     }
 
-    [HttpGet("RemoveUser")]
-    public async Task<IActionResult> RemoveUser(TableLoginModel tableLoginModel)
+    [HttpPost("RemovePendingUser")]
+    public async Task<IActionResult> RemovePendingUser(TableLoginViewModel tableLoginViewModel)
     {
-        await _tableLoginLogic.RemoveUser(tableLoginModel);
+        if (string.IsNullOrEmpty(tableLoginViewModel.Email))
+        {
+            return BadRequest("No user selected for removal.");
+        }
 
-        return View("TableLogin", new TableLoginModel());
+        await _tableLoginLogic.RemoveUser(tableLoginViewModel.Email);
+
+        List<TableLoginUserModel> pendingUsers = await _tableLoginLogic.PendingUsers(tableLoginViewModel.TableId);
+
+        tableLoginViewModel.PendingUsers = pendingUsers;
+
+        return View("TableLogin", tableLoginViewModel);
     }
 }
