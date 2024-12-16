@@ -1,4 +1,5 @@
 ﻿using FoosballProLeague.Api.Models;
+using FoosballProLeague.Api.Models.RequestModels;
 using Microsoft.AspNetCore.SignalR;
 using System.Numerics;
 
@@ -6,14 +7,9 @@ namespace FoosballProLeague.Api.Hubs
 {
     public class TableLoginHub : Hub
     {
-        public async Task NotifyTableLogin(UserModel user, string side)
+        public async Task NotifyTableLogin(TableLoginRequest user)
         {
-            await Clients.All.SendAsync("ReceiveTableLogin", user, side);
-        }
-
-        public async Task GetCurrentPlayers(UserModel user, string side)
-        {
-            await Clients.All.SendAsync("ReceiveCurrentUsers", user, side);
+            await Clients.All.SendAsync("ReceiveTableLogin", user);
         }
     }
 }
