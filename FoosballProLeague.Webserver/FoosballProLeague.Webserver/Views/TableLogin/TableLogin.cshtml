@@ -9,8 +9,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoosballProLeague - Red Team Login</title>
-    <link rel="stylesheet" href="css/tableLogin.css">
+    <title>FoosballProLeague</title>
+    <link rel="stylesheet" href="~/css/tableLogin.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
     <script src="~/js/tableLogin.js"></script>
 </head>
@@ -25,7 +25,7 @@
             <h2 class="blue-team">Blue Team Login</h2>
         }
         <div class="login-box">
-            <form id="loginForm" asp-action="TableLogin" asp-controller="TableLogin" method="post">
+            <form id="loginForm" asp-action="TableLogin" asp-controller="TableLogin" asp-route-tableId="@Model.TableId" asp-route-side="@Model.Side" method="post">
                 <input type="hidden" asp-for="TableId" value="@Model.TableId"/>
                 <input type="hidden" asp-for="Side" value="@Model.Side"/>
                 <div class="email-container">
@@ -44,7 +44,7 @@
                     <button type="submit" class="login">Join Team</button>
                 </div>
             </form>
-            <div class="display-users">
+            <div class="display-users @Model.Side">
             </div>
             <button type="submit" class="clear">Remove User</button>
             <div class="instructions">
