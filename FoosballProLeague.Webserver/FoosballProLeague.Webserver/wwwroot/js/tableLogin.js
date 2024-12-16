@@ -47,54 +47,26 @@ class FoosballProLeague {
 
 
     updateTableLogin(user) {
-        const displayUsers = document.querySelector(".display-users");
+        const userList = document.querySelector(".display-users .user-list");
 
-        // Check if there are already two players
-        if (displayUsers.children.length >= 2) {
-            console.log("Maximum number of players reached.");
-            return;
+        // Check if the user already exists in the list based on their email
+        const existingUser = Array.from(userList.children).find(
+            (child) => child.dataset.email === user.email
+        );
+
+        // If the user does not exist, add them to the list
+        if (!existingUser) {
+            const newParagraph = document.createElement("p");
+            newParagraph.textContent = `${user.firstName} ${user.lastName}`;
+            newParagraph.classList.add("user", user.side); // Add the side as a class
+            newParagraph.classList.add(user.side === "red" ? "red-team" : "blue-team"); // Add the team color class
+            newParagraph.dataset.email = user.email; // Store the email in a data attribute
+            userList.appendChild(newParagraph);
         }
-
-        // Create a form for each user
-        const userForm = document.createElement("form");
-        userForm.method = "post";
-        userForm.action = "/TableLogin/RemoveUser";
-
-        // Create a hidden input to store the user's information
-        const userInput = document.createElement("input");
-        userInput.type = "hidden";
-        userInput.name = "user";
-        userInput.value = `${user.firstName} ${user.lastName}`;
-
-        // Create a button for the user
-        const userButton = document.createElement("button");
-        userButton.type = "submit";
-        userButton.classList.add("user-button");
-        userButton.textContent = `${user.firstName} ${user.lastName}`;
-
-        // Append the hidden input and button to the form
-        userForm.appendChild(userInput);
-        userForm.appendChild(userButton);
-
-        // Add an event listener to the form to prevent default submission
-        userForm.addEventListener("submit", (event) => {
-            event.preventDefault();
-            // Handle user removal logic here
-            displayUsers.removeChild(userForm);
-            console.log("User removed:", user);
-        });
-
-        // Append the form to the displayUsers container
-        displayUsers.appendChild(userForm);
-        console.log("User form added to displayUsers container for user:", user);
-
-        // Log the current state of displayUsers
-        console.log("Current displayUsers content:", displayUsers.innerHTML);
     }
 
 
 }
-
 
 // Fetch the API URL from the backend endpoint and initialize the connections
 fetch('/config/url')
@@ -110,3 +82,16 @@ fetch('/config/url')
         const foosballProLeague = new FoosballProLeague(apiUrl);
     })
     .catch(error => console.error('Error fetching configuration:', error));
+
+document.addEventListener("DOMContentLoaded", function () {
+    const userElements = document.querySelectorAll(".user");
+    const hiddenEmailInput = document.getElementById("selectedEmail");
+
+    userElements.forEach(user => {
+        user.addEventListener("click", function () {
+            userElements.forEach(u => u.classList.remove("selected"));
+            this.classList.add("selected");
+            hiddenEmailInput.value = this.dataset.email;
+        });
+    });
+});
