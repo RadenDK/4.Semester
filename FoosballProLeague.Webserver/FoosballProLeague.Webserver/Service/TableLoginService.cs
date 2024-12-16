@@ -19,20 +19,25 @@ public class TableLoginService : ITableLoginService
 
     //Service call for login user by calling the HttpClientService
     // Puts the login data in a object and serializes it
-    public async Task<HttpResponseMessage> TableLoginUser(TableLoginModel tableLoginModel)
+    public async Task<HttpResponseMessage> TableLoginUser(TableLoginViewModel tableLoginModel)
     {
-        TableLoginModel data = new TableLoginModel{ Email = tableLoginModel.Email, TableId = tableLoginModel.TableId, Side = tableLoginModel.Side };
+        TableLoginViewModel data = new TableLoginViewModel { Email = tableLoginModel.Email, TableId = tableLoginModel.TableId, Side = tableLoginModel.Side };
         StringContent content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
 
         return await _httpClientService.PostAsync("api/match/LoginOnTable", content);
     }
 
-    public async Task<HttpResponseMessage> RemoveUser(TableLoginModel tableLoginModel){
+    public async Task<HttpResponseMessage> PendingUsers(int tableId)
+    {
+       return await _httpClientService.GetAsync($"api/match/{tableId}/PendingTeamUsers");
 
-        TableLoginModel data = new TableLoginModel { Email = tableLoginModel.Email, TableId = tableLoginModel.TableId, Side = tableLoginModel.Side };
-        StringContent content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+    }
 
-        return await _httpClientService.PostAsync("api/match/ClearPendingTeamsCache", content);
+    public async Task<HttpResponseMessage> RemoveUser(string email){
+
+        StringContent content = new StringContent(JsonConvert.SerializeObject(email), Encoding.UTF8, "application/json");
+
+        return await _httpClientService.PostAsync("api/match/RemovePendingUser", content);
     }
 }
 

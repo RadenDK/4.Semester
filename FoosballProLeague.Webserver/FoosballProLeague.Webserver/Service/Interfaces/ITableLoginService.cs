@@ -7,7 +7,8 @@ namespace FoosballProLeague.Webserver.Service.Interfaces;
 
 public interface ITableLoginService
 {
-    public Task<HttpResponseMessage> TableLoginUser(TableLoginModel tableLoginModel);
-    public  Task<HttpResponseMessage> RemoveUser(TableLoginModel tableLoginModel);
+    public Task<HttpResponseMessage> TableLoginUser(TableLoginViewModel tableLoginModel);
+    public Task<HttpResponseMessage> PendingUsers(int tableId);
+    public  Task<HttpResponseMessage> RemoveUser(string email);
 
 }
