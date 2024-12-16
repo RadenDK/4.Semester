@@ -41,6 +41,14 @@ namespace FoosballProLeague.Api.Controllers
             }
         }
 
+        [HttpGet("PendingTeamUsers/{tableId}")]
+        public IActionResult GetPendingTeamUsers(int tableId)
+        {
+            List<UserModel> users = _matchLogic.GetPendingTeamUsers(tableId);
+            return Ok(users);
+        }
+
+
         [HttpPost("{tableId}/Start")]
         public IActionResult StartMatch(int tableId)
         {
@@ -96,7 +104,7 @@ namespace FoosballProLeague.Api.Controllers
                 return BadRequest("An error occurred: " + ex.Message);
             }
         }
-        
+
         [HttpGet()]
         public IActionResult GetAllMatches()
         {
