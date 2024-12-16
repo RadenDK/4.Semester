@@ -6,14 +6,14 @@ namespace FoosballProLeague.Api.Hubs
 {
     public class TableLoginHub : Hub
     {
-        public async Task NotifyTableLogin(UserModel user)
+        public async Task NotifyTableLogin(UserModel user, string side)
         {
-            await Clients.All.SendAsync("ReceiveTableLogin", user);
+            await Clients.All.SendAsync("ReceiveTableLogin", user, side);
         }
 
-        public async Task GetCurrentPlayers(UserModel user)
+        public async Task GetCurrentPlayers(UserModel user, string side)
         {
-            await Clients.All.SendAsync("ReceiveCurrentUsers", user);
+            await Clients.All.SendAsync("ReceiveCurrentUsers", user, side);
         }
     }
 }
