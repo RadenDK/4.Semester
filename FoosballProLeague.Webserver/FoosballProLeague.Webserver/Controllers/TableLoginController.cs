@@ -21,24 +21,28 @@ public class TableLoginController : Controller
         _tableLoginLogic = tableLoginLogic;
     }
 
-    [HttpGet("TableLogin")]
-    public IActionResult TableLoginIndex(int tableId, string side)
+    [HttpGet("TableLogin/{tableId:int}/{side}")]
+    public async Task<IActionResult> TableLoginIndex(int tableId, string side)
     {
         TableLoginModel tableLoginModel = new TableLoginModel
         {
             TableId = tableId,
             Side = side
         };
+
         return View("TableLogin", tableLoginModel);
     }
 
-    [HttpPost("TableLogin")]
-    public async Task<IActionResult> TableLogin(TableLoginModel tableLoginModel)
+    [HttpPost("TableLogin/{tableId:int}/{side}")]
+    public async Task<IActionResult> TableLogin(TableLoginModel tableLoginModel, int tableId, string side)
     {
-        if (tableLoginModel == null)
+        if (tableLoginModel == null || tableLoginModel.Side != side)
         {
-            return BadRequest("Invalid login model.");
+            return BadRequest("Invalid login model or side mismatch.");
         }
+
+        tableLoginModel.TableId = tableId;
+        tableLoginModel.Side = side;
 
         await _tableLoginLogic.TableLoginUser(tableLoginModel);
 
