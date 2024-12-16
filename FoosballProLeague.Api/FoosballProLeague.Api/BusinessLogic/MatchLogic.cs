@@ -5,6 +5,7 @@ using FoosballProLeague.Api.Hubs;
 using FoosballProLeague.Api.Models.FoosballModels;
 using FoosballProLeague.Api.Models.RequestModels;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Identity.Data;
 
 namespace FoosballProLeague.Api.BusinessLogic
 {
@@ -22,7 +23,6 @@ namespace FoosballProLeague.Api.BusinessLogic
             _matchDatabaseAccessor = matchDatabaseAccessor;
             _homepageHub = homepageHub;
             _tableLoginHub = tableLoginHub;
-            _pendingMatchTeams = new Dictionary<int, PendingMatchTeamsModel>();
             _teamDatabaseAccessor = teamDatabaseAccessor;
         }
 
@@ -63,6 +63,8 @@ namespace FoosballProLeague.Api.BusinessLogic
         {
             // Check if the userId exists in the database
             UserModel user = _userLogic.GetUserByEmail(tableLoginRequest.Email);
+            tableLoginRequest.UserId = user.Id;
+
             if (user == null)
             {
                 return false; // Invalid user, cannot proceed
@@ -73,13 +75,22 @@ namespace FoosballProLeague.Api.BusinessLogic
 
             if (activeMatch == null)
             {
+
+                bool handlePendingLogin = HandlePendingLogin(tableLoginRequest);
+
+                NotifyTableLogin(user, tableLoginRequest.Side).Wait();
+
                 // Handle pending login if no active match
-                return HandlePendingLogin(tableLoginRequest);
+                return handlePendingLogin;
             }
             else
             {
+                bool handleActiveMatchLogin = HandleActiveMatchLogin(activeMatch, tableLoginRequest);
+
+                NotifyTableLogin(user, tableLoginRequest.Side).Wait();
+
                 // Handle active match if it exists
-                return HandleActiveMatchLogin(activeMatch, tableLoginRequest);
+                return handleActiveMatchLogin;
             }
         }
 
@@ -154,7 +165,7 @@ namespace FoosballProLeague.Api.BusinessLogic
             return roomAvailable;
         }
 
-        private bool AddPlayerToActiveMatchTeam(MatchModel activeMatch, TableLoginRequest tableLoginRequest, int userId)
+        private bool AddPlayerToActiveMatchTeam(MatchModel activeMatch, TableLoginRequest tableLoginRequest)
         {
             TeamModel currentTeam = GetTeamBySide(activeMatch, tableLoginRequest.Side);
 
@@ -377,12 +388,28 @@ namespace FoosballProLeague.Api.BusinessLogic
             }
         }
 
-        private async Task NotifyTableLogin(UserModel user)
+        private async Task NotifyTableLogin(UserModel user, string side)
         {
             if (_tableLoginHub.Clients != null)
             {
-                await _tableLoginHub.Clients.All.SendAsync("ReceiveTableLogin", user);
+                await _tableLoginHub.Clients.All.SendAsync("ReceiveTableLogin", user, side);
             }
+        }
+        public List<UserModel> GetPendingTeamUsers(int tableId)
+        {
+            List<TableLoginRequest> pendingLogins = _matchDatabaseAccessor.GetPendingLoginsByTableId(tableId);
+            List<UserModel> users = new List<UserModel>();
+
+            foreach (var loginRequest in pendingLogins)
+            {
+                UserModel user = _userLogic.GetUserById(loginRequest.UserId);
+                if (user != null)
+                {
+                    users.Add(user);
+                }
+            }
+
+            return users;
         }
 
         public void ClearPendingTeamsCache()
