@@ -1,4 +1,4 @@
-﻿@model FoosballProLeague.Webserver.Models.TableLoginModel
+﻿@model FoosballProLeague.Webserver.Models.TableLoginViewModel
 
 @{
     Layout = null;
@@ -26,8 +26,8 @@
         }
         <div class="login-box">
             <form id="loginForm" asp-action="TableLogin" asp-controller="TableLogin" asp-route-tableId="@Model.TableId" asp-route-side="@Model.Side" method="post">
-                <input type="hidden" asp-for="TableId" value="@Model.TableId"/>
-                <input type="hidden" asp-for="Side" value="@Model.Side"/>
+                <input type="hidden" asp-for="TableId" value="@Model.TableId" />
+                <input type="hidden" asp-for="Side" value="@Model.Side" />
                 <div class="email-container">
                     <input type="text" placeholder="Email" id="email" asp-for="Email" required />
                     @if (!ViewData.ModelState.IsValid)
@@ -45,8 +45,19 @@
                 </div>
             </form>
             <div class="display-users @Model.Side">
+                <form asp-action="RemovePendingUser" asp-controller="TableLogin" method="post" class="user-form">
+                    <input type="hidden" id="selectedEmail" name="Email" />
+                    <input type="hidden" asp-for="TableId" value="@Model.TableId" />
+                    <input type="hidden" asp-for="Side" value="@Model.Side" />
+                    <div class="user-list">
+                        @foreach (var user in Model.PendingUsers)
+                        {
+                            <p class="user @(user.Side == "red" ? "red" : "blue")" data-email="@user.Email">@user.FirstName @user.LastName</p>
+                        }
+                    </div>
+                    <button type="submit" class="clear">Remove User</button>
+                </form>
             </div>
-            <button type="submit" class="clear">Remove User</button>
             <div class="instructions">
                 <p>To start the game, press the button on the foosball table.</p>
             </div>
