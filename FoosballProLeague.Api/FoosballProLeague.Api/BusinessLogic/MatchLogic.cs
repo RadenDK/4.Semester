@@ -64,6 +64,8 @@ namespace FoosballProLeague.Api.BusinessLogic
             // Check if the userId exists in the database
             UserModel user = _userLogic.GetUserByEmail(tableLoginRequest.Email);
             tableLoginRequest.UserId = user.Id;
+            tableLoginRequest.FirstName = user.FirstName;
+            tableLoginRequest.LastName = user.LastName;
 
             if (user == null)
             {
@@ -78,7 +80,7 @@ namespace FoosballProLeague.Api.BusinessLogic
 
                 bool handlePendingLogin = HandlePendingLogin(tableLoginRequest);
 
-                NotifyTableLogin(user, tableLoginRequest.Side).Wait();
+                NotifyTableLogin(tableLoginRequest).Wait();
 
                 // Handle pending login if no active match
                 return handlePendingLogin;
@@ -87,7 +89,7 @@ namespace FoosballProLeague.Api.BusinessLogic
             {
                 bool handleActiveMatchLogin = HandleActiveMatchLogin(activeMatch, tableLoginRequest);
 
-                NotifyTableLogin(user, tableLoginRequest.Side).Wait();
+                NotifyTableLogin(tableLoginRequest).Wait();
 
                 // Handle active match if it exists
                 return handleActiveMatchLogin;
@@ -388,28 +390,37 @@ namespace FoosballProLeague.Api.BusinessLogic
             }
         }
 
-        private async Task NotifyTableLogin(UserModel user, string side)
+        private async Task NotifyTableLogin(TableLoginRequest user)
         {
             if (_tableLoginHub.Clients != null)
             {
-                await _tableLoginHub.Clients.All.SendAsync("ReceiveTableLogin", user, side);
+                await _tableLoginHub.Clients.All.SendAsync("ReceiveTableLogin", user);
             }
         }
-        public List<UserModel> GetPendingTeamUsers(int tableId)
+
+        public List<TableLoginRequest> GetPendingTeamUsers(int tableId)
         {
             List<TableLoginRequest> pendingLogins = _matchDatabaseAccessor.GetPendingLoginsByTableId(tableId);
-            List<UserModel> users = new List<UserModel>();
+            
+            foreach(TableLoginRequest loginRequest in pendingLogins){
 
-            foreach (var loginRequest in pendingLogins)
-            {
                 UserModel user = _userLogic.GetUserById(loginRequest.UserId);
+
                 if (user != null)
                 {
-                    users.Add(user);
+                    loginRequest.Email = user.Email;
+                    loginRequest.FirstName = user.FirstName;
+                    loginRequest.LastName = user.LastName;
                 }
             }
 
-            return users;
+            return pendingLogins;
+        }
+
+        public bool RemovePendingUser(string email)
+        {
+            UserModel user = _userLogic.GetUserByEmail(email);
+            return _teamDatabaseAccessor.RemovePendingUser(user.Id);
         }
 
         public void ClearPendingTeamsCache()
