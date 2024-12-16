@@ -132,6 +132,18 @@ namespace FoosballProLeague.Api.DatabaseAccess
             }
         }
 
+        public bool RemovePendingUser(int userId)
+        {
+            string query = "UPDATE table_login_requests SET status = 'removed' WHERE user_id = @UserId AND status = 'pending'";
 
+            using (NpgsqlConnection connection = GetConnection())
+            {
+                connection.Open();
+
+                int rowsAffected = connection.Execute(query, new { UserId = userId });
+
+                return rowsAffected > 0;
+            }
+        }
     }
 }
