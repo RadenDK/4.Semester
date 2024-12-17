@@ -14,10 +14,10 @@ namespace FoosballProLeague.Api.BusinessLogic.Interfaces
 
         public void InterruptMatch(int tableId);
 
-        public List<MatchModel> GetAllMatches();
-
         public MatchModel GetActiveMatch();
 
-        public void ClearPendingTeamsCache();
+        public Dictionary<string, List<UserModel>> GetPendingUsers(int tableId);
+
+        public bool RemovePendingUser(int userId, int tableId);
     }
 }

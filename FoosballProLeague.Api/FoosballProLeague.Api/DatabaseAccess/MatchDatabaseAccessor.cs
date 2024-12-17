@@ -4,6 +4,8 @@ using Npgsql;
 using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 using FoosballProLeague.Api.Models.DbModels;
 using FoosballProLeague.Api.Models.RequestModels;
+using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.VisualBasic;
 
 namespace FoosballProLeague.Api.DatabaseAccess
 {
@@ -212,17 +214,18 @@ namespace FoosballProLeague.Api.DatabaseAccess
             }
         }
 
-        public bool UpdateLoginRequestStatus(int loginRequestId, string newStatus)
+        public bool UpdateAllPendingRequestsForUserId(int userId, string newStatus)
         {
             string query = @"
-        UPDATE table_login_requests 
-        SET status = @Status 
-        WHERE id = @LoginRequestId";
+            UPDATE table_login_requests 
+            SET status = @Status 
+            WHERE user_id = @UserId
+            AND status = 'pending'";
 
             using (NpgsqlConnection connection = GetConnection())
             {
                 connection.Open();
-                int rowsAffected = connection.Execute(query, new { LoginRequestId = loginRequestId, Status = newStatus });
+                int rowsAffected = connection.Execute(query, new { UserId = userId, Status = newStatus });
                 return rowsAffected > 0;
             }
         }

@@ -24,6 +24,6 @@ namespace FoosballProLeague.Api.DatabaseAccess.Interfaces
         // New methods for table login requests
         public List<TableLoginRequest> GetPendingLoginsByTableId(int tableId);
         public bool AddLoginRequest(TableLoginRequest loginRequest);
-        public bool UpdateLoginRequestStatus(int loginRequestId, string newStatus);
+        public bool UpdateAllPendingRequestsForUserId(int loginRequestId, string newStatus);
     }
 }

@@ -1,10 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
-using System.Runtime.CompilerServices;
-using FoosballProLeague.Api.Models.RequestModels;
-using System.Linq.Expressions;
 using FoosballProLeague.Api.BusinessLogic.Interfaces;
-using FoosballProLeague.Api.Models;
 using FoosballProLeague.Api.Models.FoosballModels;
+using FoosballProLeague.Api.Models.RequestModels;
+using Microsoft.AspNetCore.Mvc;
 
 
 namespace FoosballProLeague.Api.Controllers
@@ -40,6 +37,41 @@ namespace FoosballProLeague.Api.Controllers
                 return BadRequest("An error occurred: " + ex.Message);
             }
         }
+
+        [HttpGet("PendingUsers")]
+        public IActionResult GetPendingUsers([FromQuery] int tableid)
+        {
+            try
+            {
+                return Ok(_matchLogic.GetPendingUsers(tableid));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("An error occurred");
+            }
+        }
+
+
+        [HttpPost("RemovePendingUser")]
+        public IActionResult RemovePendingUser([FromQuery] int userId, [FromQuery] int tableId)
+        {
+            try
+            {
+                if (_matchLogic.RemovePendingUser(userId, tableId))
+                {
+                    return Ok("User removed from the pending login list successfully");
+                }
+                else
+                {
+                    return BadRequest("Something went wrong");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("An error occurred");
+            }
+        }
+
 
         [HttpPost("{tableId}/Start")]
         public IActionResult StartMatch(int tableId)
@@ -96,20 +128,7 @@ namespace FoosballProLeague.Api.Controllers
                 return BadRequest("An error occurred: " + ex.Message);
             }
         }
-        
-        [HttpGet()]
-        public IActionResult GetAllMatches()
-        {
-            try
-            {
-                List<MatchModel> matches = _matchLogic.GetAllMatches();
-                return Ok(matches);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest("An error occurred: " + ex.Message);
-            }
-        }
+
         [HttpGet("Active")]
         public IActionResult GetActiveMatch()
         {
@@ -117,21 +136,6 @@ namespace FoosballProLeague.Api.Controllers
             {
                 MatchModel activeMatch = _matchLogic.GetActiveMatch();
                 return Ok(activeMatch);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest("An error occurred: " + ex.Message);
-            }
-        }
-
-        [HttpGet("ClearPendingTeamsCache")]
-        public IActionResult ClearPendingTeamsCache()
-        {
-            try
-            {
-                _matchLogic.ClearPendingTeamsCache();
-
-                return Ok("Clearing pending teams cache was successful.");
             }
             catch (Exception ex)
             {
