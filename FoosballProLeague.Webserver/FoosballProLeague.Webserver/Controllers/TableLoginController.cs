@@ -1,17 +1,9 @@
-using System.Text.Json;
+using FoosballProLeague.Webserver.BusinessLogic.Interfaces;
 using FoosballProLeague.Webserver.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using FoosballProLeague.Webserver.BusinessLogic.Interfaces;
+using System.Drawing;
 
-namespace FoosballProLeague.Webserver.Controllers;
-
-using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-
+[Route("TableLogin")]
 public class TableLoginController : Controller
 {
     private readonly ITableLoginLogic _tableLoginLogic;
@@ -21,35 +13,51 @@ public class TableLoginController : Controller
         _tableLoginLogic = tableLoginLogic;
     }
 
-    [HttpGet("TableLogin")]
-    public IActionResult TableLoginIndex(int tableId, string side)
+    [HttpGet]
+    public async Task<IActionResult> Index(int tableId, string side)
     {
-        TableLoginModel tableLoginModel = new TableLoginModel
+        ViewBag.TableId = tableId;
+        Dictionary<string, List<UserModel>> pendingUsers = await _tableLoginLogic.GetAllCurrentPendingUsers(tableId);
+
+        TableStatusViewModel model = new TableStatusViewModel
         {
-            TableId = tableId,
-            Side = side
+            Side = side,
+            PendingUsers = pendingUsers
         };
-        return View("TableLogin", tableLoginModel);
+
+        return View("TableLogin", model);
     }
 
-    [HttpPost("TableLogin")]
-    public async Task<IActionResult> TableLogin(TableLoginModel tableLoginModel)
+    [HttpPost]
+    public async Task<IActionResult> TableLogin(int tableId, string side, string email)
     {
-        if (tableLoginModel == null)
+        if (string.IsNullOrEmpty(email))
         {
-            return BadRequest("Invalid login model.");
+            return BadRequest("Email cannot be null or empty.");
         }
 
-        await _tableLoginLogic.TableLoginUser(tableLoginModel);
+        TableLoginModel loginModel = new TableLoginModel
+        {
+            TableId = tableId,
+            Side = side,
+            Email = email
+        };
 
-        return View("TableLogin", tableLoginModel);
+        await _tableLoginLogic.TableLoginUser(loginModel);
+
+        return Ok();
     }
 
-    [HttpGet("RemoveUser")]
-    public async Task<IActionResult> RemoveUser(TableLoginModel tableLoginModel)
+    [HttpPost("RemoveUser")]
+    public async Task<IActionResult> RemoveUser(int userId, int tableId)
     {
-        await _tableLoginLogic.RemoveUser(tableLoginModel);
+        Console.WriteLine($"Removing user {userId} from table {tableId}");
 
-        return View("TableLogin", new TableLoginModel());
+
+        await _tableLoginLogic.RemoveUser(userId, tableId);
+
+        // Redirect back to the same view (Index) to reload the pending users
+        return Ok();
     }
+
 }

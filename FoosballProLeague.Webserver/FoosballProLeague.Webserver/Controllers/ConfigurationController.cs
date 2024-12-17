@@ -17,7 +17,7 @@ namespace FoosballProLeague.Webserver.Controllers
         [HttpGet("url")]
         public IActionResult GetApiUrl()
         {
-            var apiUrl = _configuration["HttpClientSettings:BaseAddress"];
+            string apiUrl = _configuration["HttpClientSettings:BaseAddress"];
             return Ok(new { apiUrl });
         }
     }

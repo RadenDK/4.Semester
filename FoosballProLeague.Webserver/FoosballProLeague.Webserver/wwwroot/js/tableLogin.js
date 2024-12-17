@@ -1,112 +1,127 @@
-﻿
-class FoosballProLeague {
-    // Initializes the FoosballProLeague class with API URL.
-    // Sets up SignalR connection.
-    constructor(apiUrl) {
-        this.apiUrl = apiUrl;
-        this.tableLoginConnection = new signalR.HubConnectionBuilder()
-            .withUrl(`${this.apiUrl}tableLoginHub`, {
-                skipNegotiation: false,
-                transport: signalR.HttpTransportType.WebSockets,
-                withCredentials: true
-            })
-            .configureLogging(signalR.LogLevel.Information)
-            .build();
+﻿document.addEventListener("DOMContentLoaded", async () => {
+    const tableIdElem = document.getElementById("tableId");
+    const sideElem = document.getElementById("side");
 
-        console.log("FoosballProLeague initialized with API URL:", this.apiUrl);
-        this.initializeConnections();
+    if (!tableIdElem || !sideElem) {
+        console.error("Missing #tableId or #side elements in the HTML.");
+        return;
     }
 
+    const tableId = tableIdElem.value;
+    const side = sideElem.value;
 
-    // Sets up SignalR connection handlers for receiving real-time updates.
-    async initializeConnections() {
-        this.tableLoginConnection.on("ReceiveTableLogin", (user) => {
-            console.log("Received table login for user:", user);
-            this.updateTableLogin(user);
+    // Render initial team data
+    if (typeof initialPendingUsers !== 'undefined' && initialPendingUsers) {
+        updateTeamUsers(initialPendingUsers);
+    }
+
+    // Initialize SignalR
+    let apiUrl = await getApiUrl();
+    await initializeSignalRConnection(apiUrl);
+
+    // Intercept form submission to prevent redirection
+    const loginForm = document.getElementById("loginForm");
+
+    if (loginForm) {
+        loginForm.addEventListener("submit", async (event) => {
+            event.preventDefault(); // Stop default browser submission
+
+            const emailInput = loginForm.querySelector("input[name='Email']");
+            const email = emailInput.value.trim();
+
+            if (!email) {
+                console.error("Email is required.");
+                return;
+            }
+
+            try {
+                // Send POST request to the webserver controller
+                const response = await fetch(`/TableLogin`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({
+                        tableId: tableId,
+                        side: side,
+                        email: email
+                    })
+                });
+
+                if (response.ok) {
+                    console.log("User successfully joined the team.");
+                    emailInput.value = ""; // Clear the input field
+                } else {
+                    console.error("Failed to log in user.");
+                }
+            } catch (error) {
+                console.error("Error during form submission:", error);
+            }
         });
-
-
-        this.tableLoginConnection.onclose(async () => {
-            console.log("SignalR connection closed. Attempting to reconnect...");
-            await this.startConnection(this.tableLoginConnection);
-        });
-
-        await this.startConnection(this.tableLoginConnection);
     }
 
+});
 
-    async startConnection(connection) {
-        try {
-            await connection.start();
-            console.log("SignalR connected.");
-        } catch (err) {
-            console.error("Error establishing SignalR connection: ", err);
-            setTimeout(() => this.startConnection(connection), 5000);
-        }
-    }
-
-
-    updateTableLogin(user) {
-        const displayUsers = document.querySelector(".display-users");
-
-        // Check if there are already two players
-        if (displayUsers.children.length >= 2) {
-            console.log("Maximum number of players reached.");
-            return;
-        }
-
-        // Create a form for each user
-        const userForm = document.createElement("form");
-        userForm.method = "post";
-        userForm.action = "/TableLogin/RemoveUser";
-
-        // Create a hidden input to store the user's information
-        const userInput = document.createElement("input");
-        userInput.type = "hidden";
-        userInput.name = "user";
-        userInput.value = `${user.firstName} ${user.lastName}`;
-
-        // Create a button for the user
-        const userButton = document.createElement("button");
-        userButton.type = "submit";
-        userButton.classList.add("user-button");
-        userButton.textContent = `${user.firstName} ${user.lastName}`;
-
-        // Append the hidden input and button to the form
-        userForm.appendChild(userInput);
-        userForm.appendChild(userButton);
-
-        // Add an event listener to the form to prevent default submission
-        userForm.addEventListener("submit", (event) => {
-            event.preventDefault();
-            // Handle user removal logic here
-            displayUsers.removeChild(userForm);
-            console.log("User removed:", user);
-        });
-
-        // Append the form to the displayUsers container
-        displayUsers.appendChild(userForm);
-        console.log("User form added to displayUsers container for user:", user);
-
-        // Log the current state of displayUsers
-        console.log("Current displayUsers content:", displayUsers.innerHTML);
-    }
-
-
+// Helper function to fetch API URL
+async function getApiUrl() {
+    const response = await fetch('/config/url');
+    if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+    const config = await response.json();
+    return config.apiUrl;
 }
 
+// SignalR initialization (unchanged)
+async function initializeSignalRConnection(apiUrl) {
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl(`${apiUrl}tableLoginHub`)
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
 
-// Fetch the API URL from the backend endpoint and initialize the connections
-fetch('/config/url')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+    connection.on("ReceivePendingTableLoginUsers", (data) => {
+        updateTeamUsers(data);
+    });
+
+    try {
+        await connection.start();
+        console.log("SignalR connected.");
+    } catch (err) {
+        console.error("Error connecting to SignalR:", err);
+    }
+}
+
+// Function to update the user lists (unchanged)
+function updateTeamUsers(data) {
+    const redTeamContainer = document.getElementById("red-team-users");
+    const blueTeamContainer = document.getElementById("blue-team-users");
+
+    redTeamContainer.innerHTML = "";
+    blueTeamContainer.innerHTML = "";
+
+    if (data.red) data.red.forEach(user => redTeamContainer.appendChild(createUserButton(user)));
+    if (data.blue) data.blue.forEach(user => blueTeamContainer.appendChild(createUserButton(user)));
+}
+
+function createUserButton(user) {
+    const button = document.createElement("button");
+    button.className = "user-button";
+    button.textContent = `${user.firstName || "Unknown"} ${user.fastName || "User"}`;
+    button.onclick = () => removePlayer(user.id);
+    return button;
+}
+
+async function removePlayer(userId) {
+    const tableId = document.getElementById("tableId").value;
+    const side = document.getElementById("side").value;
+
+    try {
+        const response = await fetch(`/TableLogin/RemoveUser?userId=${userId}&tableId=${tableId}`, {
+            method: "POST",
+        });
+
+        if (response.ok) {
+            console.log("Player removed successfully.");
+        } else {
+            console.error("Failed to remove player.");
         }
-        return response.json();
-    })
-    .then(config => {
-        console.log("Config: ", config);
-        const apiUrl = config.apiUrl;
-        const foosballProLeague = new FoosballProLeague(apiUrl);
-    })
-    .catch(error => console.error('Error fetching configuration:', error));
+    } catch (error) {
+        console.error("Error removing player:", error);
+    }
+}
