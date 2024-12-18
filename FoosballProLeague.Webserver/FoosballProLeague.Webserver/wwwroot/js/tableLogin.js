@@ -22,7 +22,12 @@ class FoosballProLeague {
     async initializeConnections() {
         this.tableLoginConnection.on("ReceiveTableLogin", (user) => {
             console.log("Received table login for user:", user);
-            this.updateTableLogin(user);
+            this.updateTableLogin(user, false);
+        });
+
+        this.tableLoginConnection.on("ReceiveRemoveUser", (email) => {
+            console.log("Received table login for user:", email);
+            this.updateTableLogin({ email: email }, true);
         });
 
 
@@ -46,7 +51,7 @@ class FoosballProLeague {
     }
 
 
-    updateTableLogin(user) {
+    updateTableLogin(user, isRemove) {
         const userList = document.querySelector(".display-users .user-list");
 
         // Check if the user already exists in the list based on their email
@@ -54,14 +59,24 @@ class FoosballProLeague {
             (child) => child.dataset.email === user.email
         );
 
-        // If the user does not exist, add them to the list
-        if (!existingUser) {
-            const newParagraph = document.createElement("p");
-            newParagraph.textContent = `${user.firstName} ${user.lastName}`;
-            newParagraph.classList.add("user", user.side); // Add the side as a class
-            newParagraph.classList.add(user.side === "red" ? "red-team" : "blue-team"); // Add the team color class
-            newParagraph.dataset.email = user.email; // Store the email in a data attribute
-            userList.appendChild(newParagraph);
+        if (isRemove) {
+            if (existingUser) {
+                userList.removeChild(existingUser);
+            }
+        } else {
+            if (existingUser) {
+                // Update the user's side and team color if they already exist
+                existingUser.textContent = `${user.firstName} ${user.lastName}`;
+                existingUser.className = `user ${user.side} ${user.side === "red" ? "red-team" : "blue-team"}`;
+            } else {
+                // If the user does not exist, add them to the list
+                const newParagraph = document.createElement("p");
+                newParagraph.textContent = `${user.firstName} ${user.lastName}`;
+                newParagraph.classList.add("user", user.side); // Add the side as a class
+                newParagraph.classList.add(user.side === "red" ? "red-team" : "blue-team"); // Add the team color class
+                newParagraph.dataset.email = user.email; // Store the email in a data attribute
+                userList.appendChild(newParagraph);
+            }
         }
     }
 
@@ -86,6 +101,12 @@ fetch('/config/url')
 document.addEventListener("DOMContentLoaded", function () {
     const userElements = document.querySelectorAll(".user");
     const hiddenEmailInput = document.getElementById("selectedEmail");
+    const emailInput = document.getElementById("email");
+
+    // Clear the email input field
+    if (emailInput) {
+        emailInput.value = '';
+    }
 
     userElements.forEach(user => {
         user.addEventListener("click", function () {
