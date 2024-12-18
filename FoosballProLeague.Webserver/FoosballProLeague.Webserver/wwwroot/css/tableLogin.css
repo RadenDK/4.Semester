@@ -88,8 +88,11 @@ button.clear {
     }
 
 .errormessage {
-    color: #d9534f;
-    margin: 10px 0;
+    display: flex;
+    justify-content: center;
+    color: #f24a4a;
+    font-size: 13px;
+    margin-bottom: 20px;
 }
 
 .user-list {
