@@ -398,6 +398,14 @@ namespace FoosballProLeague.Api.BusinessLogic
             }
         }
 
+        private async Task NotifyRemoveUser(string email)
+        {
+            if (_tableLoginHub.Clients != null)
+            {
+                await _tableLoginHub.Clients.All.SendAsync("ReceiveRemoveUser", email);
+            }
+        }
+
         public List<TableLoginRequest> GetPendingTeamUsers(int tableId)
         {
             List<TableLoginRequest> pendingLogins = _matchDatabaseAccessor.GetPendingLoginsByTableId(tableId);
@@ -420,7 +428,16 @@ namespace FoosballProLeague.Api.BusinessLogic
         public bool RemovePendingUser(string email)
         {
             UserModel user = _userLogic.GetUserByEmail(email);
-            return _teamDatabaseAccessor.RemovePendingUser(user.Id);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            _teamDatabaseAccessor.RemovePendingUser(user.Id);
+            NotifyRemoveUser(email).Wait();
+
+            return true;
         }
 
         public void ClearPendingTeamsCache()
