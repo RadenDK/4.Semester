@@ -11,5 +11,10 @@ namespace FoosballProLeague.Api.Hubs
         {
             await Clients.All.SendAsync("ReceiveTableLogin", user);
         }
+
+        public async Task NotifyRemoveUser(string email)
+        {
+            await Clients.All.SendAsync("ReceiveRemoveUser", email);
+        }
     }
 }
