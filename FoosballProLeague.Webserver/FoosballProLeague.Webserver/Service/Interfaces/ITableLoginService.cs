@@ -10,5 +10,6 @@ public interface ITableLoginService
     public Task<HttpResponseMessage> TableLoginUser(TableLoginViewModel tableLoginModel);
     public Task<HttpResponseMessage> PendingUsers(int tableId);
     public  Task<HttpResponseMessage> RemoveUser(string email);
+    public Task<HttpResponseMessage> ActiveMatch();
 
 }

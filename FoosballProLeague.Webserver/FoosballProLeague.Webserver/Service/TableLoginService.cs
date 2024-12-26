@@ -39,5 +39,10 @@ public class TableLoginService : ITableLoginService
 
         return await _httpClientService.PostAsync("api/match/RemovePendingUser", content);
     }
+
+    public async Task<HttpResponseMessage> ActiveMatch()
+    {
+        return await _httpClientService.GetAsync("api/match/Active");
+    }
 }
 
