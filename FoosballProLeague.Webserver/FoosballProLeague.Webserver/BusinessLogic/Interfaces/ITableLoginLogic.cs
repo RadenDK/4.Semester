@@ -9,4 +9,5 @@ public interface ITableLoginLogic
     Task<HttpResponseMessage> TableLoginUser(TableLoginViewModel tableLoginModel);
     Task<List<TableLoginUserModel>> PendingUsers(int tableId);
     Task<HttpResponseMessage> RemoveUser(string email);
+    public Task<HttpResponseMessage> ActiveMatch();
 }

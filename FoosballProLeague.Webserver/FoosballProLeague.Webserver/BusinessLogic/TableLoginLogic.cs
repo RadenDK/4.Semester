@@ -33,4 +33,9 @@ public class TableLoginLogic : ITableLoginLogic
     {
         return await _tableLoginService.RemoveUser(email);
     }
+
+    public async Task<HttpResponseMessage> ActiveMatch()
+    {
+        return await _tableLoginService.ActiveMatch();
+    }
 }
