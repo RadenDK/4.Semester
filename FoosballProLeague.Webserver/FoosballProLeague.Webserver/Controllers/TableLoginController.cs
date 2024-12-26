@@ -45,22 +45,33 @@ public class TableLoginController : Controller
         }
 
         List<TableLoginUserModel> pendingUsers = await _tableLoginLogic.PendingUsers(tableId);
-        int userCountOnSide = pendingUsers.Count(u => u.Side == side);
+        HttpResponseMessage response = await _tableLoginLogic.ActiveMatch();
 
-        if (userCountOnSide >= 2)
+        string responseContent = await response.Content.ReadAsStringAsync();
+        bool isActiveMatch = !string.IsNullOrEmpty(responseContent);
+
+        if (!isActiveMatch)
         {
-            ModelState.AddModelError(string.Empty, "Cannot add more than two users per side.");
+            int userCountOnSide = pendingUsers.Count(u => u.Side == side);
+
+            if (userCountOnSide >= 2)
+            {
+                ModelState.AddModelError(string.Empty, "Cannot add more than two users per side.");
+                tableLoginViewModel.PendingUsers = pendingUsers;
+                return View("TableLogin", tableLoginViewModel);
+            }
+
+            await _tableLoginLogic.TableLoginUser(tableLoginViewModel);
+            pendingUsers = await _tableLoginLogic.PendingUsers(tableId);
+
+            tableLoginViewModel.TableId = tableId;
+            tableLoginViewModel.Side = side;
             tableLoginViewModel.PendingUsers = pendingUsers;
+
             return View("TableLogin", tableLoginViewModel);
         }
 
-        await _tableLoginLogic.TableLoginUser(tableLoginViewModel);
-        pendingUsers = await _tableLoginLogic.PendingUsers(tableId);
-
-        tableLoginViewModel.TableId = tableId;
-        tableLoginViewModel.Side = side;
-        tableLoginViewModel.PendingUsers = pendingUsers;
-
+        ModelState.AddModelError(string.Empty, "A match is currently ongoing, wait for match to end");
         return View("TableLogin", tableLoginViewModel);
     }
 
