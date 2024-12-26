@@ -50,9 +50,15 @@
                     <input type="hidden" asp-for="TableId" value="@Model.TableId" />
                     <input type="hidden" asp-for="Side" value="@Model.Side" />
                     <div class="user-list">
-                        @foreach (var user in Model.PendingUsers)
+                        @if (Model.PendingUsers != null && Model.PendingUsers.Any())
                         {
-                            <p class="user @(user.Side == "red" ? "red" : "blue")" data-email="@user.Email">@user.FirstName @user.LastName</p>
+                            @foreach (var user in Model.PendingUsers)
+                            {
+                                <p class="user @(user.Side == "red" ? "red" : "blue")" data-email="@user.Email">@user.FirstName @user.LastName</p>
+                            }
+                        }
+                        else
+                        {
                         }
                     </div>
                     <button type="submit" class="clear">Remove User</button>
