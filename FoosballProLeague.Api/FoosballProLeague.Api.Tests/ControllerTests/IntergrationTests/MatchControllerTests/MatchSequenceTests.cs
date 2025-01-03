@@ -19,7 +19,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         public void UsersLogin_StartAMatch_ScoreSomeGoalsUntillTheMatchIsOver_ShouldReturnSuccessAllTheWay()
         {
             // Arrange
-            _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 500, 500), (2, 500, 500);");
+            _dbHelper.InsertData("INSERT INTO users (id, email, elo_1v1, elo_2v2) VALUES (1, 'user1@email.com', 500, 500), (2, 'user2@email.com', 500, 500);");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1);");
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
@@ -36,12 +36,14 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             TableLoginRequest tableLoginRequestUser1 = new TableLoginRequest
             {
                 TableId = 1,
+                Email = "user1@email.com",
                 UserId = 1,
                 Side = "red"
             };
             TableLoginRequest tableLoginRequestUser2 = new TableLoginRequest
             {
                 TableId = 1,
+                Email = "user2@email.com",
                 UserId = 2,
                 Side = "blue"
             };
@@ -79,7 +81,7 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         public void UsersLoginPlayAMatchTillItsOverThenTriesToLoginAndPlayAgain_ShouldReturnSuccess()
         {
             // Arrange
-            _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 500, 500), (2, 500, 500);");
+            _dbHelper.InsertData("INSERT INTO users (id, email, elo_1v1, elo_2v2) VALUES (1, 'user1@email.com', 500, 500), (2, 'user2@email.com', 500, 500);");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1);");
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
@@ -95,12 +97,14 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             TableLoginRequest tableLoginRequestUser1 = new TableLoginRequest
             {
                 TableId = 1,
+                Email = "user1@email.com",
                 UserId = 1,
                 Side = "red"
             };
             TableLoginRequest tableLoginRequestUser2 = new TableLoginRequest
             {
                 TableId = 1,
+                Email = "user2@email.com",
                 UserId = 2,
                 Side = "blue"
             };
