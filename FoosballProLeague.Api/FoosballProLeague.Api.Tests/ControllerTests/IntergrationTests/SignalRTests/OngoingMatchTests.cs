@@ -25,27 +25,32 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.SignalRT
             int mockUser1Id = 1;
             int mockUser2Id = 2;
 
+            string mockUser1Email = "user1@email.com";
+            string mockUser2Email = "user2@email.com";
+
             _dbHelper.InsertData($"INSERT INTO foosball_tables (id) VALUES ({mockTableId})");
-            _dbHelper.InsertData($"INSERT INTO users (id) VALUES ({mockUser1Id}), ({mockUser2Id})");
+            _dbHelper.InsertData($"INSERT INTO users (id, email) VALUES ({mockUser1Id}, '{mockUser1Email}'), ({mockUser2Id}, '{mockUser2Email}')");
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
 
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
             Mock<IHubClients> mockClients = new Mock<IHubClients>();
             Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
 
-            mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockHomepageHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockTableLoginHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
             mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
             
             MatchController SUT = new MatchController(matchLogic);
 
-            TableLoginRequest mockTableLoginRequestUser1 = new TableLoginRequest { UserId = mockUser1Id, TableId = mockTableId, Side = "red" };
-            TableLoginRequest mockTableLoginRequestUser2 = new TableLoginRequest { UserId = mockUser2Id, TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequestUser1 = new TableLoginRequest { UserId = mockUser1Id, Email = mockUser1Email, TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequestUser2 = new TableLoginRequest { UserId = mockUser2Id, Email = mockUser2Email, TableId = mockTableId, Side = "blue" };
 
             // Act
             SUT.LoginOnTable(mockTableLoginRequestUser1);
@@ -76,28 +81,35 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.SignalRT
             int mockUser2Id = 2;
             int mockUser3Id = 3;
 
+            string mockUser1Email = "user1@email.com";
+            string mockUser2Email = "user2@email.com";
+            string mockUser3Email = "user3@email.com";
+
+
             _dbHelper.InsertData($"INSERT INTO foosball_tables (id) VALUES ({mockTableId})");
-            _dbHelper.InsertData($"INSERT INTO users (id) VALUES ({mockUser1Id}), ({mockUser2Id}), ({mockUser3Id})");
+            _dbHelper.InsertData($"INSERT INTO users (id, email) VALUES ({mockUser1Id}, '{mockUser1Email}'), ({mockUser2Id}, '{mockUser2Email}'), ({mockUser3Id}, '{mockUser3Email}')");
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
 
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
             Mock<IHubClients> mockClients = new Mock<IHubClients>();
             Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
 
-            mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockHomepageHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockTableLoginHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
             mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
 
             MatchController SUT = new MatchController(matchLogic);
 
-            TableLoginRequest mockTableLoginRequestUser1 = new TableLoginRequest { UserId = mockUser1Id, TableId = mockTableId, Side = "red" };
-            TableLoginRequest mockTableLoginRequestUser2 = new TableLoginRequest { UserId = mockUser2Id, TableId = mockTableId, Side = "blue" };
-            TableLoginRequest mockTableLoginRequestUser3 = new TableLoginRequest { UserId = mockUser3Id, TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequestUser1 = new TableLoginRequest { UserId = mockUser1Id, Email = mockUser1Email, TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequestUser2 = new TableLoginRequest { UserId = mockUser2Id, Email = mockUser2Email, TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequestUser3 = new TableLoginRequest { UserId = mockUser3Id, Email = mockUser3Email, TableId = mockTableId, Side = "blue" };
 
             // Act
             SUT.LoginOnTable(mockTableLoginRequestUser1);
@@ -142,15 +154,17 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.SignalRT
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
 
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
             Mock<IHubClients> mockClients = new Mock<IHubClients>();
             Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
 
-            mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockHomepageHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockTableLoginHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
             mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
 
             MatchController SUT = new MatchController(matchLogic);
 
@@ -189,15 +203,17 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.SignalRT
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
 
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
             Mock<IHubClients> mockClients = new Mock<IHubClients>();
             Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
 
-            mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockHomepageHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockTableLoginHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
             mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
 
             MatchController SUT = new MatchController(matchLogic);
 
@@ -241,15 +257,17 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.SignalRT
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
 
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
             Mock<IHubClients> mockClients = new Mock<IHubClients>();
             Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
 
-            mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockHomepageHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockTableLoginHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
             mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
 
             MatchController SUT = new MatchController(matchLogic);
 
@@ -288,15 +306,17 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.SignalRT
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
 
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
             Mock<IHubClients> mockClients = new Mock<IHubClients>();
             Mock<IClientProxy> mockClientProxy = new Mock<IClientProxy>();
 
-            mockHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockHomepageHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
+            mockTableLoginHubContext.Setup(hub => hub.Clients).Returns(mockClients.Object);
             mockClients.Setup(clients => clients.All).Returns(mockClientProxy.Object);
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
 
             MatchController SUT = new MatchController(matchLogic);
 

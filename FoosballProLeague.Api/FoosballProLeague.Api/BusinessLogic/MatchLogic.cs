@@ -5,6 +5,7 @@ using FoosballProLeague.Api.Hubs;
 using FoosballProLeague.Api.Models.FoosballModels;
 using FoosballProLeague.Api.Models.RequestModels;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Identity.Data;
 
 namespace FoosballProLeague.Api.BusinessLogic
 {
@@ -12,16 +13,16 @@ namespace FoosballProLeague.Api.BusinessLogic
     {
         private IMatchDatabaseAccessor _matchDatabaseAccessor;
         private IUserLogic _userLogic;
-        private readonly IHubContext<HomepageHub> _hubContext;
+        private readonly IHubContext<HomepageHub> _homepageHub;
+        private readonly IHubContext<TableLoginHub> _tableLoginHub;
         private ITeamDatabaseAccessor _teamDatabaseAccessor;
-        private readonly Dictionary<int, PendingMatchTeamsModel> _pendingMatchTeams;
 
-        public MatchLogic(IMatchDatabaseAccessor matchDatabaseAccessor, IHubContext<HomepageHub> hubContext, IUserLogic userLogic, ITeamDatabaseAccessor teamDatabaseAccessor)
+        public MatchLogic(IMatchDatabaseAccessor matchDatabaseAccessor, IHubContext<HomepageHub> homepageHub, IHubContext<TableLoginHub> tableLoginHub, IUserLogic userLogic, ITeamDatabaseAccessor teamDatabaseAccessor)
         {
             _userLogic = userLogic;
             _matchDatabaseAccessor = matchDatabaseAccessor;
-            _hubContext = hubContext;
-            _pendingMatchTeams = new Dictionary<int, PendingMatchTeamsModel>();
+            _homepageHub = homepageHub;
+            _tableLoginHub = tableLoginHub;
             _teamDatabaseAccessor = teamDatabaseAccessor;
         }
 
@@ -39,7 +40,7 @@ namespace FoosballProLeague.Api.BusinessLogic
             return activeMatch;
         }
 
-        private TeamModel GetOrRegisterTeam(List<int?> userIds)
+        private TeamModel GetOrRegisterTeam(IEnumerable<int> userIds)
         {
             // Retrives the team if it already exists for the users
             TeamModel team = _teamDatabaseAccessor.GetTeamIdByUsers(userIds);
@@ -61,51 +62,100 @@ namespace FoosballProLeague.Api.BusinessLogic
         public bool LoginOnTable(TableLoginRequest tableLoginRequest)
         {
             // Check if the userId exists in the database
-            UserModel user = _userLogic.GetUserById(tableLoginRequest.UserId);
+            UserModel user = _userLogic.GetUserByEmail(tableLoginRequest.Email);
+            tableLoginRequest.UserId = user.Id;
+            tableLoginRequest.FirstName = user.FirstName;
+            tableLoginRequest.LastName = user.LastName;
+
             if (user == null)
             {
-                // The user does not exists so it should not be possible to login on the table
-                return false;
+                return false; // Invalid user, cannot proceed
             }
 
-            // get the active match at the table, may be null if no match is active
+            // Check if there is an active match
             MatchModel activeMatch = _matchDatabaseAccessor.GetActiveMatchByTableId(tableLoginRequest.TableId);
 
-            // If there is no active match then we try to add the player to the pending match
             if (activeMatch == null)
             {
-                // If there is no active then check if the table is in the pendingMatchTeams
-                if (!_pendingMatchTeams.ContainsKey(tableLoginRequest.TableId))
-                {
-                    // If the table is not in the pendingMatchTeams then we add it to the dictionary
-                    _pendingMatchTeams[tableLoginRequest.TableId] = new PendingMatchTeamsModel();
-                }
 
-                // If the table is in the pendingMatchTeams then we try to add the player to the pending match
-                bool addedPlayerToPendingMatch = _pendingMatchTeams[tableLoginRequest.TableId].AddPlayer(tableLoginRequest.Side, tableLoginRequest.UserId);
+                bool handlePendingLogin = HandlePendingLogin(tableLoginRequest);
 
-                return addedPlayerToPendingMatch;
+                NotifyTableLogin(tableLoginRequest).Wait();
+
+                // Handle pending login if no active match
+                return handlePendingLogin;
             }
             else
             {
-                // If the match is active then we try to add the player to the active match instead of the pending tea
+                bool handleActiveMatchLogin = HandleActiveMatchLogin(activeMatch, tableLoginRequest);
 
-                // First we check if there is room on the active match team side
-                bool roomAvailable = CheckForRoomOnActiveMatchTeamSide(activeMatch, tableLoginRequest);
+                NotifyTableLogin(tableLoginRequest).Wait();
 
-                if (roomAvailable)
-                {
-                    // If there is room we will update the team to include the newly added player
-                    // This should also invalidate the elo gain for the match
-                    return AddPlayerToActiveMatchTeam(activeMatch, tableLoginRequest);
-                }
-
-                // There is no room on the active match team side then we return false
-                else
-                {
-                    return false;
-                }
+                // Handle active match if it exists
+                return handleActiveMatchLogin;
             }
+        }
+
+        private bool HandlePendingLogin(TableLoginRequest tableLoginRequest)
+        {
+            // Fetch all pending logins for the table
+            List<TableLoginRequest> pendingLogins = _matchDatabaseAccessor.GetPendingLoginsByTableId(tableLoginRequest.TableId);
+
+            // Check if the user already has a login request for this table
+            TableLoginRequest existingRequest = pendingLogins.FirstOrDefault(p => p.UserId == tableLoginRequest.UserId);
+
+            if (existingRequest != null)
+            {
+                // Invalidate the existing request by marking it as "removed"
+                _matchDatabaseAccessor.UpdateLoginRequestStatus(existingRequest.Id, "removed");
+            }
+
+            // Check if there is room on the specified side
+            if (IsSideFull(pendingLogins, tableLoginRequest.Side))
+            {
+                return false; // No room on the side
+            }
+
+            // Add the new login request
+            return _matchDatabaseAccessor.AddLoginRequest(tableLoginRequest);
+        }
+
+
+        private bool IsSideFull(List<TableLoginRequest> pendingLogins, string side)
+        {
+            int sideCount = pendingLogins.Count(p => p.Side == side);
+            return sideCount >= 2; // Side is full if it has 2 players
+        }
+
+        private bool HandleActiveMatchLogin(MatchModel activeMatch, TableLoginRequest tableLoginRequest)
+        {
+            // Check if tableLoginRequest contains Player already in match
+            if (CheckPlayerIsNotInActiveMatch(tableLoginRequest.UserId, activeMatch) == false)
+            {
+                return false;   
+            }
+
+            // Check if there is room on the active match team side
+            if (!CheckForRoomOnActiveMatchTeamSide(activeMatch, tableLoginRequest))
+            {
+                return false; // No room on the active match team
+            }
+
+            // Add the player to the active match team
+            return AddPlayerToActiveMatchTeam(activeMatch, tableLoginRequest);
+        }
+
+        private bool CheckPlayerIsNotInActiveMatch(int userId, MatchModel activeMatch)
+        {
+            // Check if the player is part of the red or blue team
+            bool isInRedTeam = activeMatch.RedTeam.User1.Id == userId ||
+                               (activeMatch.RedTeam.User2?.Id == userId); 
+
+            bool isInBlueTeam = activeMatch.BlueTeam.User1.Id == userId ||
+                                (activeMatch.BlueTeam.User2?.Id == userId);
+
+            // Return true if the player is not in either team
+            return !(isInRedTeam || isInBlueTeam);
         }
 
         private bool CheckForRoomOnActiveMatchTeamSide(MatchModel activeMatch, TableLoginRequest tableLoginRequest)
@@ -122,7 +172,8 @@ namespace FoosballProLeague.Api.BusinessLogic
             TeamModel currentTeam = GetTeamBySide(activeMatch, tableLoginRequest.Side);
 
             // This will return a teammodel for either the existing team or creating a new team
-            TeamModel newTeam = GetOrRegisterTeam(new List<int?> { currentTeam.User1.Id, tableLoginRequest.UserId });
+            List<int> newTeamUserIds = new List<int> { currentTeam.User1.Id, tableLoginRequest.UserId };
+            TeamModel newTeam = GetOrRegisterTeam(newTeamUserIds);
 
             // Updates the match model to have the new team model
             SetNewTeamBySide(activeMatch, newTeam, tableLoginRequest.Side);
@@ -169,53 +220,51 @@ namespace FoosballProLeague.Api.BusinessLogic
         /*
          * StartMatch should take a tableId and try to start a match with the pending teams at the table.
          * It should create a match in the database and set the table to have an active match.
-         * It should also remove the pending teams from memory.
+         * It should also update the status of pending teams in the database.
          * If there is already an active match at the table, it should return false.
         */
         public bool StartMatch(int tableId)
         {
-
-            // If there is an active match at the table then we return false because we cannot start a new match
+            // Check if there is already an active match at the table.
             if (_matchDatabaseAccessor.GetActiveMatchByTableId(tableId) != null)
             {
-                return false;
+                return false; // Cannot start a new match if one is active
             }
 
-            // If the table is not in the pendingMatchTeams then no one has tried to login into the table.
-            // Therefore we know that we cannot start a match and return false
-            if (!_pendingMatchTeams.ContainsKey(tableId) || !_pendingMatchTeams[tableId].IsMatchReady())
+            // Fetch all pending login requests for the table
+            IEnumerable<TableLoginRequest> pendingLogins = _matchDatabaseAccessor.GetPendingLoginsByTableId(tableId);
+
+            // Separate pending users into red and blue sides
+            IEnumerable<int> redSidePendingUsers = pendingLogins.Where(p => p.Side == "red").Select(p => p.UserId).ToList();
+            IEnumerable<int> blueSidePendingUsers = pendingLogins.Where(p => p.Side == "blue").Select(p => p.UserId).ToList();
+
+            // Ensure both sides have at least one player
+            if (redSidePendingUsers.Count() == 0 || blueSidePendingUsers.Count() == 0)
             {
-                return false;
+                return false; // Both sides must have players
             }
 
-            TeamModel redTeam = GetOrRegisterTeam(_pendingMatchTeams[tableId].Teams["red"]);
-            TeamModel blueTeam = GetOrRegisterTeam(_pendingMatchTeams[tableId].Teams["blue"]);
+            // Check if the match qualifies as a valid Elo match (1v1 or 2v2)
+            bool validEloMatch = redSidePendingUsers.Count() == blueSidePendingUsers.Count();
 
-            bool validEloMatch = TeamsAreValidForRankedMatch(redTeam, blueTeam);
+            // Create or retrieve teams for both sides
+            TeamModel redTeam = GetOrRegisterTeam(redSidePendingUsers);
+            TeamModel blueTeam = GetOrRegisterTeam(blueSidePendingUsers);
 
+            // Create a new match and set it as the active match for the table
             int matchId = _matchDatabaseAccessor.CreateMatch(tableId, redTeam.Id, blueTeam.Id, validEloMatch);
             bool activeMatchWasSet = _matchDatabaseAccessor.UpdateTableActiveMatch(tableId, matchId);
 
-            // Remove the pending teams from memory, since they are now in an active match
-            _pendingMatchTeams.Remove(tableId);
+            // Notify players that the match has started
+            NotifyMatchStartOrEnd(tableId, true).Wait();
 
-            if (matchId != 0 && redTeam.Id != 0 && blueTeam.Id != 0 && activeMatchWasSet)
+            // Mark all pending login requests as "solved"
+            foreach (TableLoginRequest loginRequest in pendingLogins)
             {
-                NotifyMatchStartOrEnd(tableId, true).Wait();
-                return true;
+                _matchDatabaseAccessor.UpdateLoginRequestStatus(loginRequest.Id, "solved");
             }
-            else
-            {
-                return false;
-            }
-        }
 
-        private bool TeamsAreValidForRankedMatch(TeamModel redTeam, TeamModel blueTeam)
-        {
-            bool is1v1 = redTeam.User2 == null && blueTeam.User2 == null;
-            bool is2v2 = redTeam.User2 != null && blueTeam.User2 != null;
-
-            return is1v1 || is2v2;
+            return true; // Successfully started the match
         }
 
         public bool RegisterGoal(RegisterGoalRequest registerGoalRequest)
@@ -304,9 +353,9 @@ namespace FoosballProLeague.Api.BusinessLogic
 
             if (match == null)
             {
-                if (_hubContext.Clients != null)
+                if (_homepageHub.Clients != null)
                 {
-                    await _hubContext.Clients.All.SendAsync("ReceiveMatchEnd", isMatchStart);
+                    await _homepageHub.Clients.All.SendAsync("ReceiveMatchEnd", isMatchStart);
                 }
             }
             else
@@ -317,9 +366,9 @@ namespace FoosballProLeague.Api.BusinessLogic
                 int redScore = match.TeamRedScore;
                 int blueScore = match.TeamBlueScore;
 
-                if (_hubContext.Clients != null)
+                if (_homepageHub.Clients != null)
                 {
-                    await _hubContext.Clients.All.SendAsync("ReceiveMatchStart", isMatchStart, redTeam, blueTeam, redScore, blueScore);
+                    await _homepageHub.Clients.All.SendAsync("ReceiveMatchStart", isMatchStart, redTeam, blueTeam, redScore, blueScore);
                 }
             }
         }
@@ -335,15 +384,69 @@ namespace FoosballProLeague.Api.BusinessLogic
             int redScore = match.TeamRedScore;
             int blueScore = match.TeamBlueScore;
 
-            if (_hubContext.Clients != null)
+            if (_homepageHub.Clients != null)
             {
-                await _hubContext.Clients.All.SendAsync("ReceiveGoalUpdate", redTeam, blueTeam, redScore, blueScore);
+                await _homepageHub.Clients.All.SendAsync("ReceiveGoalUpdate", redTeam, blueTeam, redScore, blueScore);
             }
+        }
+
+        private async Task NotifyTableLogin(TableLoginRequest user)
+        {
+            if (_tableLoginHub.Clients != null)
+            {
+                await _tableLoginHub.Clients.All.SendAsync("ReceiveTableLogin", user);
+            }
+        }
+
+        private async Task NotifyRemoveUser(string email)
+        {
+            if (_tableLoginHub.Clients != null)
+            {
+                await _tableLoginHub.Clients.All.SendAsync("ReceiveRemoveUser", email);
+            }
+        }
+
+        public List<TableLoginRequest> GetPendingTeamUsers(int tableId)
+        {
+            List<TableLoginRequest> pendingLogins = _matchDatabaseAccessor.GetPendingLoginsByTableId(tableId);
+            
+            foreach(TableLoginRequest loginRequest in pendingLogins){
+
+                UserModel user = _userLogic.GetUserById(loginRequest.UserId);
+
+                if (user != null)
+                {
+                    loginRequest.Email = user.Email;
+                    loginRequest.FirstName = user.FirstName;
+                    loginRequest.LastName = user.LastName;
+                }
+            }
+
+            return pendingLogins;
+        }
+
+        public bool RemovePendingUser(string email)
+        {
+            UserModel user = _userLogic.GetUserByEmail(email);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            _teamDatabaseAccessor.RemovePendingUser(user.Id);
+            NotifyRemoveUser(email).Wait();
+
+            return true;
         }
 
         public void ClearPendingTeamsCache()
         {
-            _pendingMatchTeams.Clear();
+            IEnumerable<TableLoginRequest> pendingRequests = _matchDatabaseAccessor.GetPendingLoginsByTableId(1);
+            foreach(TableLoginRequest pendingRequest in pendingRequests)
+            {
+                _matchDatabaseAccessor.UpdateLoginRequestStatus(pendingRequest.Id, "removed");
+            }
         }
     }
 }

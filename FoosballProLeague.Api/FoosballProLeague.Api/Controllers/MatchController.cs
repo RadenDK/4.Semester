@@ -41,6 +41,14 @@ namespace FoosballProLeague.Api.Controllers
             }
         }
 
+        [HttpGet("{tableId}/PendingTeamUsers")]
+        public IActionResult GetPendingTeamUsers(int tableId)
+        {
+            List<TableLoginRequest> pendingUsers = _matchLogic.GetPendingTeamUsers(tableId);
+            return Ok(pendingUsers);
+        }
+
+
         [HttpPost("{tableId}/Start")]
         public IActionResult StartMatch(int tableId)
         {
@@ -96,7 +104,7 @@ namespace FoosballProLeague.Api.Controllers
                 return BadRequest("An error occurred: " + ex.Message);
             }
         }
-        
+
         [HttpGet()]
         public IActionResult GetAllMatches()
         {
@@ -121,6 +129,20 @@ namespace FoosballProLeague.Api.Controllers
             catch (Exception ex)
             {
                 return BadRequest("An error occurred: " + ex.Message);
+            }
+        }
+
+        [HttpPost("RemovePendingUser")]
+        public IActionResult RemovePendingUser([FromBody] string email)
+        {
+            try
+            {
+                _matchLogic.RemovePendingUser(email);
+                return Ok();
+            }
+            catch(Exception ex)
+            {
+                return BadRequest("An error occurred removing the user: " + ex.Message);
             }
         }
 

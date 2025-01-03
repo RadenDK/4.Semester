@@ -17,6 +17,9 @@ namespace FoosballProLeague.Api.BusinessLogic.Interfaces
         public List<MatchModel> GetAllMatches();
 
         public MatchModel GetActiveMatch();
+        public List<TableLoginRequest> GetPendingTeamUsers(int tableId);
+        public bool RemovePendingUser(string email);
+
         public void ClearPendingTeamsCache();
     }
 }
