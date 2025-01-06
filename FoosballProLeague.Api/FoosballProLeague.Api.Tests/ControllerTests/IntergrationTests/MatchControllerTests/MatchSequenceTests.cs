@@ -19,28 +19,31 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         public void UsersLogin_StartAMatch_ScoreSomeGoalsUntillTheMatchIsOver_ShouldReturnSuccessAllTheWay()
         {
             // Arrange
-            _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 500, 500), (2, 500, 500);");
+            _dbHelper.InsertData("INSERT INTO users (id, email, elo_1v1, elo_2v2) VALUES (1, 'user1@email.com', 500, 500), (2, 'user2@email.com', 500, 500);");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1);");
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
             
             MatchController SUT = new MatchController(matchLogic);
 
             TableLoginRequest tableLoginRequestUser1 = new TableLoginRequest
             {
                 TableId = 1,
+                Email = "user1@email.com",
                 UserId = 1,
                 Side = "red"
             };
             TableLoginRequest tableLoginRequestUser2 = new TableLoginRequest
             {
                 TableId = 1,
+                Email = "user2@email.com",
                 UserId = 2,
                 Side = "blue"
             };
@@ -78,27 +81,30 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         public void UsersLoginPlayAMatchTillItsOverThenTriesToLoginAndPlayAgain_ShouldReturnSuccess()
         {
             // Arrange
-            _dbHelper.InsertData("INSERT INTO users (id, elo_1v1, elo_2v2) VALUES (1, 500, 500), (2, 500, 500);");
+            _dbHelper.InsertData("INSERT INTO users (id, email, elo_1v1, elo_2v2) VALUES (1, 'user1@email.com', 500, 500), (2, 'user2@email.com', 500, 500);");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1);");
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
             MatchController SUT = new MatchController(matchLogic);
 
             TableLoginRequest tableLoginRequestUser1 = new TableLoginRequest
             {
                 TableId = 1,
+                Email = "user1@email.com",
                 UserId = 1,
                 Side = "red"
             };
             TableLoginRequest tableLoginRequestUser2 = new TableLoginRequest
             {
                 TableId = 1,
+                Email = "user2@email.com",
                 UserId = 2,
                 Side = "blue"
             };

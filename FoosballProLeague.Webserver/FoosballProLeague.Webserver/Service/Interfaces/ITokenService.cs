@@ -1,4 +1,4 @@
-﻿namespace FoosballProLeague.Webserver.Service;
+﻿namespace FoosballProLeague.Webserver.Service.Interfaces;
 
 public interface ITokenService
 {

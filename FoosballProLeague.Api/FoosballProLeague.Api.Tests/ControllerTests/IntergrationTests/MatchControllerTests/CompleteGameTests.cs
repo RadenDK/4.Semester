@@ -20,16 +20,17 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
         {
             // Arrange
 
-            _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3), (4)");
+            _dbHelper.InsertData("INSERT INTO users (id, email) VALUES (1, 'user1@gmail.com'), (2, 'user2@gmail.com'), (3, 'user3@gmail.com'), (4, 'user4@gmail.com')");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1), (2)");
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
 
 
             MatchController SUT = new MatchController(matchLogic);
@@ -37,24 +38,28 @@ namespace FoosballProLeague.Api.Tests.ControllerTests.IntergrationTests.MatchCon
             TableLoginRequest loginUser1 = new TableLoginRequest
             {
                 UserId = 1,
+                Email = "user1@gmail.com",
                 TableId = 1,
                 Side = "red"
             };
             TableLoginRequest loginUser2 = new TableLoginRequest
             {
                 UserId = 2,
+                Email = "user2@gmail.com",
                 TableId = 1,
                 Side = "blue"
             };
             TableLoginRequest loginUser3 = new TableLoginRequest
             {
                 UserId = 3,
+                Email = "user3@gmail.com",
                 TableId = 1,
                 Side = "red"
             };
             TableLoginRequest loginUser4 = new TableLoginRequest
             {
                 UserId = 4,
+                Email = "user4@gmail.com",
                 TableId = 1,
                 Side = "blue"
             };

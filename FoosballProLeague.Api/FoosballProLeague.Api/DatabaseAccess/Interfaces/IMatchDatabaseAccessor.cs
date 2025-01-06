@@ -1,4 +1,5 @@
 ﻿using FoosballProLeague.Api.Models.FoosballModels;
+using FoosballProLeague.Api.Models.RequestModels;
 
 namespace FoosballProLeague.Api.DatabaseAccess.Interfaces
 {
@@ -19,5 +20,10 @@ namespace FoosballProLeague.Api.DatabaseAccess.Interfaces
         public bool UpdateValidEloMatch(int matchId, bool validEloMatch);
         public bool UpdateTableActiveMatch(int tableId, int? matchId);
         public bool EndMatch(int matchId);
+
+        // New methods for table login requests
+        public List<TableLoginRequest> GetPendingLoginsByTableId(int tableId);
+        public bool AddLoginRequest(TableLoginRequest loginRequest);
+        public bool UpdateLoginRequestStatus(int loginRequestId, string newStatus);
     }
 }

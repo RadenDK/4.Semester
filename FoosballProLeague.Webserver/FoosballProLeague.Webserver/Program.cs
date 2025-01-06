@@ -1,5 +1,7 @@
 using FoosballProLeague.Webserver.BusinessLogic;
+using FoosballProLeague.Webserver.BusinessLogic.Interfaces;
 using FoosballProLeague.Webserver.Service;
+using FoosballProLeague.Webserver.Service.Interfaces;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 
@@ -26,6 +28,10 @@ builder.Services.AddScoped<ILoginLogic, LoginLogic>();
 
 builder.Services.AddScoped<ITokenLogic, TokenLogic>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+
+// TableLogin services
+builder.Services.AddScoped<ITableLoginService, TableLoginService>();
+builder.Services.AddScoped<ITableLoginLogic, TableLoginLogic>();
 
 // Configure Authentication
 builder.Services.AddAuthentication("CookieAuth")

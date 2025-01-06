@@ -10,7 +10,7 @@ using FoosballProLeague.Api.Models.FoosballModels;
 namespace FoosballProLeague.Api.Controllers
 {
     [ApiController]
-    //[Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiKeyAuthorize]
     public class MatchController : Controller
     {
@@ -41,7 +41,15 @@ namespace FoosballProLeague.Api.Controllers
             }
         }
 
-        [HttpPost("StartMatch")]
+        [HttpGet("{tableId}/PendingTeamUsers")]
+        public IActionResult GetPendingTeamUsers(int tableId)
+        {
+            List<TableLoginRequest> pendingUsers = _matchLogic.GetPendingTeamUsers(tableId);
+            return Ok(pendingUsers);
+        }
+
+
+        [HttpPost("{tableId}/Start")]
         public IActionResult StartMatch(int tableId)
         {
             try
@@ -61,7 +69,7 @@ namespace FoosballProLeague.Api.Controllers
             }
         }
 
-        [HttpPost("InterruptMatch")]
+        [HttpPost("{tableId}/Interrupt")]
         public IActionResult InterruptMatch(int tableId)
         {
             try
@@ -96,8 +104,8 @@ namespace FoosballProLeague.Api.Controllers
                 return BadRequest("An error occurred: " + ex.Message);
             }
         }
-        
-        [HttpGet("GetAllMatches")]
+
+        [HttpGet()]
         public IActionResult GetAllMatches()
         {
             try
@@ -110,8 +118,8 @@ namespace FoosballProLeague.Api.Controllers
                 return BadRequest("An error occurred: " + ex.Message);
             }
         }
-        [HttpGet("GetActiveMatch")]
-        public IActionResult GetActiveMatches()
+        [HttpGet("Active")]
+        public IActionResult GetActiveMatch()
         {
             try
             {
@@ -121,6 +129,20 @@ namespace FoosballProLeague.Api.Controllers
             catch (Exception ex)
             {
                 return BadRequest("An error occurred: " + ex.Message);
+            }
+        }
+
+        [HttpPost("RemovePendingUser")]
+        public IActionResult RemovePendingUser([FromBody] string email)
+        {
+            try
+            {
+                _matchLogic.RemovePendingUser(email);
+                return Ok();
+            }
+            catch(Exception ex)
+            {
+                return BadRequest("An error occurred removing the user: " + ex.Message);
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
+using FoosballProLeague.Webserver.Service.Interfaces;
 using Microsoft.Extensions.Configuration;
 
 namespace FoosballProLeague.Webserver.Service

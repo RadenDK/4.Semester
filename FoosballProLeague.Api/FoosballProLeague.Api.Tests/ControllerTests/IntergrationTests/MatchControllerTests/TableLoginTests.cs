@@ -25,19 +25,20 @@ namespace FoosballProLeague.Api.Tests
         public void Login_WhenTableIsEmpty_ShouldRegisterOneUser()
         {
             // Arrange
-            _dbHelper.InsertData("INSERT INTO users (id) VALUES (1)");
+            _dbHelper.InsertData("INSERT INTO users (id, email) VALUES (1, 'user1@gmail.com')");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
 
             int mockTableId = 1;
-            TableLoginRequest mockTableLoginRequest = new TableLoginRequest { UserId = 1, TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequest = new TableLoginRequest { UserId = 1, Email = "user1@gmail.com", TableId = mockTableId, Side = "red" };
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
             
             MatchController SUT = new MatchController(matchLogic);
 
@@ -63,22 +64,23 @@ namespace FoosballProLeague.Api.Tests
         public void Login_MultipleUsersOnEmptyTable_ShouldRegisterMultipleUsers()
         {
             // Arrange
-            _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3), (4)");
+            _dbHelper.InsertData("INSERT INTO users (id, email) VALUES (1, 'user1@email.com'), (2, 'user2@email.com'), (3, 'user3@email.com'), (4, 'user4@email.com')");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
 
             int mockTableId = 1;
-            TableLoginRequest mockTableLoginRequest1 = new TableLoginRequest { UserId = 1, TableId = mockTableId, Side = "red" };
-            TableLoginRequest mockTableLoginRequest2 = new TableLoginRequest { UserId = 2, TableId = mockTableId, Side = "red" };
-            TableLoginRequest mockTableLoginRequest3 = new TableLoginRequest { UserId = 3, TableId = mockTableId, Side = "blue" };
-            TableLoginRequest mockTableLoginRequest4 = new TableLoginRequest { UserId = 4, TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequest1 = new TableLoginRequest { UserId = 1, Email = "user1@email.com", TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequest2 = new TableLoginRequest { UserId = 2, Email = "user2@email.com", TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequest3 = new TableLoginRequest { UserId = 3, Email = "user3@email.com", TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequest4 = new TableLoginRequest { UserId = 4, Email = "user4@email.com", TableId = mockTableId, Side = "blue" };
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
 
             MatchController SUT = new MatchController(matchLogic);
 
@@ -110,21 +112,22 @@ namespace FoosballProLeague.Api.Tests
         public void Login_WhenTeamIsFull_ShouldNotAllowAdditionalUsers()
         {
             // Arrange
-            _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3)");
+            _dbHelper.InsertData("INSERT INTO users (id, email) VALUES (1, 'user1@email.com'), (2, 'user2@email.com'), (3, 'user3@email.com')");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
 
             int mockTableId = 1;
-            TableLoginRequest mockTableLoginRequest1 = new TableLoginRequest { UserId = 1, TableId = mockTableId, Side = "red" };
-            TableLoginRequest mockTableLoginRequest2 = new TableLoginRequest { UserId = 2, TableId = mockTableId, Side = "red" };
-            TableLoginRequest mockTableLoginRequest3 = new TableLoginRequest { UserId = 3, TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequest1 = new TableLoginRequest { UserId = 1, Email = "user1@email.com", TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequest2 = new TableLoginRequest { UserId = 2, Email = "user2@email.com", TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequest3 = new TableLoginRequest { UserId = 3, Email = "user3@email.com", TableId = mockTableId, Side = "red" };
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
             
             MatchController SUT = new MatchController(matchLogic);
 
@@ -154,25 +157,26 @@ namespace FoosballProLeague.Api.Tests
         public void Login_WhenTableIsFull_ShouldNotAllowAdditionalUsers()
         {
             // Arrange
-            _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3), (4), (5), (6)");
+            _dbHelper.InsertData("INSERT INTO users (id, email) VALUES (1, 'user1@email.com'), (2, 'user2@email.com'), (3, 'user3@email.com'), (4, 'user4@email.com'), (5, 'user5@email.com'), (6, 'user6@email.com')");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
 
             int mockTableId = 1;
-            TableLoginRequest mockTableLoginRequest1 = new TableLoginRequest { UserId = 1, TableId = mockTableId, Side = "red" };
-            TableLoginRequest mockTableLoginRequest2 = new TableLoginRequest { UserId = 2, TableId = mockTableId, Side = "red" };
-            TableLoginRequest mockTableLoginRequest3 = new TableLoginRequest { UserId = 3, TableId = mockTableId, Side = "blue" };
-            TableLoginRequest mockTableLoginRequest4 = new TableLoginRequest { UserId = 4, TableId = mockTableId, Side = "blue" };
-            TableLoginRequest mockTableLoginRequest5 = new TableLoginRequest { UserId = 5, TableId = mockTableId, Side = "red" };
-            TableLoginRequest mockTableLoginRequest6 = new TableLoginRequest { UserId = 6, TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequest1 = new TableLoginRequest { UserId = 1, Email = "user1@email.com", TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequest2 = new TableLoginRequest { UserId = 2, Email = "user2@email.com", TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequest3 = new TableLoginRequest { UserId = 3, Email = "user3@email.com", TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequest4 = new TableLoginRequest { UserId = 4, Email = "user4@email.com", TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequest5 = new TableLoginRequest { UserId = 5, Email = "user5@email.com", TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequest6 = new TableLoginRequest { UserId = 6, Email = "user6@email.com", TableId = mockTableId, Side = "blue" };
 
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
             
             MatchController SUT = new MatchController(matchLogic);
 
@@ -207,22 +211,23 @@ namespace FoosballProLeague.Api.Tests
         public void Login_WhenMatchIsActiveAndTeamHasRoom_ShouldAllowLogin()
         {
             // Arrange
-            _dbHelper.InsertData("INSERT INTO users (id, first_name, last_name) VALUES (1, 'firstname1', 'lastname1'), (2, 'firstname2', 'lastname2'), (3, 'firstname3', 'lastname3')");
+            _dbHelper.InsertData("INSERT INTO users (id, first_name, last_name, email) VALUES (1, 'firstname1', 'lastname1', 'user1@gmail.com'), (2, 'firstname2', 'lastname2', 'user2@gmail.com'), (3, 'firstname3', 'lastname3', 'user3@gmail.com')");
             _dbHelper.InsertData("INSERT INTO teams (user1_id) VALUES (1), (2)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
             _dbHelper.InsertData("INSERT INTO foosball_matches (id, table_id, red_team_id, blue_team_id) VALUES (1, 1, 1, 2)"); // Active match
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
 
             int mockTableId = 1;
-            TableLoginRequest mockTableLoginRequest = new TableLoginRequest { UserId = 3, TableId = mockTableId, Side = "red" }; // Attempt to join the red side
+            TableLoginRequest mockTableLoginRequest = new TableLoginRequest { UserId = 3, Email = "user3@gmail.com", TableId = mockTableId, Side = "red" }; // Attempt to join the red side
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
             
             MatchController SUT = new MatchController(matchLogic);
 
@@ -275,10 +280,11 @@ namespace FoosballProLeague.Api.Tests
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
             
             MatchController SUT = new MatchController(matchLogic);
 
@@ -308,7 +314,7 @@ namespace FoosballProLeague.Api.Tests
         public void RegisterGoal_WhenPreviousTeamExists_ShouldReuseExistingTeamId()
         {
             // Arrange
-            _dbHelper.InsertData("INSERT INTO users (id) VALUES (1), (2), (3)");
+            _dbHelper.InsertData("INSERT INTO users (id, email) VALUES (1, 'user1@gmail.com'), (2, 'user2@gmail.com'), (3, 'user3@gmail.com')");
             _dbHelper.InsertData("INSERT INTO teams (user1_id) VALUES (1), (2)");
             _dbHelper.InsertData("INSERT INTO teams (user1_id, user2_id) VALUES (1, 3)");
             _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
@@ -316,15 +322,16 @@ namespace FoosballProLeague.Api.Tests
             _dbHelper.UpdateData("UPDATE foosball_tables SET active_match_id = 1 WHERE id = 1");
 
             int mockTableId = 1;
-            TableLoginRequest mockTableLoginRequest = new TableLoginRequest { UserId = 3, TableId = mockTableId, Side = "red" }; // Attempt to join the red side
+            TableLoginRequest mockTableLoginRequest = new TableLoginRequest { UserId = 3, Email = "user3@gmail.com", TableId = mockTableId, Side = "red" }; // Attempt to join the red side
 
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
 
-            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHubContext.Object);
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
             
             MatchController SUT = new MatchController(matchLogic);
 
@@ -360,12 +367,12 @@ namespace FoosballProLeague.Api.Tests
             IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
             ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
             IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
 
-            Mock<IHubContext<HomepageHub>> mockHubContext = new Mock<IHubContext<HomepageHub>>();
 
-
-            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHubContext.Object);
-            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHubContext.Object, userLogic, teamDatabaseAccessor);
+            IUserLogic userLogic = new UserLogic(userDatabaseAccessor, mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
 
             MatchController SUT = new MatchController(matchLogic);
 
@@ -375,5 +382,259 @@ namespace FoosballProLeague.Api.Tests
             // Assert
             Assert.IsType<BadRequestObjectResult>(result); // Expect the login to fail since the user does not exist
         }
+
+        [Fact]
+        public void LoginOnTable_PlayerLoginingOnTwoSidesShouldOnlyStoreTheLoginOntheLastAttempt()
+        {
+            // Arrange
+            _dbHelper.InsertData("INSERT INTO users (id, email) VALUES (1, 'user1@gmail.com'), (2, 'user2@gmail.com')");
+            _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
+
+            int mockTableId = 1;
+            TableLoginRequest mockTableLoginRequestUser1RedSide = new TableLoginRequest { UserId = 1, Email = "user1@gmail.com", TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequestUser2RedSide = new TableLoginRequest { UserId = 2, Email = "user2@gmail.com", TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequestUser1BlueSide = new TableLoginRequest { UserId = 1, Email = "user1@gmail.com", TableId = mockTableId, Side = "blue" };
+
+
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
+
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
+
+            MatchController SUT = new MatchController(matchLogic);
+
+            // Act
+            SUT.LoginOnTable(mockTableLoginRequestUser2RedSide);
+
+            IActionResult TableLoginRequestUser1RedSideResult = SUT.LoginOnTable(mockTableLoginRequestUser1RedSide); 
+            IActionResult TableLoginRequestUser1BlueSideResult = SUT.LoginOnTable(mockTableLoginRequestUser1BlueSide);
+
+            SUT.StartMatch(mockTableId);
+
+            // Assert
+
+            Assert.IsType<OkObjectResult>(TableLoginRequestUser1RedSideResult);
+            Assert.IsType<OkObjectResult>(TableLoginRequestUser1BlueSideResult);
+
+            IEnumerable<MatchDbModel> foosball_matches = _dbHelper.ReadData<MatchDbModel>("SELECT * FROM foosball_matches");
+
+            Assert.True(foosball_matches.Count() == 1);
+            
+            MatchDbModel matchDb = foosball_matches.First();
+
+            TeamDbModel redDbTeam = _dbHelper.ReadData<TeamDbModel>("SELECT * FROM teams WHERE id = " + matchDb.RedTeamId).FirstOrDefault();
+            TeamDbModel blueDbTeam = _dbHelper.ReadData<TeamDbModel>("SELECT * FROM teams WHERE id = " + matchDb.BlueTeamId).FirstOrDefault();
+
+            Assert.True(redDbTeam.User1Id == 2 && redDbTeam.User2Id == null);
+            Assert.True(blueDbTeam.User1Id == 1 && redDbTeam.User2Id == null);
+        }
+
+        [Fact]
+        public void LoginOnTable_PlayerLoggingOnSameSideTwiceShouldOnlyStoreTheLastLogin()
+        {
+            // Arrange
+            _dbHelper.InsertData("INSERT INTO users (id, email) VALUES (1, 'user1@gmail.com'), (2, 'user2@gmail.com')");
+            _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
+
+            int mockTableId = 1;
+            TableLoginRequest mockTableLoginRequestUser1RedSideFirstAttempt = new TableLoginRequest { UserId = 1, Email = "user1@gmail.com", TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequestUser1RedSideSecondAttempt = new TableLoginRequest { UserId = 1, Email = "user1@gmail.com", TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequestUser2BlueSide = new TableLoginRequest { UserId = 2, Email = "user2@gmail.com", TableId = mockTableId, Side = "blue" };
+
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
+
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
+
+            MatchController SUT = new MatchController(matchLogic);
+
+            // Act
+            SUT.LoginOnTable(mockTableLoginRequestUser1RedSideFirstAttempt);
+            IActionResult TableLoginRequestUser1RedSideSecondAttemptResult = SUT.LoginOnTable(mockTableLoginRequestUser1RedSideSecondAttempt);
+            IActionResult TableLoginRequestUser2BlueSideResult = SUT.LoginOnTable(mockTableLoginRequestUser2BlueSide);
+
+            SUT.StartMatch(mockTableId);
+
+            // Assert
+            Assert.IsType<OkObjectResult>(TableLoginRequestUser1RedSideSecondAttemptResult);
+            Assert.IsType<OkObjectResult>(TableLoginRequestUser2BlueSideResult);
+
+            IEnumerable<MatchDbModel> foosball_matches = _dbHelper.ReadData<MatchDbModel>("SELECT * FROM foosball_matches");
+
+            Assert.True(foosball_matches.Count() == 1);
+
+            MatchDbModel matchDb = foosball_matches.First();
+
+            TeamDbModel redDbTeam = _dbHelper.ReadData<TeamDbModel>("SELECT * FROM teams WHERE id = " + matchDb.RedTeamId).FirstOrDefault();
+            TeamDbModel blueDbTeam = _dbHelper.ReadData<TeamDbModel>("SELECT * FROM teams WHERE id = " + matchDb.BlueTeamId).FirstOrDefault();
+
+            Assert.True(redDbTeam.User1Id == 1 && redDbTeam.User2Id == null);
+            Assert.True(blueDbTeam.User1Id == 2 && blueDbTeam.User2Id == null);
+        }
+
+        [Fact]
+        public void LoginOnTable_PlayerSwitchingSidesShouldReturnBadRequestAndOverwriteLastLogin()
+        {
+            // Arrange
+            _dbHelper.InsertData("INSERT INTO users (id, email) VALUES (1, 'user1@gmail.com'), (2, 'user2@gmail.com'), (3, 'user3@gmail.com'), (4, 'user4@gmail.com')");
+            _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
+
+            int mockTableId = 1;
+            TableLoginRequest mockTableLoginRequestUser1RedSide = new TableLoginRequest { UserId = 1, Email = "user1@gmail.com", TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequestUser2RedSide = new TableLoginRequest { UserId = 2, Email = "user2@gmail.com", TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequestUser3BlueSide = new TableLoginRequest { UserId = 3, Email = "user3@gmail.com", TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequestUser4BlueSide = new TableLoginRequest { UserId = 4, Email = "user4@gmail.com", TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequestUser2SwitchToBlueSide = new TableLoginRequest { UserId = 2, Email = "user2@gmail.com", TableId = mockTableId, Side = "blue" };
+
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
+
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
+
+            MatchController SUT = new MatchController(matchLogic);
+
+            // Act
+            SUT.LoginOnTable(mockTableLoginRequestUser1RedSide);
+            SUT.LoginOnTable(mockTableLoginRequestUser2RedSide);
+            SUT.LoginOnTable(mockTableLoginRequestUser3BlueSide);
+            SUT.LoginOnTable(mockTableLoginRequestUser4BlueSide);
+
+            // Attempt to switch user2 to blue side
+            IActionResult TableLoginRequestUser2SwitchToBlueSideResult = SUT.LoginOnTable(mockTableLoginRequestUser2SwitchToBlueSide);
+
+            // Start the match
+            SUT.StartMatch(mockTableId);
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(TableLoginRequestUser2SwitchToBlueSideResult);
+
+            IEnumerable<MatchDbModel> foosball_matches = _dbHelper.ReadData<MatchDbModel>("SELECT * FROM foosball_matches");
+
+            Assert.True(foosball_matches.Count() == 1);
+
+            MatchDbModel matchDb = foosball_matches.First();
+
+            TeamDbModel redDbTeam = _dbHelper.ReadData<TeamDbModel>("SELECT * FROM teams WHERE id = " + matchDb.RedTeamId).FirstOrDefault();
+            TeamDbModel blueDbTeam = _dbHelper.ReadData<TeamDbModel>("SELECT * FROM teams WHERE id = " + matchDb.BlueTeamId).FirstOrDefault();
+
+            // Red team should have only the last login (user2) since overwrite logic is applied
+            Assert.True(redDbTeam.User1Id == 1 && redDbTeam.User2Id == null);
+
+            // Blue team should have both user3 and user4
+            Assert.True(blueDbTeam.User1Id == 3 && blueDbTeam.User2Id == 4);
+        }
+
+        [Fact]
+        public void PlayerLoggedInTriesToJoinOppositeSideDuringMatchWithRoom_ShouldReturnBadRequest()
+        {
+            // Arrange
+            _dbHelper.InsertData("INSERT INTO users (id, email) VALUES (1, 'user1@gmail.com'), (2, 'user2@gmail.com'), (3, 'user3@gmail.com')");
+            _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
+
+            int mockTableId = 1;
+            TableLoginRequest mockTableLoginRequestUser1RedSide = new TableLoginRequest { UserId = 1, Email = "user1@gmail.com", TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequestUser2BlueSide = new TableLoginRequest { UserId = 2, Email = "user2@gmail.com", TableId = mockTableId, Side = "blue" };
+
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
+
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
+
+            MatchController SUT = new MatchController(matchLogic);
+
+            // Act
+            SUT.LoginOnTable(mockTableLoginRequestUser1RedSide);
+            SUT.LoginOnTable(mockTableLoginRequestUser2BlueSide);
+            SUT.StartMatch(mockTableId);
+
+            // User 1 tries to join the blue side during an ongoing match
+            TableLoginRequest mockTableLoginRequestUser1BlueSide = new TableLoginRequest { UserId = 1, Email = "user1@gmail.com", TableId = mockTableId, Side = "blue" };
+            IActionResult TableLoginRequestUser1BlueSideResult = SUT.LoginOnTable(mockTableLoginRequestUser1BlueSide);
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(TableLoginRequestUser1BlueSideResult);
+
+            IEnumerable<MatchDbModel> foosball_matches = _dbHelper.ReadData<MatchDbModel>("SELECT * FROM foosball_matches");
+
+            Assert.True(foosball_matches.Count() == 1);
+
+            MatchDbModel matchDb = foosball_matches.First();
+
+            TeamDbModel redDbTeam = _dbHelper.ReadData<TeamDbModel>("SELECT * FROM teams WHERE id = " + matchDb.RedTeamId).FirstOrDefault();
+            TeamDbModel blueDbTeam = _dbHelper.ReadData<TeamDbModel>("SELECT * FROM teams WHERE id = " + matchDb.BlueTeamId).FirstOrDefault();
+
+            // Verify teams remain unchanged
+            Assert.True(redDbTeam.User1Id == 1 && redDbTeam.User2Id == null);
+            Assert.True(blueDbTeam.User1Id == 2 && blueDbTeam.User2Id == null);
+        }
+
+        [Fact]
+        public void PlayerLoggedInTriesToJoinOppositeSideDuringMatchWithoutRoom_ShouldReturnBadRequest()
+        {
+            // Arrange
+            _dbHelper.InsertData("INSERT INTO users (id, email) VALUES (1, 'user1@gmail.com'), (2, 'user2@gmail.com'), (3, 'user3@gmail.com'), (4, 'user4@gmail.com')");
+            _dbHelper.InsertData("INSERT INTO foosball_tables (id) VALUES (1)");
+
+            int mockTableId = 1;
+            TableLoginRequest mockTableLoginRequestUser1RedSide = new TableLoginRequest { UserId = 1, Email = "user1@gmail.com", TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequestUser2RedSide = new TableLoginRequest { UserId = 2, Email = "user2@gmail.com", TableId = mockTableId, Side = "red" };
+            TableLoginRequest mockTableLoginRequestUser3BlueSide = new TableLoginRequest { UserId = 3, Email = "user3@gmail.com", TableId = mockTableId, Side = "blue" };
+            TableLoginRequest mockTableLoginRequestUser4BlueSide = new TableLoginRequest { UserId = 4, Email = "user4@gmail.com", TableId = mockTableId, Side = "blue" };
+
+            IUserDatabaseAccessor userDatabaseAccessor = new UserDatabaseAccessor(_dbHelper.GetConfiguration());
+            ITeamDatabaseAccessor teamDatabaseAccessor = new TeamDatabaseAccessor(_dbHelper.GetConfiguration(), userDatabaseAccessor);
+            IMatchDatabaseAccessor matchDatabaseAccessor = new MatchDatabaseAccessor(_dbHelper.GetConfiguration(), teamDatabaseAccessor);
+            Mock<IHubContext<HomepageHub>> mockHomepageHubContext = new Mock<IHubContext<HomepageHub>>();
+            Mock<IHubContext<TableLoginHub>> mockTableLoginHubContext = new Mock<IHubContext<TableLoginHub>>();
+
+            IUserLogic userLogic = new UserLogic(new UserDatabaseAccessor(_dbHelper.GetConfiguration()), mockHomepageHubContext.Object);
+            IMatchLogic matchLogic = new MatchLogic(matchDatabaseAccessor, mockHomepageHubContext.Object, mockTableLoginHubContext.Object, userLogic, teamDatabaseAccessor);
+
+            MatchController SUT = new MatchController(matchLogic);
+
+            // Act
+            SUT.LoginOnTable(mockTableLoginRequestUser1RedSide);
+            SUT.LoginOnTable(mockTableLoginRequestUser2RedSide);
+            SUT.LoginOnTable(mockTableLoginRequestUser3BlueSide);
+            SUT.LoginOnTable(mockTableLoginRequestUser4BlueSide);
+            SUT.StartMatch(mockTableId);
+
+            // User 1 tries to join the blue side during an ongoing match
+            TableLoginRequest mockTableLoginRequestUser1BlueSide = new TableLoginRequest { UserId = 1, Email = "user1@gmail.com", TableId = mockTableId, Side = "blue" };
+            IActionResult TableLoginRequestUser1BlueSideResult = SUT.LoginOnTable(mockTableLoginRequestUser1BlueSide);
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(TableLoginRequestUser1BlueSideResult);
+
+            IEnumerable<MatchDbModel> foosball_matches = _dbHelper.ReadData<MatchDbModel>("SELECT * FROM foosball_matches");
+
+            Assert.True(foosball_matches.Count() == 1);
+
+            MatchDbModel matchDb = foosball_matches.First();
+
+            TeamDbModel redDbTeam = _dbHelper.ReadData<TeamDbModel>("SELECT * FROM teams WHERE id = " + matchDb.RedTeamId).FirstOrDefault();
+            TeamDbModel blueDbTeam = _dbHelper.ReadData<TeamDbModel>("SELECT * FROM teams WHERE id = " + matchDb.BlueTeamId).FirstOrDefault();
+
+            // Verify teams remain unchanged
+            Assert.True(redDbTeam.User1Id == 1 && redDbTeam.User2Id == 2);
+            Assert.True(blueDbTeam.User1Id == 3 && blueDbTeam.User2Id == 4);
+        }
+
     }
 }
