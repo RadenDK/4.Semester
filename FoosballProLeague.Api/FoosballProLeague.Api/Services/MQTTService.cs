@@ -1,6 +1,6 @@
 ﻿using MQTTnet;
-using MQTTnet.Client;
-using MQTTnet.Client.Options;
+//using MQTTnet.Client;
+//using MQTTnet.Client.Options;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,10 +15,11 @@ namespace FoosballProLeague.Api.Services
         private readonly string _mqttUsername;
         private readonly string _mqttPassword;
         private readonly string _mqttTopic;
+        
 
         public MQTTService()
         {
-            MQTTnet.MqttFactory factory = new MQTTnet.MqttFactory();
+            var factory = new MqttClientFactory();
             _mqttClient = factory.CreateMqttClient();
             _mqttServer = "foosballproleague.live";
             _mqttPort = 1883;
