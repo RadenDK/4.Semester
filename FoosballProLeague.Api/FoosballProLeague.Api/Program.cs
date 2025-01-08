@@ -5,6 +5,7 @@ using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.DatabaseAccess;
 using FoosballProLeague.Api.DatabaseAccess.Interfaces;
 using FoosballProLeague.Api.Hubs;
+using FoosballProLeague.Api.Services;
 using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,11 +33,12 @@ builder.Services.AddSingleton<ITeamDatabaseAccessor, TeamDatabaseAccessor>();
 
 builder.Services.AddSingleton<ITokenLogic, TokenLogic>();
 
+builder.Services.AddSingleton<IMQTTService, MQTTService>();
+
 // Add Rate limiting services
 builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("RatePolicy", confic =>
-    
     {
         confic.Window = TimeSpan.FromMinutes(1);
         confic.PermitLimit = 100;
@@ -85,6 +87,5 @@ app.MapControllers();
 
 // Map the SignalR hub
 app.MapHub<HomepageHub>("/homepageHub");
-
 
 app.Run();
