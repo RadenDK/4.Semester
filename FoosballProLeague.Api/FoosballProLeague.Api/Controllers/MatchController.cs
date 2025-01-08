@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.Models;
 using FoosballProLeague.Api.Models.FoosballModels;
+using FoosballProLeague.Api.Services;
 
 
 namespace FoosballProLeague.Api.Controllers
@@ -15,10 +16,12 @@ namespace FoosballProLeague.Api.Controllers
     public class MatchController : Controller
     {
         private readonly IMatchLogic _matchLogic;
+        private readonly IMQTTService _mqttService;
 
-        public MatchController(IMatchLogic matchLogic)
+        public MatchController(IMatchLogic matchLogic, IMQTTService mqttService)
         {
             _matchLogic = matchLogic;
+            _mqttService = mqttService;
         }
 
         [HttpPost("LoginOnTable")]
@@ -84,6 +87,10 @@ namespace FoosballProLeague.Api.Controllers
             {
                 if (_matchLogic.RegisterGoal(registerGoalRequest))
                 {
+                    // Publish goal information to MQTT server
+                    string message = $"Goal scored on side: {registerGoalRequest.Side}";
+                    _mqttService.PublishMessageAsync(message).Wait();
+
                     return Ok("Registering goal was successful.");
                 }
                 else
