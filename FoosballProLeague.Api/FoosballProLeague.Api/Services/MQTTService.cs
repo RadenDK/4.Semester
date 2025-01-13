@@ -1,6 +1,5 @@
 ﻿using MQTTnet;
-//using MQTTnet.Client;
-//using MQTTnet.Client.Options;
+using Microsoft.Extensions.Configuration;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,17 +14,17 @@ namespace FoosballProLeague.Api.Services
         private readonly string _mqttUsername;
         private readonly string _mqttPassword;
         private readonly string _mqttTopic;
-        
 
-        public MQTTService()
+
+        public MQTTService(IConfiguration configuration)
         {
             var factory = new MqttClientFactory();
             _mqttClient = factory.CreateMqttClient();
-            _mqttServer = "foosballproleague.live";
-            _mqttPort = 1883;
-            _mqttUsername = "admin";
-            _mqttPassword = "plEfpJanT1psUt";
-            _mqttTopic = "test/topic";
+            _mqttServer = configuration["MQTT:Server"];
+            _mqttPort = int.Parse(configuration["MQTT:Port"]);
+            _mqttUsername = configuration["MQTT:Username"];
+            _mqttPassword = configuration["MQTT:Password"];
+            _mqttTopic = configuration["MQTT:Topic"];
         }
 
         public async Task ConnectAsync()

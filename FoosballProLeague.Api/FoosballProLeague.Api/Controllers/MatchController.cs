@@ -87,9 +87,9 @@ namespace FoosballProLeague.Api.Controllers
             {
                 if (_matchLogic.RegisterGoal(registerGoalRequest))
                 {
-                    // Publish goal information to MQTT server
-                    string message = $"Goal scored on side: {registerGoalRequest.Side}";
-                    _mqttService.PublishMessageAsync(message).Wait();
+                    // Pass the tableId to the MatchLogic to the mqttservice
+                    _matchLogic.SendMatchUpdateToMQTT(registerGoalRequest.TableId);
+                    
 
                     return Ok("Registering goal was successful.");
                 }
