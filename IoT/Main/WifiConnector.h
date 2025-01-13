@@ -7,7 +7,7 @@
 #include <ESPmDNS.h> // Include mDNS
 
 namespace WifiConnector {
-    void connectToWiFi();
+    bool connectToWiFi();
     void maintainWiFiConnection();
     bool isWiFiConnected();
 

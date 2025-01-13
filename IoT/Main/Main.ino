@@ -1,64 +1,68 @@
-// Main.ino
-
 #include "ConfigMode.h"
 #include "WifiConnector.h"
 #include "SensorHandler.h"
 #include "ApiRequester.h"
 #include "LedHandler.h"
+#include "MqttHandler.h"
+#include "LcdHandler.h"
 
 void setup() {
     Serial.begin(115200);
-    delay(2000); // Wait for 2 seconds to ensure the serial port is ready
+    delay(2000);
 
     Serial.println("Starting setup...");
-
-    // Initialize the config button
     ConfigMode::initializeConfigButton();
-
-    // Ensure Wi-Fi is off before starting
     WifiConnector::disconnectWiFi(true);
     WifiConnector::setWiFiMode(WIFI_OFF);
-    delay(100);
 
-    // Check if config button is pressed during startup
     if (digitalRead(ConfigMode::configButtonPin) == LOW) {
-        Serial.println("Config button pressed during startup. Entering configuration mode...");
+        // Force config mode if button is pressed
         ConfigMode::enterConfigMode();
-    } else {
-        // Load saved settings and attempt to connect to Wi-Fi
-        Serial.println("Calling loadSettings...");
+    } 
+    else {
+        // Load saved settings
         ConfigMode::loadSettings();
 
-        Serial.println("Checking if settings are valid or invalid...");
+        // If settings are incomplete, go to config mode
         if (ConfigMode::settingsInvalid()) {
-            Serial.println("Settings invalid. Entering configuration mode...");
             ConfigMode::enterConfigMode();
-        } else {
-            Serial.println("Settings valid. Attempting to connect to Wi-Fi...");
-            WifiConnector::connectToWiFi();
+        } 
+        else {
+            // Attempt to connect using the loaded settings
+            bool connected = WifiConnector::connectToWiFi();
+            if (connected) {
+                // Only initialize MQTT if the station actually connected
+                MqttHandler::initialize();
+            } else {
+                // If Wi-Fi fails, enter config mode
+                ConfigMode::enterConfigMode();
+            }
         }
     }
 
-    // Initialize the sensor handler
-    Serial.println("Initializing sensor and LED...");
+    // Initialize the LCD at any time
+    LcdHandler::initializeLCD(0x3F, 16, 2);
+
+    // Initialize sensors
     sensorHandler::initializeSensors();
 }
 
 void loop() {
     if (ConfigMode::configModeActive()) {
-        ConfigMode::handleConfigMode();  // Handle configuration via web interface
+        // We are in config mode: serve the form, etc.
+        ConfigMode::handleConfigMode();
     } else {
-        // Maintain Wi-Fi connection and reconnect if necessary
+        // Normal operation:
         WifiConnector::maintainWiFiConnection();
 
-        // Only call sensorHandler if we are connected to Wi-Fi
+        // If Wi-Fi is up, handle sensors & MQTT
         if (WifiConnector::isWiFiConnected()) {
-            sensorHandler::monitorSensors();  // Monitor sensor and trigger actions only when Wi-Fi is connected
+            sensorHandler::monitorSensors();
+            MqttHandler::loop();  // Maintain MQTT connection
         }
 
-        // Check for config button press
+        // If user presses config button mid-run:
         if (ConfigMode::isConfigButtonPressed()) {
-            Serial.println("Config button pressed. Entering configuration mode...");
             ConfigMode::enterConfigMode();
         }
     }

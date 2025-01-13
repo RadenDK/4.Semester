@@ -17,6 +17,8 @@ namespace ConfigMode {
     String departmentId = "";
     String side = ""; // Variable to store "Red" or "Blue" side
     String apiKey = "";
+    String mqttUsername = "";
+    String mqttPassword = "";
 
     void initializeConfigButton() {
         pinMode(configButtonPin, INPUT_PULLUP); // Initialize GPIO0 with internal pull-up
@@ -40,6 +42,9 @@ namespace ConfigMode {
         departmentId = preferences.getString("departmentId", "");
         side = preferences.getString("side", "");
         apiKey = preferences.getString("apiKey", "");
+        mqttUsername = preferences.getString("mqttUsername", "");
+        mqttPassword = preferences.getString("mqttPassword", "");
+
 
         // Print loaded settings for debugging
         Serial.println("Loading saved settings:");
@@ -50,12 +55,14 @@ namespace ConfigMode {
         Serial.print("Department ID: "); Serial.println(departmentId);
         Serial.print("Side: "); Serial.println(side);
         Serial.print("apiKey: "); Serial.println(apiKey);
+        Serial.print("mqttUsername: "); Serial.println(mqttUsername);
+        Serial.print("mqttPassword: "); Serial.println(mqttPassword);
 
         preferences.end();
     }
 
     bool settingsInvalid() {
-        bool invalid = ssid.isEmpty() || wifiPassword.isEmpty() || tableId.isEmpty() || companyId.isEmpty() || departmentId.isEmpty() || side.isEmpty() || apiKey.isEmpty(); 
+        bool invalid = ssid.isEmpty() || wifiPassword.isEmpty() || tableId.isEmpty() || companyId.isEmpty() || departmentId.isEmpty() || side.isEmpty() || apiKey.isEmpty() || mqttUsername.isEmpty() || mqttPassword.isEmpty(); 
 
         if (invalid) {
             Serial.println("Settings are invalid.");
@@ -99,13 +106,17 @@ namespace ConfigMode {
         html += "</select><br>";
         html += "<label for='apiKey'>API Key:</label>";
         html += "<input type='text' id='apiKey' name='apiKey' value='" + apiKey + "' required><br>";
-
+        html += "<label for='mqttUsername'>MQTT Username:</label>";
+        html += "<input type='text' id='mqttUsername' name='mqttUsername' value='" + mqttUsername + "' required><br>";
+        html += "<label for='mqttPassword'>MQTT Password:</label>";
+        html += "<input type='password' id='mqttPassword' name='mqttPassword' value='" + mqttPassword + "' required><br>";
         html += "<input type='submit' value='Save'>";
         html += "</form>";
         html += "</body></html>";
 
         server->send(200, "text/html", html);
     }
+
 
     void handleSaveSettings() {
         Serial.println("Saving new settings from form...");
@@ -123,6 +134,9 @@ namespace ConfigMode {
         departmentId = server->arg("departmentId");
         side = server->arg("side");
         apiKey = server->arg("apiKey");
+        mqttUsername = server->arg("mqttUsername");
+        mqttPassword = server->arg("mqttPassword");
+
 
         preferences.putString("ssid", ssid);
         preferences.putString("wifiPassword", wifiPassword);
@@ -131,6 +145,9 @@ namespace ConfigMode {
         preferences.putString("departmentId", departmentId);
         preferences.putString("side", side);
         preferences.putString("apiKey", apiKey);
+        preferences.putString("mqttUsername", mqttUsername);
+        preferences.putString("mqttPassword", mqttPassword);
+
 
         preferences.end(); // Close preferences before restarting
 
@@ -142,6 +159,9 @@ namespace ConfigMode {
         Serial.print("Department ID: "); Serial.println(departmentId);
         Serial.print("Side: "); Serial.println(side);
         Serial.print("apiKey:"); Serial.println(apiKey);
+        Serial.print("mqttUsername:"); Serial.println(mqttUsername);
+        Serial.print("mqttPassword:"); Serial.println(mqttPassword);
+
 
         server->send(200, "text/html", "Settings saved! Rebooting...");
         delay(1000);
@@ -266,5 +286,13 @@ namespace ConfigMode {
 
     String getApiKey() {
       return apiKey;
+    }
+
+    String getMqttUsername() {
+      return mqttUsername;
+    }
+
+    String getMqttPassword() {
+      return mqttPassword;
     }
 }

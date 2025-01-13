@@ -5,47 +5,50 @@
 
 namespace WifiConnector {
 
-    void connectToWiFi() {
-        String ssid = ConfigMode::getSsid();                   // Access the SSID from ConfigMode
-        String wifiPassword = ConfigMode::getWifiPassword();   // Access the Wi-Fi password from ConfigMode
+    // WifiConnector.ino
 
-        // Ensure Wi-Fi is in station mode
-        WiFi.mode(WIFI_STA);
-        WiFi.disconnect(true);  // Disconnect from any previous connections
+bool connectToWiFi() {
+    String ssid = ConfigMode::getSsid();
+    String wifiPassword = ConfigMode::getWifiPassword();
 
-        delay(100);  // Small delay to ensure previous Wi-Fi connections are cleared
+    WiFi.mode(WIFI_STA);
+    WiFi.disconnect(true);
 
-        Serial.println("\nAttempting to connect to Wi-Fi:");
-        Serial.print("SSID: "); Serial.println(ssid);
-        Serial.print("Wi-Fi Password: "); Serial.println(wifiPassword);
+    delay(100);
 
-        WiFi.begin(ssid.c_str(), wifiPassword.c_str());
+    Serial.println("\nAttempting to connect to Wi-Fi:");
+    Serial.print("SSID: "); Serial.println(ssid);
+    Serial.print("Wi-Fi Password: "); Serial.println(wifiPassword);
 
-        unsigned long startAttemptTime = millis();
-        const unsigned long connectionTimeout = 30000; // 30 seconds timeout
+    WiFi.begin(ssid.c_str(), wifiPassword.c_str());
 
-        // Attempt to connect to Wi-Fi within the timeout period
-        while (WiFi.status() != WL_CONNECTED && (millis() - startAttemptTime) < connectionTimeout) {
-            delay(500);
-            Serial.print(".");
+    unsigned long startAttemptTime = millis();
+    const unsigned long connectionTimeout = 30000; // 30 seconds
 
-            // Check for config button press during Wi-Fi connection attempt
-            if (ConfigMode::isConfigButtonPressed()) {
-                Serial.println("\nConfig button pressed during Wi-Fi connection attempt. Entering configuration mode...");
-                ConfigMode::enterConfigMode();
-                return; // Exit the function to stop trying to connect to Wi-Fi
-            }
-        }
+    while (WiFi.status() != WL_CONNECTED && (millis() - startAttemptTime) < connectionTimeout) {
+        delay(500);
+        Serial.print(".");
 
-        if (WiFi.status() == WL_CONNECTED) {
-            Serial.println("\nConnected to Wi-Fi");
-            Serial.print("IP Address: ");
-            Serial.println(WiFi.localIP());
-        } else {
-            Serial.println("\nFailed to connect to Wi-Fi within the timeout period.");
+        // Check for config button press
+        if (ConfigMode::isConfigButtonPressed()) {
+            Serial.println("\nConfig button pressed during Wi-Fi connection attempt. Entering configuration mode...");
             ConfigMode::enterConfigMode();
+            return false;  // Return false because we never connected to Wi-Fi
         }
     }
+
+    if (WiFi.status() == WL_CONNECTED) {
+        Serial.println("\nConnected to Wi-Fi");
+        Serial.print("IP Address: ");
+        Serial.println(WiFi.localIP());
+        return true;  // Return true on success
+    } else {
+        Serial.println("\nFailed to connect to Wi-Fi within the timeout period.");
+        ConfigMode::enterConfigMode();
+        return false;  // Return false on failure
+    }
+}
+
 
     void maintainWiFiConnection() {
         if (WiFi.status() != WL_CONNECTED && !ConfigMode::configModeActive()) {

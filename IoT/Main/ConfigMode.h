@@ -27,6 +27,9 @@ namespace ConfigMode {
     String getSsid();
     String getWifiPassword();
     String getApiKey();
+    String getMqttUsername();
+    String getMqttPassword();
+
 }
 
 #endif // CONFIG_MODE_H
