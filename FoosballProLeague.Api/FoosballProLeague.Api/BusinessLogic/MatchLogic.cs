@@ -1,5 +1,6 @@
 using FoosballProLeague.Api.BusinessLogic.Interfaces;
 using FoosballProLeague.Api.DatabaseAccess.Interfaces;
+using FoosballProLeague.Api.Services;
 using FoosballProLeague.Api.Models;
 using FoosballProLeague.Api.Hubs;
 using FoosballProLeague.Api.Models.FoosballModels;
@@ -11,18 +12,20 @@ namespace FoosballProLeague.Api.BusinessLogic
     public class MatchLogic : IMatchLogic
     {
         private IMatchDatabaseAccessor _matchDatabaseAccessor;
+        private readonly IMQTTService _mqttService;
         private IUserLogic _userLogic;
         private readonly IHubContext<HomepageHub> _hubContext;
         private ITeamDatabaseAccessor _teamDatabaseAccessor;
         private readonly Dictionary<int, PendingMatchTeamsModel> _pendingMatchTeams;
 
-        public MatchLogic(IMatchDatabaseAccessor matchDatabaseAccessor, IHubContext<HomepageHub> hubContext, IUserLogic userLogic, ITeamDatabaseAccessor teamDatabaseAccessor)
+        public MatchLogic(IMatchDatabaseAccessor matchDatabaseAccessor, IHubContext<HomepageHub> hubContext, IUserLogic userLogic, ITeamDatabaseAccessor teamDatabaseAccessor, IMQTTService mqttService)
         {
             _userLogic = userLogic;
             _matchDatabaseAccessor = matchDatabaseAccessor;
             _hubContext = hubContext;
             _pendingMatchTeams = new Dictionary<int, PendingMatchTeamsModel>();
             _teamDatabaseAccessor = teamDatabaseAccessor;
+            _mqttService = mqttService;
         }
 
         //Hjælpemetode til at hente alle kampe, bruges i GetActiveMatches til at loope igennem kampene, finde en uden endTime og tilføje holdene til listen
@@ -344,6 +347,29 @@ namespace FoosballProLeague.Api.BusinessLogic
         public void ClearPendingTeamsCache()
         {
             _pendingMatchTeams.Clear();
+        }
+        
+        //To retrieve actual score from ongoing match to LCD screen 
+        public void SendMatchUpdateToMQTT(int tableId)
+        {
+            // Retrieve the active match
+            MatchModel activeMatch = _matchDatabaseAccessor.GetActiveMatchByTableId(tableId); // Assuming tableId is 1
+
+            if (activeMatch != null)
+            {
+                // Create a JSON object with the scores
+                var scoreUpdate = new
+                {
+                    RedScore = activeMatch.TeamRedScore,
+                    BlueScore = activeMatch.TeamBlueScore
+                };
+
+                // Convert the object to JSON
+                string message = System.Text.Json.JsonSerializer.Serialize(scoreUpdate);
+
+                // Publish match information to MQTT server
+                _mqttService.PublishMessageAsync(message).Wait();
+            }
         }
     }
 }

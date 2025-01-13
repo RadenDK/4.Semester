@@ -18,5 +18,6 @@ namespace FoosballProLeague.Api.BusinessLogic.Interfaces
 
         public MatchModel GetActiveMatch();
         public void ClearPendingTeamsCache();
+        public void SendMatchUpdateToMQTT(int tableId); 
     }
 }
