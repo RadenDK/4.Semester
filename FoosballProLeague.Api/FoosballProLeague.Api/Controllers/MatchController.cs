@@ -87,7 +87,7 @@ namespace FoosballProLeague.Api.Controllers
             {
                 if (_matchLogic.RegisterGoal(registerGoalRequest))
                 {
-                    // Pass the tableId to the MatchLogic to the mqttservice
+                    // Pass the tableId to the MatchLogic if goal is registered
                     _matchLogic.SendMatchUpdateToMQTT(registerGoalRequest.TableId);
                     
 

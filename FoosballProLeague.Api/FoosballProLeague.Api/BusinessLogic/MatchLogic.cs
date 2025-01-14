@@ -352,7 +352,7 @@ namespace FoosballProLeague.Api.BusinessLogic
         //To retrieve actual score from ongoing match to LCD screen 
         public void SendMatchUpdateToMQTT(int tableId)
         {
-            // Retrieve the active match
+            // Retrieve the active match from the database
             MatchModel activeMatch = _matchDatabaseAccessor.GetActiveMatchByTableId(tableId); // Assuming tableId is 1
 
             if (activeMatch != null)
