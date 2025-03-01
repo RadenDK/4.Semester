@@ -5,8 +5,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'FoosballProLeague.Api/**'
+#    paths:
+#      - 'FoosballProLeague.Api/**'
 
 jobs:
   # Step 1: Build and test the project
