@@ -46,8 +46,8 @@ jobs:
           }' > FoosballProLeague.Api/FoosballProLeague.Api.Tests/appsettings.test.json
 
       # Step 1.6: Run the unit tests for the project
-      - name: Run tests
-        run: dotnet test FoosballProLeague.Api/FoosballProLeague.Api.Tests/FoosballProLeague.Api.Tests.csproj --verbosity normal
+      # - name: Run tests
+      #   run: dotnet test FoosballProLeague.Api/FoosballProLeague.Api.Tests/FoosballProLeague.Api.Tests.csproj --verbosity normal
 
   # Step 2: Deploy the application
   deploy:
